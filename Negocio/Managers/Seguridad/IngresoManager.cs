@@ -105,14 +105,15 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-
                 if (usuarioEncriptado == ConfigurationManager.AppSettings["userName"] && contraseñaEncriptada == ConfigurationManager.AppSettings["pass"])
                 {
                     List<int> permisos = new List<int>
                     {
+                        12,
                         13,
                         14,
-                        15
+                        15,
+                        42
                     };
                     Sesion session = _sessionMgr.CrearSession(1, permisos, nombreUsuario);
                     return Mensaje.CrearMensaje("OK", false, false, session, null);
