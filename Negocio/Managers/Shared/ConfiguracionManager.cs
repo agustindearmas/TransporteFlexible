@@ -46,9 +46,13 @@ namespace Negocio.Managers.Shared
             }
             catch (Exception e)
             {
-                BitacoraManager _bitacoraMgr = new BitacoraManager();
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarConfiguracion", "Se produjo una excepción salvando una Configuracion. Exception: " + e.Message, 1); // 1 Usuario sistema
-                return 0;
+                try
+                {
+                    BitacoraManager _bitacoraMgr = new BitacoraManager();
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarConfiguracion", "Se produjo una excepción salvando una Configuracion. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch{}
+                throw e;
             }
         }
 
@@ -87,16 +91,24 @@ namespace Negocio.Managers.Shared
 
         public int RecalcularDVH_DVV()
         {
-            List<Configuracion> configuraciones = Retrieve(new Configuracion());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (Configuracion configuracion in configuraciones)
+            try
             {
-                string cadena = ConcatenarDVH(configuracion);
-                Save(configuracion);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<Configuracion> configuraciones = Retrieve(new Configuracion());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (Configuracion configuracion in configuraciones)
+                {
+                    string cadena = ConcatenarDVH(configuracion);
+                    Save(configuracion);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
         }
     }
 }

@@ -24,16 +24,24 @@ namespace Negocio.Managers.Shared
         }
         public int Create(string telefono, int usuarioCreacion)
         {
-            Telefono tel = new Telefono
+            try
             {
-                NumeroTelefono = EncriptacionManager.EncriptarAES(telefono),
-                UsuarioCreacion = usuarioCreacion,
-                UsuarioModificacion = usuarioCreacion,
-                FechaCreacion = DateTime.UtcNow,
-                FechaModificacion = DateTime.UtcNow,
-                DVH = 0
-            };
-            return Save(tel);
+                Telefono tel = new Telefono
+                {
+                    NumeroTelefono = EncriptacionManager.EncriptarAES(telefono),
+                    UsuarioCreacion = usuarioCreacion,
+                    UsuarioModificacion = usuarioCreacion,
+                    FechaCreacion = DateTime.UtcNow,
+                    FechaModificacion = DateTime.UtcNow,
+                    DVH = 0
+                };
+                return Save(tel);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
         }
         public int Save(Telefono entity)
         {
@@ -45,7 +53,11 @@ namespace Negocio.Managers.Shared
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarTelefono", "Se produjo una excepción salvando un Telefono. Exception: " + e.Message, 1); // 1 Usuario sistema
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarTelefono", "Se produjo una excepción salvando un Telefono. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch {}
                 throw e;
             }
         }
@@ -96,16 +108,23 @@ namespace Negocio.Managers.Shared
 
         public int RecalcularDVH_DVV()
         {
-            List<Telefono> telefonos = Retrieve(new Telefono());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (Telefono telefono in telefonos)
+            try
             {
-                string cadena = ConcatenarDVH(telefono);
-                Save(telefono);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<Telefono> telefonos = Retrieve(new Telefono());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (Telefono telefono in telefonos)
+                {
+                    string cadena = ConcatenarDVH(telefono);
+                    Save(telefono);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
         #endregion
     }

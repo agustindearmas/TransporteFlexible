@@ -1,5 +1,6 @@
 ﻿
 using Common.Enums.Seguridad;
+using Common.Extensions;
 using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
@@ -31,9 +32,13 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                BitacoraManager _bitacoraMgr = new BitacoraManager();
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 Usuario sistema
-                return 0;
+                try
+                {
+                    BitacoraManager _bitacoraMgr = new BitacoraManager();
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch{}               
+                throw e;
             }
         }
 
@@ -54,29 +59,43 @@ namespace Negocio.Managers.Seguridad
 
         public int ObtenerDVH(string cadena)
         {
-            int suma = SumarCaracteres(cadena);
-            int dvh = CalcularDVH(suma);
-            return dvh;
+            try
+            {
+                int suma = SumarCaracteres(cadena);
+                int dvh = CalcularDVH(suma);
+                return dvh;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         private int SumarCaracteres(string cadena)
         {
-            int acumuladorPares = 0;
-            int acumuladorImpares = 0;
-            for (int i = 0; i < cadena.Length; i++)
+            try
             {
-                if (EsPar(i))
+                int acumuladorPares = 0;
+                int acumuladorImpares = 0;
+                for (int i = 0; i < cadena.Length; i++)
                 {
-                    acumuladorPares += cadena[i];
+                    if (EsPar(i))
+                    {
+                        acumuladorPares += cadena[i];
+                    }
+                    else
+                    {
+                        acumuladorImpares += cadena[i];
+                    }
                 }
-                else
-                {
-                    acumuladorImpares += cadena[i];
-                }
+                int resultadoMultiplicacion = acumuladorPares * 3;
+                int suma = resultadoMultiplicacion + acumuladorImpares;
+                return suma;
             }
-            int resultadoMultiplicacion = acumuladorPares * 3;
-            int suma = resultadoMultiplicacion + acumuladorImpares;
-            return suma;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public Mensaje RecalcularDigitosVerificadores()
@@ -94,7 +113,13 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                throw e;
+                try
+                {
+                    BitacoraManager _bitacoraMgr = new BitacoraManager();
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch { }
+                return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
             }
         }
 
@@ -111,12 +136,11 @@ namespace Negocio.Managers.Seguridad
                 string queryDVV = string.Concat("Select SUM(DVH) FROM ", tabla);
                 int dvvTabla = _Repository.ExecuteScalarScript(queryDVV, "TransporteFlexible");
                 int sumaDVV = dvh + dvvTabla;
-                string queryUpdateDVV = string.Concat("UPDATE Seguridad.TablaDVV SET DVV = ", sumaDVV.ToString(), " WHERE Descripcion = '", tabla,"'");
+                string queryUpdateDVV = string.Concat("UPDATE Seguridad.TablaDVV SET DVV = ", sumaDVV.ToString(), " WHERE Descripcion = '", tabla, "'");
                 _Repository.ExecuteQuery(queryUpdateDVV, "TransporteFlexible");
             }
             catch (Exception e)
             {
-
                 throw e;
             }
         }
@@ -143,7 +167,7 @@ namespace Negocio.Managers.Seguridad
             {
                 throw e;
             }
-            
+
         }
 
         private bool EsPar(int numero)
@@ -158,54 +182,70 @@ namespace Negocio.Managers.Seguridad
 
         private int ObtenerDVV(string nombreTabla)
         {
-            string nombreEntidad = nombreTabla.Split('.')[1];
-            switch (nombreEntidad)
+            try
             {
-                case "Email":
-                    EmailManager _emailMgr = new EmailManager();
-                    return _emailMgr.RecalcularDVH_DVV();
-                case "Usuario":
-                    UsuarioManager _usuarioMgr = new UsuarioManager();
-                    return _usuarioMgr.RecalcularDVH_DVV();
-                case "Permiso":
-                    PermisoManager _permisoMgr = new PermisoManager();
-                    return _permisoMgr.RecalcularDVH_DVV();
-                case "Rol":
-                    RolManager _rolMgr = new RolManager();
-                    return _rolMgr.RecalcularDVH_DVV();
-                case "Persona":
-                    PersonaManager _personaMgr = new PersonaManager();
-                    return _personaMgr.RecalcularDVH_DVV();
-                case "Bitacora":
-                    BitacoraManager _bitacoraMgr = new BitacoraManager();
-                    return _bitacoraMgr.RecalcularDVH_DVV();
-                case "Configuracion":
-                    ConfiguracionManager _configuracionMgr = new ConfiguracionManager();
-                    return _configuracionMgr.RecalcularDVH_DVV();
-                case "Telefono":
-                    TelefonoManager _telefonoMgr = new TelefonoManager();
-                    return _telefonoMgr.RecalcularDVH_DVV();
-                case "TablaDVV":
-                    TablaDVVManager _tablaDVVMgr = new TablaDVVManager();
-                    return _tablaDVVMgr.RecalcularDVH_DVV();               
-                default:
-                    return 0;
+                string nombreEntidad = nombreTabla.Split('.')[1];
+                switch (nombreEntidad)
+                {
+                    case "Email":
+                        EmailManager _emailMgr = new EmailManager();
+                        return _emailMgr.RecalcularDVH_DVV();
+                    case "Usuario":
+                        UsuarioManager _usuarioMgr = new UsuarioManager();
+                        return _usuarioMgr.RecalcularDVH_DVV();
+                    case "Permiso":
+                        PermisoManager _permisoMgr = new PermisoManager();
+                        return _permisoMgr.RecalcularDVH_DVV();
+                    case "Rol":
+                        RolManager _rolMgr = new RolManager();
+                        return _rolMgr.RecalcularDVH_DVV();
+                    case "Persona":
+                        PersonaManager _personaMgr = new PersonaManager();
+                        return _personaMgr.RecalcularDVH_DVV();
+                    case "Bitacora":
+                        BitacoraManager _bitacoraMgr = new BitacoraManager();
+                        return _bitacoraMgr.RecalcularDVH_DVV();
+                    case "Configuracion":
+                        ConfiguracionManager _configuracionMgr = new ConfiguracionManager();
+                        return _configuracionMgr.RecalcularDVH_DVV();
+                    case "Telefono":
+                        TelefonoManager _telefonoMgr = new TelefonoManager();
+                        return _telefonoMgr.RecalcularDVH_DVV();
+                    case "TablaDVV":
+                        TablaDVVManager _tablaDVVMgr = new TablaDVVManager();
+                        return _tablaDVVMgr.RecalcularDVH_DVV();
+                    default:
+                        return 0;
+                }
             }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
 
         }
 
         private int RecalcularDVH_DVV()
         {
-            List<TablaDVV> tdvvs = Retrieve(new TablaDVV());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (TablaDVV tddv in tdvvs)
+            try
             {
-                string cadena = ConcatenarDVH(tddv);
-                Save(tddv);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<TablaDVV> tdvvs = Retrieve(new TablaDVV());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (TablaDVV tddv in tdvvs)
+                {
+                    string cadena = ConcatenarDVH(tddv);
+                    Save(tddv);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
         }
 
         private string ConcatenarDVH(TablaDVV entity)
@@ -251,7 +291,7 @@ namespace Negocio.Managers.Seguridad
         public void Delete(TablaDVV entity)
         {
             throw new NotImplementedException();
-        }        
+        }
         #endregion
     }
 }
