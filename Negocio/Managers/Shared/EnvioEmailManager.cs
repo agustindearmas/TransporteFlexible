@@ -40,10 +40,17 @@ namespace Negocio.Managers.Shared
 
         public void EnviarEmailRegistro(string receiver, string idEncriptado)
         {
-            string subject = "REGISTRO T-FLEX";
-            string body = "Hola bienvenido a T-FLEX, para poder activar tu usuario debes hacer click en el siguiente Link: " 
-                + ConfigurationManager.AppSettings["validarEmailLink"] + "?id=" + idEncriptado.Replace("+", "%2B");
-            EnviarEmail(receiver, subject, body);
+            try
+            {
+                string subject = "REGISTRO T-FLEX";
+                string body = "Hola bienvenido a T-FLEX, para poder activar tu usuario debes hacer click en el siguiente Link: "
+                    + ConfigurationManager.AppSettings["validarEmailLink"] + "?id=" + idEncriptado.Replace("+", "%2B");
+                EnviarEmail(receiver, subject, body);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

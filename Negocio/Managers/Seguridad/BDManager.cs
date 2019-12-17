@@ -1,4 +1,5 @@
 ﻿using Common.Enums.Seguridad;
+using Common.Extensions;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
@@ -45,8 +46,13 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se produjo una Excepcion generarndo un respaldo de la BD. Exception: " + e.Message, idUsuario);
-                throw e;
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se produjo una Excepcion generarndo un respaldo de la BD. Exception: " + e.Message, idUsuario);
+                }
+                catch { }
+
+                return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
             }
         }
 
@@ -61,9 +67,9 @@ namespace Negocio.Managers.Seguridad
                 else
                 {
                     string fullPath = string.Concat(ConfigurationManager.AppSettings["pathBKP"].ToString(), fileName);
-                   
+
                     string sqlQuery = "USE master ALTER DATABASE TransporteFlexible SET SINGLE_USER WITH ROLLBACK " +
-                        "IMMEDIATE RESTORE DATABASE TransporteFlexible FROM DISK = '"+ fullPath + "' WITH REPLACE ALTER DATABASE " +
+                        "IMMEDIATE RESTORE DATABASE TransporteFlexible FROM DISK = '" + fullPath + "' WITH REPLACE ALTER DATABASE " +
                         "TransporteFlexible SET Multi_User";
 
                     _Repository.ExecuteQuery(sqlQuery, "master");
@@ -73,8 +79,13 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se produjo una Excepcion generarndo un respaldo de la BD. Exception: " + e.Message, idUsuario);
-                throw e;
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se produjo una Excepcion montando un respaldo de la BD. Exception: " + e.Message, idUsuario);
+                }
+                catch { }
+
+                return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
             }
         }
     }

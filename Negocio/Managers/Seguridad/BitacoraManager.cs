@@ -39,14 +39,13 @@ namespace Negocio.Managers.Seguridad
 
         public List<Bitacora> Retrieve(Bitacora filter, string executionName)
         {
-            List<Bitacora> bitacoras = null;
             if (filter == null)
             {
                 return _Repository.GetAll();
             }
             else
             {
-                bitacoras = _Repository.Find(filter, executionName);
+                List<Bitacora> bitacoras = _Repository.Find(filter, executionName);
                 NivelCriticidadManager _nivelCriticidadMgr = new NivelCriticidadManager();
                 foreach (var bit in bitacoras)
                     bit.NivelCriticidad = _nivelCriticidadMgr.Retrieve(bit.NivelCriticidad).First();
@@ -65,8 +64,12 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                Create(CriticidadBitacora.Alta, "GuardarBitacora", "Se produjo una excepción salvando Bitacora. Exception: " + e.Message, 1); // 1 Usuario sistema
-                return 0;
+                try
+                {
+                    Create(CriticidadBitacora.Alta, "GuardarBitacora", "Se produjo una excepción salvando Bitacora. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch { }
+                throw e;
             }
         }
 
@@ -143,24 +146,42 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                Create(CriticidadBitacora.Alta, "Filtro Bitacora", "Se produjo una excepción en el método ObtenerBitacoras()" +
-                    " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                try
+                {
+                    Create(CriticidadBitacora.Alta, "Filtro Bitacora", "Se produjo una excepción en el método ObtenerBitacoras()" +
+                       " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch { }
                 return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
             }
         }
 
         public int RecalcularDVH_DVV()
         {
-            List<Bitacora> bitacoras = Retrieve(new Bitacora());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (Bitacora bitacora in bitacoras)
+            try
             {
-                string cadena = ConcatenarDVH(bitacora);
-                Save(bitacora);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<Bitacora> bitacoras = Retrieve(new Bitacora());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (Bitacora bitacora in bitacoras)
+                {
+                    string cadena = ConcatenarDVH(bitacora);
+                    Save(bitacora);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                try
+                {
+                    Create(CriticidadBitacora.Alta, "RecalcularDVH_DVV", "Se produjo una excepción en el método RecalcularDVH_DVV()" +
+                    " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch { }
+                throw e;
+            }
+
         }
 
         private List<Bitacora> DesencriptadorBitacora(List<Bitacora> encriptadas)
@@ -183,8 +204,13 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                Create(CriticidadBitacora.Alta, "Generando DVH", "Se produjo una excepción en el método GenerarEImpactarDVH()" +
+                try
+                {
+                    Create(CriticidadBitacora.Alta, "Generando DVH", "Se produjo una excepción en el método GenerarEImpactarDVH()" +
                     " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch { }
+                throw e;
             }
         }
 
@@ -204,9 +230,13 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                Create(CriticidadBitacora.Alta, "Generando DVH", "Se produjo una excepción en el método ConcatenarDVH()" +
-                    " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
-                return "";
+                try
+                {
+                    Create(CriticidadBitacora.Alta, "Generando DVH", "Se produjo una excepción en el método ConcatenarDVH()" +
+                                      " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch { }
+                throw e;
             }
         }
 

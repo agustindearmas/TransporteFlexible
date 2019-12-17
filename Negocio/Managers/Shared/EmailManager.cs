@@ -33,8 +33,12 @@ namespace Negocio.Managers.Shared
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarEmail", "Se produjo una excepción salvando un Email. Exception: " + e.Message, 1); // 1 Usuario sistema
-                return 0;
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarEmail", "Se produjo una excepción salvando un Email. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch {}
+                throw e;
             }
         }
 
@@ -55,37 +59,58 @@ namespace Negocio.Managers.Shared
 
         public int Create(string emailSinEcnriptar, int usuarioCreacion)
         {
-            Email email = new Email
+            try
             {
-                EmailAddress = EncriptacionManager.EncriptarAES(emailSinEcnriptar),
-                UsuarioCreacion = usuarioCreacion,
-                UsuarioModificacion = usuarioCreacion,
-                FechaCreacion = DateTime.UtcNow,
-                FechaModificacion = DateTime.UtcNow,
-                DVH = 0
-            };
-            return Save(email);
+                Email email = new Email
+                {
+                    EmailAddress = EncriptacionManager.EncriptarAES(emailSinEcnriptar),
+                    UsuarioCreacion = usuarioCreacion,
+                    UsuarioModificacion = usuarioCreacion,
+                    FechaCreacion = DateTime.UtcNow,
+                    FechaModificacion = DateTime.UtcNow,
+                    DVH = 0
+                };
+                return Save(email);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public bool ComprobarExistenciaEmail(string emailSinEncriptar)
         {
-            string emailEncriptado = EncriptacionManager.EncriptarAES(emailSinEncriptar);
-            Email emailBD = Retrieve(new Email { EmailAddress = emailEncriptado }).FirstOrDefault();
-            return (emailBD != null && emailBD.Id > 0); //DEVUELVE TRUE SI ENCUENTRA ALGO EN LA BASE
+            try
+            {
+                string emailEncriptado = EncriptacionManager.EncriptarAES(emailSinEncriptar);
+                Email emailBD = Retrieve(new Email { EmailAddress = emailEncriptado }).FirstOrDefault();
+                return (emailBD != null && emailBD.Id > 0); //DEVUELVE TRUE SI ENCUENTRA ALGO EN LA BASE
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public int RecalcularDVH_DVV()
         {
-            List<Email> emails = Retrieve(new Email());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (Email email in emails)
+            try
             {
-                string cadena = ConcatenarDVH(email);
-                Save(email);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<Email> emails = Retrieve(new Email());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (Email email in emails)
+                {
+                    string cadena = ConcatenarDVH(email);
+                    Save(email);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         #region Metodos Privados

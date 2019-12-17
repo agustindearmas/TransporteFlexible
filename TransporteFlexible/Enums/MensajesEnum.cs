@@ -127,6 +127,9 @@ namespace TransporteFlexible.Enums
         [Description("Debe seleccionar un respaldo para ser montado.")]
         MS38,
 
+        [Description("El usuario no posee los permisos necesarios.")]
+        MS39,
+
         [Description("Se necesita un nombre para el Respaldo.")]
         MS44,
 
