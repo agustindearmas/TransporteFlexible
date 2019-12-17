@@ -1,0 +1,11 @@
+C:\Users\ajfde\Documents\Facultad\Negocio\bin\Debug\Negocio.dll
+C:\Users\ajfde\Documents\Facultad\Negocio\bin\Debug\Negocio.pdb
+C:\Users\ajfde\Documents\Facultad\Negocio\bin\Debug\Common.dll
+C:\Users\ajfde\Documents\Facultad\Negocio\bin\Debug\DataAccess.dll
+C:\Users\ajfde\Documents\Facultad\Negocio\bin\Debug\Common.pdb
+C:\Users\ajfde\Documents\Facultad\Negocio\bin\Debug\DataAccess.pdb
+C:\Users\ajfde\Documents\Facultad\Negocio\obj\Debug\Negocio.csprojAssemblyReference.cache
+C:\Users\ajfde\Documents\Facultad\Negocio\obj\Debug\Negocio.csproj.CoreCompileInputs.cache
+C:\Users\ajfde\Documents\Facultad\Negocio\obj\Debug\Negocio.csproj.CopyComplete
+C:\Users\ajfde\Documents\Facultad\Negocio\obj\Debug\Negocio.dll
+C:\Users\ajfde\Documents\Facultad\Negocio\obj\Debug\Negocio.pdb

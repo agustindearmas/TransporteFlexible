@@ -1,0 +1,9 @@
+C:\Users\ajfde\Documents\Facultad\DataAccess\bin\Debug\DataAccess.dll
+C:\Users\ajfde\Documents\Facultad\DataAccess\bin\Debug\DataAccess.pdb
+C:\Users\ajfde\Documents\Facultad\DataAccess\bin\Debug\Common.dll
+C:\Users\ajfde\Documents\Facultad\DataAccess\bin\Debug\Common.pdb
+C:\Users\ajfde\Documents\Facultad\DataAccess\obj\Debug\DataAccess.csprojAssemblyReference.cache
+C:\Users\ajfde\Documents\Facultad\DataAccess\obj\Debug\DataAccess.csproj.CoreCompileInputs.cache
+C:\Users\ajfde\Documents\Facultad\DataAccess\obj\Debug\DataAccess.csproj.CopyComplete
+C:\Users\ajfde\Documents\Facultad\DataAccess\obj\Debug\DataAccess.dll
+C:\Users\ajfde\Documents\Facultad\DataAccess\obj\Debug\DataAccess.pdb

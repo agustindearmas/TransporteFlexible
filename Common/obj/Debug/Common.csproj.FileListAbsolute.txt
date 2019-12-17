@@ -1,0 +1,6 @@
+C:\Users\ajfde\Documents\Facultad\Common\bin\Debug\Common.dll
+C:\Users\ajfde\Documents\Facultad\Common\bin\Debug\Common.pdb
+C:\Users\ajfde\Documents\Facultad\Common\obj\Debug\Common.csproj.CoreCompileInputs.cache
+C:\Users\ajfde\Documents\Facultad\Common\obj\Debug\Common.dll
+C:\Users\ajfde\Documents\Facultad\Common\obj\Debug\Common.pdb
+C:\Users\ajfde\Documents\Facultad\Common\obj\Debug\Common.csprojAssemblyReference.cache
