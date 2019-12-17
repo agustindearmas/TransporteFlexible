@@ -34,8 +34,12 @@ namespace Negocio.Managers.Shared
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarEmail", "Se produjo una excepción salvando un Email. Exception: " + e.Message, 1); // 1 Usuario sistema
-                return 0;
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarEmail", "Se produjo una excepción salvando un Email. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch { }
+                throw e;
             }
         }
 
@@ -52,30 +56,45 @@ namespace Negocio.Managers.Shared
         public int Create(string nombreSinEncriptar, string apellidoSinEncriptar, string cuilSinEncriptar, 
             string dniSinEncriptar, bool esCuit, List<Email> emails, List<Telefono> telefonos, int usuarioCreacion)
         {
-            Persona persona = new Persona
+            try
             {
-                Nombre = EncriptacionManager.EncriptarAES(nombreSinEncriptar),
-                Apellido = EncriptacionManager.EncriptarAES(apellidoSinEncriptar),
-                DNI = EncriptacionManager.EncriptarAES(dniSinEncriptar),
-                NumeroCuil = EncriptacionManager.EncriptarAES(cuilSinEncriptar),
-                EsCuit = esCuit,
-                Baja = false,
-                Emails = emails,
-                Telefonos = telefonos,
-                UsuarioCreacion = usuarioCreacion,
-                UsuarioModificacion = usuarioCreacion,
-                FechaCreacion = DateTime.UtcNow,
-                FechaModificacion = DateTime.UtcNow,
-                DVH = 0
-            };
-            return Save(persona);
+                Persona persona = new Persona
+                {
+                    Nombre = EncriptacionManager.EncriptarAES(nombreSinEncriptar),
+                    Apellido = EncriptacionManager.EncriptarAES(apellidoSinEncriptar),
+                    DNI = EncriptacionManager.EncriptarAES(dniSinEncriptar),
+                    NumeroCuil = EncriptacionManager.EncriptarAES(cuilSinEncriptar),
+                    EsCuit = esCuit,
+                    Baja = false,
+                    Emails = emails,
+                    Telefonos = telefonos,
+                    UsuarioCreacion = usuarioCreacion,
+                    UsuarioModificacion = usuarioCreacion,
+                    FechaCreacion = DateTime.UtcNow,
+                    FechaModificacion = DateTime.UtcNow,
+                    DVH = 0
+                };
+                return Save(persona);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public bool ComprobarExistenciaPersona(string dniSinEncriptar)
         {
-            string dniEncriptado = EncriptacionManager.EncriptarAES(dniSinEncriptar);
-            Persona personaBD = Retrieve(new Persona { DNI = dniEncriptado }).FirstOrDefault();
-            return (personaBD != null && personaBD.Id > 0);// DEVUELVO TRUE SI EXISTE LA PERSONA EN LA BASE DE DATOS.
+            try
+            {
+                string dniEncriptado = EncriptacionManager.EncriptarAES(dniSinEncriptar);
+                Persona personaBD = Retrieve(new Persona { DNI = dniEncriptado }).FirstOrDefault();
+                return (personaBD != null && personaBD.Id > 0);// DEVUELVO TRUE SI EXISTE LA PERSONA EN LA BASE DE DATOS.
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
         }
 
         public List<Persona> Retrieve(Persona filter = null)
@@ -122,16 +141,24 @@ namespace Negocio.Managers.Shared
 
         public int RecalcularDVH_DVV()
         {
-            List<Persona> personas = Retrieve(new Persona());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (Persona persona in personas)
+            try
             {
-                string cadena = ConcatenarDVH(persona);                
-                Save(persona);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<Persona> personas = Retrieve(new Persona());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (Persona persona in personas)
+                {
+                    string cadena = ConcatenarDVH(persona);
+                    Save(persona);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
         }
         #endregion
     }

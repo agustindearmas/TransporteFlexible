@@ -17,7 +17,7 @@ namespace TransporteFlexible.Views.Seguridad
         protected void Page_Load(object sender, EventArgs e)
         {
             //Permiso numero 16
-            if (Session["Permisos"] != null && PermisosHelper.ValidarPermisos(16, Session["Permisos"]))
+            if (PermisosHelper.ValidarPermisos(16, Session["Permisos"]))
             {
                 if (!IsPostBack)
                 {
@@ -27,7 +27,8 @@ namespace TransporteFlexible.Views.Seguridad
             }
             else
             {
-                Response.Redirect("/");
+               Mensaje msj = Mensaje.CrearMensaje("MS39", false, true, null, "/");
+               MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
         }
 

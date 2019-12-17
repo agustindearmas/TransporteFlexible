@@ -38,8 +38,12 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: " + e.Message, 1); // 1 Usuario sistema
-                return 0;
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch{}
+                throw e;
             }
         }
 
@@ -55,20 +59,36 @@ namespace Negocio.Managers.Seguridad
 
         public List<Permiso> ObtenerPermisosPorRolId(int idRol)
         {
-            RolManager _rolMgr = new RolManager();
-            Rol rol = new Rol { Id = idRol };
-            rol = _rolMgr.Retrieve(rol).First();
-            return rol.Permisos;
+            try
+            {
+                RolManager _rolMgr = new RolManager();
+                Rol rol = new Rol { Id = idRol };
+                rol = _rolMgr.Retrieve(rol).First();
+                return rol.Permisos;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public List<int> ObtenerSoloIdsDePermisos(List<Permiso> permisos)
         {
-            List<int> idPermisos = new List<int>();
-            foreach (var permiso in permisos)
+            try
             {
-                idPermisos.Add(permiso.Id);
+                List<int> idPermisos = new List<int>();
+                foreach (var permiso in permisos)
+                {
+                    idPermisos.Add(permiso.Id);
+                }
+                return idPermisos;
             }
-            return idPermisos;
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+            
         }
 
 
@@ -107,16 +127,23 @@ namespace Negocio.Managers.Seguridad
 
         public int RecalcularDVH_DVV()
         {
-            List<Permiso> permisos = Retrieve(new Permiso());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (Permiso permiso in permisos)
+            try
             {
-                string cadena = ConcatenarDVH(permiso);
-                Save(permiso);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<Permiso> permisos = Retrieve(new Permiso());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (Permiso permiso in permisos)
+                {
+                    string cadena = ConcatenarDVH(permiso);
+                    Save(permiso);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
         #endregion
     }

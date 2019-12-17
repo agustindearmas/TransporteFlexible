@@ -36,8 +36,12 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: " + e.Message, 1); // 1 Usuario sistema
-                return 0;
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch {}
+                throw e;
             }
         }
 
@@ -178,31 +182,49 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "Registro", "Se produjo una excepción en el método RegistrarUsuario()" +
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Registro", "Se produjo una excepción en el método RegistrarUsuario()" +
                     " de la clase UsuarioManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch {}                
                 return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
             }
         }
 
         public int RecalcularDVH_DVV()
         {
-            List<Usuario> usuarios = Retrieve(new Usuario());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (Usuario usuario in usuarios)
+            try
             {
-                string cadena = ConcatenarDVH(usuario);
-                Save(usuario);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<Usuario> usuarios = Retrieve(new Usuario());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (Usuario usuario in usuarios)
+                {
+                    string cadena = ConcatenarDVH(usuario);
+                    Save(usuario);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         private bool ComprobarExistenciaUsuario(string nombreUsuarioSinEncriptar)
         {
-            string nuEncriptado = EncriptacionManager.EncriptarAES(nombreUsuarioSinEncriptar);
-            Usuario usuarioBD = Retrieve(new Usuario { NombreUsuario = nuEncriptado }).FirstOrDefault();
-            return (usuarioBD != null && usuarioBD.Id > 0);
+            try
+            {
+                string nuEncriptado = EncriptacionManager.EncriptarAES(nombreUsuarioSinEncriptar);
+                Usuario usuarioBD = Retrieve(new Usuario { NombreUsuario = nuEncriptado }).FirstOrDefault();
+                return (usuarioBD != null && usuarioBD.Id > 0);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         public Mensaje ValidarUsuario(string idUsuarioEncriptado)
@@ -238,7 +260,11 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "ValidarEmail", "Se produjo una excepción activando un usuario", 1);
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "ValidarEmail", "Se produjo una excepción activando un usuario", 1);
+                }
+                catch {}
                 return Mensaje.CrearMensaje("MS64", true, true, e, RedireccionesEnum.Error.GetDescription());
             }
         }

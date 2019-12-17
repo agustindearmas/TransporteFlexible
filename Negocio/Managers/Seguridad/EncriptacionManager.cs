@@ -21,7 +21,6 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-
                 throw e;
             }
         }

@@ -32,8 +32,12 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarRol", "Se produjo una excepción salvando un Rol. Exception: " + e.Message, 1); // 1 Usuario sistema
-                return 0;
+                try
+                {
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarRol", "Se produjo una excepción salvando un Rol. Exception: " + e.Message, 1); // 1 Usuario sistema
+                }
+                catch {}
+                throw e;
             }
         }
 
@@ -49,11 +53,6 @@ namespace Negocio.Managers.Seguridad
         public List<Rol> Retrieve(Rol filter)
         {
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
-        }
-
-        public Rol GetOne(int rolId)
-        {
-           return Retrieve(new Rol { Id = rolId }).First();
         }
 
         #region Metodos Privados
@@ -91,16 +90,23 @@ namespace Negocio.Managers.Seguridad
 
         public int RecalcularDVH_DVV()
         {
-            List<Rol> roles = Retrieve(new Rol());
-            TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-            int acumulador = 0;
-            foreach (Rol rol in roles)
+            try
             {
-                string cadena = ConcatenarDVH(rol);                
-                Save(rol);
-                acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                List<Rol> roles = Retrieve(new Rol());
+                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
+                int acumulador = 0;
+                foreach (Rol rol in roles)
+                {
+                    string cadena = ConcatenarDVH(rol);
+                    Save(rol);
+                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                }
+                return acumulador;
             }
-            return acumulador;
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
         #endregion
     }
