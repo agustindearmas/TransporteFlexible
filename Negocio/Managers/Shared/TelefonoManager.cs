@@ -31,8 +31,8 @@ namespace Negocio.Managers.Shared
                     NumeroTelefono = EncriptacionManager.EncriptarAES(telefono),
                     UsuarioCreacion = usuarioCreacion,
                     UsuarioModificacion = usuarioCreacion,
-                    FechaCreacion = DateTime.UtcNow,
-                    FechaModificacion = DateTime.UtcNow,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
                     DVH = 0
                 };
                 return Save(tel);

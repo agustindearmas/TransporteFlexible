@@ -128,8 +128,7 @@ namespace Negocio.Managers.Seguridad
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
-        #region PRIVADA
-        private void ActualizarDVV(string tabla, int dvh)
+        public void ActualizarDVV(string tabla, int dvh)
         {
             try
             {
@@ -144,6 +143,9 @@ namespace Negocio.Managers.Seguridad
                 throw e;
             }
         }
+
+        #region PRIVADA
+
 
         private int CalcularDVH(int valor)
         {
@@ -192,7 +194,7 @@ namespace Negocio.Managers.Seguridad
                         return _emailMgr.RecalcularDVH_DVV();
                     case "Usuario":
                         UsuarioManager _usuarioMgr = new UsuarioManager();
-                        return _usuarioMgr.RecalcularDVH_DVV();
+                        return _usuarioMgr.RecalcularIntegridadRegistros();
                     case "Permiso":
                         PermisoManager _permisoMgr = new PermisoManager();
                         return _permisoMgr.RecalcularDVH_DVV();

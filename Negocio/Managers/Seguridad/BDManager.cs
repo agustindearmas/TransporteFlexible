@@ -35,7 +35,7 @@ namespace Negocio.Managers.Seguridad
                     string path = ConfigurationManager.AppSettings["pathBKP"].ToString();
                     Respaldo resp = new Respaldo
                     {
-                        NombreRespaldo = nombreBKP + "_" + DateTime.UtcNow.ToString("ddMMyyyy") + ".bak"
+                        NombreRespaldo = nombreBKP + "_" + DateTime.Now.ToString("ddMMyyyy") + ".bak"
                     };
                     resp.Path = string.Concat(path, resp.NombreRespaldo);
 

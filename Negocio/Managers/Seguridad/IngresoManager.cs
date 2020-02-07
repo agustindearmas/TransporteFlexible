@@ -28,6 +28,8 @@ namespace Negocio.Managers.Seguridad
 
             try
             {
+                //ComprobarConsistenciaBD();
+
                 Mensaje msj = new Mensaje();
 
                 // Obtengo de la base de datos el usuario que se corresponda con el nombre de usuario ingresado punto 10 del caso de uso
@@ -124,6 +126,12 @@ namespace Negocio.Managers.Seguridad
                     return Mensaje.CrearMensaje("ER01", true, true, e, RedireccionesEnum.Error.GetDescription());
                 }
             }
+        }
+
+        private bool ComprobarConsistenciaBD()
+        {
+            TablaDVVManager _tablaDVVMgr = new TablaDVVManager();
+           return _tablaDVVMgr.ComprobarConsistencia();
         }
     }
 }

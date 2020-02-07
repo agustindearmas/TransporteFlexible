@@ -66,8 +66,8 @@ namespace Negocio.Managers.Shared
                     EmailAddress = EncriptacionManager.EncriptarAES(emailSinEcnriptar),
                     UsuarioCreacion = usuarioCreacion,
                     UsuarioModificacion = usuarioCreacion,
-                    FechaCreacion = DateTime.UtcNow,
-                    FechaModificacion = DateTime.UtcNow,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
                     DVH = 0
                 };
                 return Save(email);

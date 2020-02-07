@@ -82,9 +82,9 @@ namespace Negocio.Managers.Seguridad
                     Evento = EncriptacionManager.EncriptarAES(evento),
                     Suceso = EncriptacionManager.EncriptarAES(suceso),
                     UsuarioCreacion = idUsuario,
-                    FechaCreacion = DateTime.UtcNow,
+                    FechaCreacion = DateTime.Now,
                     UsuarioModificacion = idUsuario,
-                    FechaModificacion = DateTime.UtcNow,
+                    FechaModificacion = DateTime.Now,
                     DVH = 0
                 };
             return Create(bitacora);

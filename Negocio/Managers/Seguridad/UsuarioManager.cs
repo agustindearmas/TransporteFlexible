@@ -6,6 +6,7 @@ using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
+using Negocio.DigitoVerificador;
 using Negocio.Managers.Shared;
 using System;
 using System.Collections.Generic;
@@ -13,17 +14,15 @@ using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class UsuarioManager : IManagerCrud<Usuario>
+    public class UsuarioManager : DigitoVerificador<Usuario>, IManagerCrud<Usuario> 
     {
         private readonly IRepository<Usuario> _Repository;
         private readonly BitacoraManager _bitacoraMgr;
-        private readonly TablaDVVManager _digitoVerificadorMgr;
-        private readonly string _table = "Seguridad.Usuario";
+        
         public UsuarioManager()
         {
             _Repository = new Repository<Usuario>();
             _bitacoraMgr = new BitacoraManager();
-            _digitoVerificadorMgr = new TablaDVVManager();
         }
 
         public int Save(Usuario entity)
@@ -31,14 +30,15 @@ namespace Negocio.Managers.Seguridad
             try
             {
                 entity.Id = _Repository.Save(entity);
-                GenerarEImpactarDVH(entity);
+                AplicarIntegridadRegistro(entity);
                 return entity.Id;
             }
             catch (Exception e)
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: "
+                        + e.Message, 1); // 1 Usuario sistema
                 }
                 catch {}
                 throw e;
@@ -59,9 +59,9 @@ namespace Negocio.Managers.Seguridad
                 Roles = roles,
                 Permisos = permisos,
                 UsuarioCreacion = usuarioCreacion,
-                FechaCreacion = DateTime.UtcNow,
+                FechaCreacion = DateTime.Now,
                 UsuarioModificacion = usuarioCreacion,
-                FechaModificacion = DateTime.UtcNow,
+                FechaModificacion = DateTime.Now,
                 DVH = 0
             };
 
@@ -192,27 +192,6 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        public int RecalcularDVH_DVV()
-        {
-            try
-            {
-                List<Usuario> usuarios = Retrieve(new Usuario());
-                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-                int acumulador = 0;
-                foreach (Usuario usuario in usuarios)
-                {
-                    string cadena = ConcatenarDVH(usuario);
-                    Save(usuario);
-                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
-                }
-                return acumulador;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
         private bool ComprobarExistenciaUsuario(string nombreUsuarioSinEncriptar)
         {
             try
@@ -269,22 +248,8 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        #region Metodos privados
-        private void GenerarEImpactarDVH(Usuario entity)
-        {
-            try
-            {
-                entity = Retrieve(entity).First();
-                entity.DVH = _digitoVerificadorMgr.CalcularImpactarDVH_DVV(ConcatenarDVH(entity), _table);
-                _Repository.Save(entity);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        private string ConcatenarDVH(Usuario entity)
+        #region DIGITO VERIFICADOR
+        protected override string ConcatenarPropiedadesDelObjeto(Usuario entity)
         {
             try
             {
@@ -304,7 +269,38 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
+                throw e;
+            }
+        }
 
+        public override void ValidarIntegridadRegistros()
+        {   
+            ValidarIntegridad(Retrieve(new Usuario()));
+        }
+
+        protected override void AplicarIntegridadRegistro(Usuario entity)
+        {
+            Usuario user = Retrieve(entity).First();
+            user.DVH = CalcularIntegridadRegistro(entity);
+            _Repository.Save(user);
+        }
+
+        public override int RecalcularIntegridadRegistros()
+        {
+            try
+            {
+
+                List<Usuario> usuarios = Retrieve(new Usuario());
+                int acumulador = 0;
+                foreach (Usuario usuario in usuarios)
+                {    
+                    Save(usuario);
+                    acumulador += ObtenerIntegridadRegistro(usuario);
+                }
+                return acumulador;
+            }
+            catch (Exception e)
+            {
                 throw e;
             }
         }
