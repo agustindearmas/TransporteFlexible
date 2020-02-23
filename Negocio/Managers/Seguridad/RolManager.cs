@@ -6,19 +6,18 @@ using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using DataAccess.Concrete;
+using Negocio.DigitoVerificador;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class RolManager : IManagerCrud<Rol>
+    public class RolManager : DigitoVerificador<Rol>, IManagerCrud<Rol>
     {
         private readonly IRepository<Rol> _Repository;
-        private readonly TablaDVVManager _digitoVerificadorMgr;
         private readonly BitacoraManager _bitacoraMgr;
-        private readonly string _table = "Seguridad.Rol";
+
         public RolManager()
         {
             _Repository = new Repository<Rol>();
-            _digitoVerificadorMgr = new TablaDVVManager();
             _bitacoraMgr = new BitacoraManager();
         }
 
@@ -27,7 +26,7 @@ namespace Negocio.Managers.Seguridad
             try
             {
                 entity.Id = _Repository.Save(entity);
-                GenerarEImpactarDVH(entity);
+                AplicarIntegridadRegistro(entity);
                 return entity.Id;
             }
             catch (Exception e)
@@ -55,22 +54,13 @@ namespace Negocio.Managers.Seguridad
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
-        #region Metodos Privados
-        private void GenerarEImpactarDVH(Rol entity)
+        #region DigitoVerificador
+        public override void ValidarIntegridadRegistros()
         {
-            try
-            {
-                entity = Retrieve(entity).First();
-                entity.DVH = _digitoVerificadorMgr.CalcularImpactarDVH_DVV(ConcatenarDVH(entity), _table);
-                _Repository.Save(entity);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            ValidarIntegridad(Retrieve(null));
         }
 
-        private string ConcatenarDVH(Rol entity)
+        protected override string ConcatenarPropiedadesDelObjeto(Rol entity)
         {
             try
             {
@@ -88,20 +78,22 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        public int RecalcularDVH_DVV()
+        protected override void AplicarIntegridadRegistro(Rol entity)
+        {
+            Rol rol = Retrieve(entity).First();
+            rol.DVH = CalcularIntegridadRegistro(rol);
+            _Repository.Save(rol);
+        }
+
+        public override void RecalcularIntegridadRegistros()
         {
             try
             {
-                List<Rol> roles = Retrieve(new Rol());
-                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-                int acumulador = 0;
+                List<Rol> roles = Retrieve(null);
                 foreach (Rol rol in roles)
                 {
-                    string cadena = ConcatenarDVH(rol);
                     Save(rol);
-                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
                 }
-                return acumulador;
             }
             catch (Exception e)
             {

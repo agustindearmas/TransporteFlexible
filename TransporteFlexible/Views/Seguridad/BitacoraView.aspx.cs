@@ -84,7 +84,7 @@ namespace TransporteFlexible.Views.Seguridad
             DataTable dt = ConvertToDataTable(bitacoras);
             _bitacoraGridView.DataSource = dt;
             _bitacoraGridView.DataBind();
-            _lblFechaActualizacion.Text = DateTime.UtcNow.ToString();
+            _lblFechaActualizacion.Text = DateTime.Now.ToString();
         }
 
         public DataTable ConvertToDataTable<T>(IList<T> data)

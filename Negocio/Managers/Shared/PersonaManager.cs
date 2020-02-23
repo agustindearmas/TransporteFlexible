@@ -6,21 +6,19 @@ using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
+using Negocio.DigitoVerificador;
 using Negocio.Managers.Seguridad;
 
 namespace Negocio.Managers.Shared
 {
-    public class PersonaManager : IManagerCrud<Persona>
+    public class PersonaManager : DigitoVerificador<Persona>, IManagerCrud<Persona>
     {
         private readonly IRepository<Persona> _Repository;
         private readonly BitacoraManager _bitacoraMgr;
-        private readonly TablaDVVManager _digitoVerificadorMgr;
-        private readonly string _table = "Shared.Persona";
 
         public PersonaManager()
         {
             _Repository = new Repository<Persona>();
-            _digitoVerificadorMgr = new TablaDVVManager();
             _bitacoraMgr = new BitacoraManager();
         }
 
@@ -29,14 +27,15 @@ namespace Negocio.Managers.Shared
             try
             {
                 entity.Id = _Repository.Save(entity);
-                GenerarEImpactarDVH(entity);
+                AplicarIntegridadRegistro(entity);
                 return entity.Id;
             }
             catch (Exception e)
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarEmail", "Se produjo una excepción salvando un Email. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarEmail", "Se produjo una excepción salvando un Email. Exception: "
+                        + e.Message, 1); // 1 Usuario sistema
                 }
                 catch { }
                 throw e;
@@ -70,8 +69,8 @@ namespace Negocio.Managers.Shared
                     Telefonos = telefonos,
                     UsuarioCreacion = usuarioCreacion,
                     UsuarioModificacion = usuarioCreacion,
-                    FechaCreacion = DateTime.UtcNow,
-                    FechaModificacion = DateTime.UtcNow,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
                     DVH = 0
                 };
                 return Save(persona);
@@ -102,22 +101,13 @@ namespace Negocio.Managers.Shared
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
-        #region Metodos Privados
-        private void GenerarEImpactarDVH(Persona entity)
+        #region Digito Verificador
+        public override void ValidarIntegridadRegistros()
         {
-            try
-            {
-                entity = Retrieve(entity).First();
-                entity.DVH = _digitoVerificadorMgr.CalcularImpactarDVH_DVV(ConcatenarDVH(entity), _table);
-                _Repository.Save(entity);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            ValidarIntegridad(Retrieve(null));
         }
 
-        private string ConcatenarDVH(Persona entity)
+        protected override string ConcatenarPropiedadesDelObjeto(Persona entity)
         {
             try
             {
@@ -139,26 +129,27 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public int RecalcularDVH_DVV()
+        protected override void AplicarIntegridadRegistro(Persona entity)
+        {
+            Persona persona = Retrieve(entity).First();
+            persona.DVH = CalcularIntegridadRegistro(persona);
+            _Repository.Save(persona);
+        }
+
+        public override void RecalcularIntegridadRegistros()
         {
             try
             {
-                List<Persona> personas = Retrieve(new Persona());
-                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-                int acumulador = 0;
+                List<Persona> personas = Retrieve(null);
                 foreach (Persona persona in personas)
                 {
-                    string cadena = ConcatenarDVH(persona);
                     Save(persona);
-                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
                 }
-                return acumulador;
             }
             catch (Exception e)
             {
                 throw e;
             }
-            
         }
         #endregion
     }

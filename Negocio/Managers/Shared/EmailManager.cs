@@ -3,6 +3,7 @@ using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
+using Negocio.DigitoVerificador;
 using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
@@ -10,17 +11,14 @@ using System.Linq;
 
 namespace Negocio.Managers.Shared
 {
-    public class EmailManager : IManagerCrud<Email>
+    public class EmailManager : DigitoVerificador<Email>, IManagerCrud<Email>
     {
         private readonly IRepository<Email> _Repository;
         private readonly BitacoraManager _bitacoraMgr;
-        private readonly TablaDVVManager _digitoVerificadorMgr;
-        private readonly string _table = "Shared.Email";
 
         public EmailManager()
         {
             _Repository = new Repository<Email>();
-            _digitoVerificadorMgr = new TablaDVVManager();
             _bitacoraMgr = new BitacoraManager();
         }
         public int Save(Email entity)
@@ -28,7 +26,7 @@ namespace Negocio.Managers.Shared
             try
             {
                 entity.Id = _Repository.Save(entity);
-                GenerarEImpactarDVH(entity);
+                AplicarIntegridadRegistro(entity);
                 return entity.Id;
             }
             catch (Exception e)
@@ -66,8 +64,8 @@ namespace Negocio.Managers.Shared
                     EmailAddress = EncriptacionManager.EncriptarAES(emailSinEcnriptar),
                     UsuarioCreacion = usuarioCreacion,
                     UsuarioModificacion = usuarioCreacion,
-                    FechaCreacion = DateTime.UtcNow,
-                    FechaModificacion = DateTime.UtcNow,
+                    FechaCreacion = DateTime.Now,
+                    FechaModificacion = DateTime.Now,
                     DVH = 0
                 };
                 return Save(email);
@@ -92,43 +90,13 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public int RecalcularDVH_DVV()
+        #region DigitoVerificador
+        public override void ValidarIntegridadRegistros()
         {
-            try
-            {
-                List<Email> emails = Retrieve(new Email());
-                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-                int acumulador = 0;
-                foreach (Email email in emails)
-                {
-                    string cadena = ConcatenarDVH(email);
-                    Save(email);
-                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
-                }
-                return acumulador;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            ValidarIntegridad(Retrieve(null));
         }
 
-        #region Metodos Privados
-        private void GenerarEImpactarDVH(Email entity)
-        {
-            try
-            {
-                entity = Retrieve(entity).First();
-                entity.DVH = _digitoVerificadorMgr.CalcularImpactarDVH_DVV(ConcatenarDVH(entity), _table);
-                _Repository.Save(entity);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        private string ConcatenarDVH(Email entity)
+        protected override string ConcatenarPropiedadesDelObjeto(Email entity)
         {
             try
             {
@@ -139,6 +107,29 @@ namespace Negocio.Managers.Shared
                 entity.FechaCreacion.ToString(),
                 entity.UsuarioModificacion.ToString(),
                 entity.FechaModificacion.ToString());
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        protected override void AplicarIntegridadRegistro(Email entity)
+        {
+            Email email = Retrieve(entity).First();
+            email.DVH = CalcularIntegridadRegistro(email);
+            _Repository.Save(email);
+        }
+
+        public override void RecalcularIntegridadRegistros()
+        {
+            try
+            {
+                List<Email> emails = Retrieve(null);
+                foreach (Email email in emails)
+                {
+                    Save(email);
+                }
             }
             catch (Exception e)
             {

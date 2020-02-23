@@ -4,8 +4,10 @@ using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
+using Negocio.Managers.Shared;
 using System;
 using System.Configuration;
+using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
@@ -35,7 +37,7 @@ namespace Negocio.Managers.Seguridad
                     string path = ConfigurationManager.AppSettings["pathBKP"].ToString();
                     Respaldo resp = new Respaldo
                     {
-                        NombreRespaldo = nombreBKP + "_" + DateTime.UtcNow.ToString("ddMMyyyy") + ".bak"
+                        NombreRespaldo = nombreBKP + "_" + DateTime.Now.ToString("ddMMyyyy") + ".bak"
                     };
                     resp.Path = string.Concat(path, resp.NombreRespaldo);
 
@@ -87,6 +89,75 @@ namespace Negocio.Managers.Seguridad
 
                 return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
             }
+        }
+
+        public void BloquearBase()
+        {
+            ConfiguracionManager _confMgr = new ConfiguracionManager();
+            Configuracion config = new Configuracion
+            {
+                Id = 1,
+                Nombre = "Bloqueo",
+                Valor = "1",
+                FechaModificacion = DateTime.Now,
+                UsuarioModificacion = 1
+            };
+            _confMgr.Save(config);
+        }
+
+        public void DesbloquearBase()
+        {
+            ConfiguracionManager _confMgr = new ConfiguracionManager();
+            Configuracion config = new Configuracion
+            {
+                Id = 1,
+                Nombre = "Bloqueo",
+                Valor = "0",
+                FechaModificacion = DateTime.Now,
+                UsuarioModificacion = 1
+            };
+            _confMgr.Save(config);
+        }
+
+        public bool ValidarIntegridadBD()
+        {
+            try
+            {
+                ConfiguracionManager _configuracionMgr = new ConfiguracionManager();
+                Configuracion config = _configuracionMgr.Retrieve(new Configuracion { Id = 1 }).First();
+                if (config.Valor == "1")
+                {
+                    return true;
+                }
+
+                EmailManager _emailMgr = new EmailManager();
+                UsuarioManager _usuarioMgr = new UsuarioManager();
+                PermisoManager _permisoMgr = new PermisoManager();
+                RolManager _rolMgr = new RolManager();
+                PersonaManager _personaMgr = new PersonaManager();
+                BitacoraManager _bitacoraMgr = new BitacoraManager();
+                TelefonoManager _telefonoMgr = new TelefonoManager();
+                TablaDVVManager _tablaDvvMgr = new TablaDVVManager();
+
+                _emailMgr.ValidarIntegridadRegistros();
+                _usuarioMgr.ValidarIntegridadRegistros();
+                _permisoMgr.ValidarIntegridadRegistros();
+                _rolMgr.ValidarIntegridadRegistros();
+                _personaMgr.ValidarIntegridadRegistros();
+                _bitacoraMgr.ValidarIntegridadRegistros();
+                _configuracionMgr.ValidarIntegridadRegistros();
+                _telefonoMgr.ValidarIntegridadRegistros();
+                _tablaDvvMgr.ValidarIntegridadRegistros();
+
+                config = _configuracionMgr.Retrieve(new Configuracion { Id = 1 }).First();
+
+                return (config.Valor == "1");
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
         }
     }
 }

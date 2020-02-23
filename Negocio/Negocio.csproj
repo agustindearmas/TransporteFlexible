@@ -42,10 +42,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DigitoVerificador\DigitoVerificador.cs" />
     <Compile Include="Managers\Seguridad\BDManager.cs" />
     <Compile Include="Managers\Seguridad\BitacoraManager.cs" />
     <Compile Include="Managers\Seguridad\CriticidadBitacoraManager.cs" />
-    <Compile Include="Managers\Seguridad\DigitoVerificadorManager.cs" />
+    <Compile Include="Managers\Seguridad\TablaDVVManager.cs" />
     <Compile Include="Managers\Seguridad\EncriptacionManager.cs" />
     <Compile Include="Managers\Seguridad\IngresoManager.cs" />
     <Compile Include="Managers\Seguridad\NivelCriticidadManager.cs" />
