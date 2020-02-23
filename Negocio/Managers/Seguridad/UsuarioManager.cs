@@ -249,6 +249,9 @@ namespace Negocio.Managers.Seguridad
         }
 
         #region DIGITO VERIFICADOR
+        /// <summary> 
+        /// Concatena todas las propiedades del objeto necesarias para el caculo de DVH
+        /// </summary>
         protected override string ConcatenarPropiedadesDelObjeto(Usuario entity)
         {
             try
@@ -273,31 +276,38 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
+        /// <summary>
+        /// Valida que todos los registros de la tabla que corresponde tengan integridad y consistencia.
+        /// </summary>
         public override void ValidarIntegridadRegistros()
         {   
-            ValidarIntegridad(Retrieve(new Usuario()));
+            ValidarIntegridad(Retrieve(null));
         }
 
+        /// <summary>
+        /// Aplica integridad en un registro especifico. Calcula el DVH
+        /// </summary>
+        /// <param name="entity">Es el registro a aplicarle integridad en este caso Usuario</param>
         protected override void AplicarIntegridadRegistro(Usuario entity)
         {
             Usuario user = Retrieve(entity).First();
-            user.DVH = CalcularIntegridadRegistro(entity);
+            user.DVH = CalcularIntegridadRegistro(user);
             _Repository.Save(user);
         }
 
-        public override int RecalcularIntegridadRegistros()
+        /// <summary>
+        /// Recalcula la integridad de todos los registros de la tabla que corresponde
+        /// </summary>
+        /// <returns>Retorna la suma de todos los DVH es decir el DVV</returns>
+        public override void RecalcularIntegridadRegistros()
         {
             try
             {
-
-                List<Usuario> usuarios = Retrieve(new Usuario());
-                int acumulador = 0;
+                List<Usuario> usuarios = Retrieve(null);
                 foreach (Usuario usuario in usuarios)
                 {    
                     Save(usuario);
-                    acumulador += ObtenerIntegridadRegistro(usuario);
                 }
-                return acumulador;
             }
             catch (Exception e)
             {

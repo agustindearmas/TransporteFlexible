@@ -5,21 +5,20 @@ using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
+using Negocio.DigitoVerificador;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class BitacoraManager : IManagerCrud<Bitacora>
+    public class BitacoraManager : DigitoVerificador<Bitacora>, IManagerCrud<Bitacora>
     {
         private readonly IRepository<Bitacora> _Repository;
-        private readonly TablaDVVManager _digitoVerificadorMgr;
-        private readonly string _table = "Seguridad.Bitacora";
+
         public BitacoraManager()
         {
             _Repository = new Repository<Bitacora>();
-            _digitoVerificadorMgr = new TablaDVVManager();
         }
 
         public void Delete(int id)
@@ -59,7 +58,7 @@ namespace Negocio.Managers.Seguridad
             try
             {
                 entity.Id = _Repository.Save(entity);
-                GenerarEImpactarDVH(entity);
+                AplicarIntegridadRegistro(entity);
                 return entity.Id;
             }
             catch (Exception e)
@@ -156,34 +155,6 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        public int RecalcularDVH_DVV()
-        {
-            try
-            {
-                List<Bitacora> bitacoras = Retrieve(new Bitacora());
-                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-                int acumulador = 0;
-                foreach (Bitacora bitacora in bitacoras)
-                {
-                    string cadena = ConcatenarDVH(bitacora);
-                    Save(bitacora);
-                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
-                }
-                return acumulador;
-            }
-            catch (Exception e)
-            {
-                try
-                {
-                    Create(CriticidadBitacora.Alta, "RecalcularDVH_DVV", "Se produjo una excepción en el método RecalcularDVH_DVV()" +
-                    " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
-                }
-                catch { }
-                throw e;
-            }
-
-        }
-
         private List<Bitacora> DesencriptadorBitacora(List<Bitacora> encriptadas)
         {
             foreach (var encrip in encriptadas)
@@ -194,27 +165,13 @@ namespace Negocio.Managers.Seguridad
             return encriptadas;
         }
 
-        private void GenerarEImpactarDVH(Bitacora entity)
+        #region DigitoVerificador
+        public override void ValidarIntegridadRegistros()
         {
-            try
-            {
-                entity = Retrieve(entity).First();
-                entity.DVH = _digitoVerificadorMgr.CalcularImpactarDVH_DVV(ConcatenarDVH(entity), _table);
-                _Repository.Save(entity);
-            }
-            catch (Exception e)
-            {
-                try
-                {
-                    Create(CriticidadBitacora.Alta, "Generando DVH", "Se produjo una excepción en el método GenerarEImpactarDVH()" +
-                    " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
-                }
-                catch { }
-                throw e;
-            }
+            ValidarIntegridad(Retrieve(null));
         }
 
-        private string ConcatenarDVH(Bitacora entity)
+        protected override string ConcatenarPropiedadesDelObjeto(Bitacora entity)
         {
             try
             {
@@ -239,6 +196,30 @@ namespace Negocio.Managers.Seguridad
                 throw e;
             }
         }
+
+        protected override void AplicarIntegridadRegistro(Bitacora entity)
+        {
+            Bitacora bitacora = Retrieve(entity).First();
+            bitacora.DVH = CalcularIntegridadRegistro(bitacora);
+            _Repository.Save(bitacora);
+        }
+
+        public override void RecalcularIntegridadRegistros()
+        {
+            try
+            {
+                List<Bitacora> bitacoras = Retrieve(null);
+                foreach (Bitacora bitacora in bitacoras)
+                {
+                    Save(bitacora);
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        #endregion
 
     }
 }

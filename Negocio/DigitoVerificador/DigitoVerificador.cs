@@ -1,30 +1,50 @@
 ﻿using Common.Attributes;
+using Common.Enums.Seguridad;
+using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Negocio.DigitoVerificador
 {
     public abstract class DigitoVerificador<T>
     {
-        protected void ValidarIntegridad(List<T> entities)
+        protected bool ValidarIntegridad(List<T> entities)
         {
-            int dvv = 0;
-            foreach (T entity in entities)
+            try
             {
-                int dvhCalculado = AlgoritmoDVH(entity);
-                int dvh = Convert.ToInt32(entity.GetType().GetProperty("DVH").GetValue(entity));
+                int dvv = 0;
+                BDManager _bdMgr = new BDManager();
+                foreach (T entity in entities)
+                {
+                    int dvhCalculado = AlgoritmoDVH(entity);
+                    int dvh = Convert.ToInt32(entity.GetType().GetProperty("DVH").GetValue(entity));
 
-                if (dvhCalculado == dvh)
-                {
-                    dvv += dvh;
-                    continue;
+                    if (dvhCalculado == dvh)
+                    {
+                        dvv += dvh;
+                        continue;
+                    }
+                    else
+                    {
+                        BitacoraManager _bitacoraMgr = new BitacoraManager();
+                        
+                        var tableAtt = (TableAttribute)Attribute.GetCustomAttribute(entity.GetType(), typeof(TableAttribute));
+                        string nombreTabla = string.Concat(tableAtt.Schema, '.', tableAtt.ProcedureName);
+                        _bitacoraMgr.Create(CriticidadBitacora.Alta, "Problema Integirdad", "Error de integridad en la tabla " + nombreTabla + " en el registro con Id: " +
+                            entity.GetType().GetProperty("Id").GetValue(entity).ToString(), 1); // 1 Usuario sistema
+                        _bdMgr.BloquearBase();
+                        return false;
+                    }
                 }
-                else
-                {
-                    //Errorsito
-                } 
+                return true;
             }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            
         }
 
         public int CalcularIntegridadRegistro(T entidad)
@@ -33,7 +53,14 @@ namespace Negocio.DigitoVerificador
             var tableAtt = (TableAttribute)Attribute.GetCustomAttribute(entidad.GetType(), typeof(TableAttribute));
             string nombreTabla = string.Concat(tableAtt.Schema, '.', tableAtt.ProcedureName);
             TablaDVVManager _tablaDVVMgr = new TablaDVVManager();
-            _tablaDVVMgr.ActualizarDVV(nombreTabla, dvh);
+
+            Type typeEntidad = entidad.GetType();
+            int entityId = Convert.ToInt32(typeEntidad.GetProperty("Id").GetValue(entidad));
+
+            var att = (NameEntityAttribute)Attribute.GetCustomAttribute((entidad.GetType().GetProperty("Id")), typeof(NameEntityAttribute));
+            string nombreId = att.IdEntity;
+
+            _tablaDVVMgr.ActualizarDVV(nombreTabla, dvh, entityId, nombreId);
             return dvh;
         }
 
@@ -105,18 +132,35 @@ namespace Negocio.DigitoVerificador
         {
             return (numero % 10) == 0;
         }
+
+        public void AplicarIntegridadRegistros()
+        {
+
+        }
         #endregion
 
         #region Abstracta
+        /// <summary>
+        /// Valida que todos los registros de la tabla que corresponde tengan integridad y consistencia.
+        /// </summary>
         public abstract void ValidarIntegridadRegistros();
-        
+
+        /// <summary> 
+        /// Concatena todas las propiedades del objeto necesarias para el caculo de DVH
+        /// </summary>
         protected abstract string ConcatenarPropiedadesDelObjeto(T entity);
 
+        /// <summary>
+        /// Aplica integridad en un registro especifico. Calcula el DVH
+        /// </summary>
+        /// <param name="entity">Es el registro a aplicarle integridad</param>
         protected abstract void AplicarIntegridadRegistro(T entity);
 
-        public abstract int RecalcularIntegridadRegistros();
-
-
+        /// <summary>
+        /// Recalcula la integridad de todos los registros de la tabla que corresponde
+        /// </summary>
+        /// <returns>Retorna la suma de todos los DVH es decir el DVV</returns>
+        public abstract void RecalcularIntegridadRegistros();
         #endregion
     }
 }

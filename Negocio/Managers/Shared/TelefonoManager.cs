@@ -3,6 +3,7 @@ using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
+using Negocio.DigitoVerificador;
 using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
@@ -10,16 +11,14 @@ using System.Linq;
 
 namespace Negocio.Managers.Shared
 {
-    public class TelefonoManager : IManagerCrud<Telefono>
+    public class TelefonoManager : DigitoVerificador<Telefono>, IManagerCrud<Telefono>
     {
         private readonly IRepository<Telefono> _Repository;
         private readonly BitacoraManager _bitacoraMgr;
-        private readonly TablaDVVManager _digitoVerificadorMgr;
-        private readonly string _table = "Shared.Telefono";
+
         public TelefonoManager()
         {
             _Repository = new Repository<Telefono>();
-            _digitoVerificadorMgr = new TablaDVVManager();
             _bitacoraMgr = new BitacoraManager();
         }
         public int Create(string telefono, int usuarioCreacion)
@@ -48,7 +47,7 @@ namespace Negocio.Managers.Shared
             try
             {
                 entity.Id = _Repository.Save(entity);
-                GenerarEImpactarDVH(entity);
+                AplicarIntegridadRegistro(entity);
                 return entity.Id;
             }
             catch (Exception e)
@@ -74,21 +73,13 @@ namespace Negocio.Managers.Shared
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
-        #region Metodos Privados
-        private void GenerarEImpactarDVH(Telefono entity)
+        #region Digito Verificador
+        public override void ValidarIntegridadRegistros()
         {
-            try
-            {
-                entity = Retrieve(entity).First();
-                entity.DVH = _digitoVerificadorMgr.CalcularImpactarDVH_DVV(ConcatenarDVH(entity), _table);
-                _Repository.Save(entity);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            ValidarIntegridad(Retrieve(null));
         }
-        private string ConcatenarDVH(Telefono entity)
+
+        protected override string ConcatenarPropiedadesDelObjeto(Telefono entity)
         {
             try
             {
@@ -106,20 +97,22 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public int RecalcularDVH_DVV()
+        protected override void AplicarIntegridadRegistro(Telefono entity)
+        {
+            Telefono tel = Retrieve(entity).First();
+            tel.DVH = CalcularIntegridadRegistro(tel);
+            _Repository.Save(tel);
+        }
+
+        public override void RecalcularIntegridadRegistros()
         {
             try
             {
-                List<Telefono> telefonos = Retrieve(new Telefono());
-                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-                int acumulador = 0;
+                List<Telefono> telefonos = Retrieve(null);
                 foreach (Telefono telefono in telefonos)
                 {
-                    string cadena = ConcatenarDVH(telefono);
                     Save(telefono);
-                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
                 }
-                return acumulador;
             }
             catch (Exception e)
             {

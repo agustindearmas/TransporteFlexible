@@ -6,6 +6,7 @@ using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
+using Negocio.DigitoVerificador;
 using Negocio.Managers.Shared;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,9 @@ using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class TablaDVVManager : IManagerCrud<TablaDVV>
+    public class TablaDVVManager : DigitoVerificador<TablaDVV>, IManagerCrud<TablaDVV>
     {
         private readonly IRepository<TablaDVV> _Repository;
-        private readonly string _table = "Seguridad.TablaDVV";
         public TablaDVVManager()
         {
             _Repository = new Repository<TablaDVV>();
@@ -27,7 +27,7 @@ namespace Negocio.Managers.Seguridad
             try
             {
                 entity.Id = _Repository.Save(entity);
-                GenerarEImpactarDVH(entity);
+                AplicarIntegridadRegistro(entity);
                 return entity.Id;
             }
             catch (Exception e)
@@ -42,73 +42,17 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        public int CalcularImpactarDVH_DVV(string cadena, string tabla)
-        {
-            try
-            {
-                int suma = SumarCaracteres(cadena);
-                int dvh = CalcularDVH(suma);
-                ActualizarDVV(tabla, dvh);
-                return dvh;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public int ObtenerDVH(string cadena)
-        {
-            try
-            {
-                int suma = SumarCaracteres(cadena);
-                int dvh = CalcularDVH(suma);
-                return dvh;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        private int SumarCaracteres(string cadena)
-        {
-            try
-            {
-                int acumuladorPares = 0;
-                int acumuladorImpares = 0;
-                for (int i = 0; i < cadena.Length; i++)
-                {
-                    if (EsPar(i))
-                    {
-                        acumuladorPares += cadena[i];
-                    }
-                    else
-                    {
-                        acumuladorImpares += cadena[i];
-                    }
-                }
-                int resultadoMultiplicacion = acumuladorPares * 3;
-                int suma = resultadoMultiplicacion + acumuladorImpares;
-                return suma;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
         public Mensaje RecalcularDigitosVerificadores()
         {
             try
             {
-                List<TablaDVV> tablas = Retrieve(new TablaDVV());
+                List<TablaDVV> tablas = Retrieve(null);
                 foreach (TablaDVV tbl in tablas)
                 {
-                    int dvvTabla = ObtenerDVV(tbl.Descripcion);
-                    tbl.DVV = dvvTabla;
-                    Save(tbl);
+                    RecalcularIntegridad(tbl.Descripcion);
                 }
+                BDManager _bdMgr = new BDManager();
+                _bdMgr.DesbloquearBase();
                 return Mensaje.CrearMensaje("MS24", false, true, null, null);
             }
             catch (Exception e)
@@ -128,11 +72,11 @@ namespace Negocio.Managers.Seguridad
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
-        public void ActualizarDVV(string tabla, int dvh)
+        public void ActualizarDVV(string tabla, int dvh, int id, string campo)
         {
             try
             {
-                string queryDVV = string.Concat("Select SUM(DVH) FROM ", tabla);
+                string queryDVV = string.Concat("Select CASE WHEN SUM(DVH) IS NULL THEN 0 ELSE SUM(DVH) END FROM ", tabla, " WHERE ", campo, " <> ", id.ToString());
                 int dvvTabla = _Repository.ExecuteScalarScript(queryDVV, "TransporteFlexible");
                 int sumaDVV = dvh + dvvTabla;
                 string queryUpdateDVV = string.Concat("UPDATE Seguridad.TablaDVV SET DVV = ", sumaDVV.ToString(), " WHERE Descripcion = '", tabla, "'");
@@ -141,48 +85,12 @@ namespace Negocio.Managers.Seguridad
             catch (Exception e)
             {
                 throw e;
+
             }
         }
 
         #region PRIVADA
-
-
-        private int CalcularDVH(int valor)
-        {
-            try
-            {
-                int contador = 0;
-                int suma = valor;
-                string contadorAuxiliar;
-                do
-                {
-                    contadorAuxiliar = contador.ToString();
-                    suma += contador;
-                    contador++;
-
-                } while (EsMultiploDe10(suma));
-
-                string dvh = string.Concat(valor.ToString(), contadorAuxiliar);
-                return Convert.ToInt32(dvh);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-
-        }
-
-        private bool EsPar(int numero)
-        {
-            return (numero % 2) == 0;
-        }
-
-        private bool EsMultiploDe10(int numero)
-        {
-            return (numero % 10) == 0;
-        }
-
-        private int ObtenerDVV(string nombreTabla)
+        private void RecalcularIntegridad(string nombreTabla)
         {
             try
             {
@@ -191,33 +99,39 @@ namespace Negocio.Managers.Seguridad
                 {
                     case "Email":
                         EmailManager _emailMgr = new EmailManager();
-                        return _emailMgr.RecalcularDVH_DVV();
+                        _emailMgr.RecalcularIntegridadRegistros();
+                        break;
                     case "Usuario":
                         UsuarioManager _usuarioMgr = new UsuarioManager();
-                        return _usuarioMgr.RecalcularIntegridadRegistros();
+                        _usuarioMgr.RecalcularIntegridadRegistros();
+                        break;
                     case "Permiso":
                         PermisoManager _permisoMgr = new PermisoManager();
-                        return _permisoMgr.RecalcularDVH_DVV();
+                        _permisoMgr.RecalcularIntegridadRegistros();
+                        break;
                     case "Rol":
                         RolManager _rolMgr = new RolManager();
-                        return _rolMgr.RecalcularDVH_DVV();
+                        _rolMgr.RecalcularIntegridadRegistros();
+                        break;
                     case "Persona":
                         PersonaManager _personaMgr = new PersonaManager();
-                        return _personaMgr.RecalcularDVH_DVV();
+                        _personaMgr.RecalcularIntegridadRegistros();
+                        break;
                     case "Bitacora":
                         BitacoraManager _bitacoraMgr = new BitacoraManager();
-                        return _bitacoraMgr.RecalcularDVH_DVV();
+                        _bitacoraMgr.RecalcularIntegridadRegistros();
+                        break;
                     case "Configuracion":
                         ConfiguracionManager _configuracionMgr = new ConfiguracionManager();
-                        return _configuracionMgr.RecalcularDVH_DVV();
+                        _configuracionMgr.RecalcularIntegridadRegistros();
+                        break;
                     case "Telefono":
                         TelefonoManager _telefonoMgr = new TelefonoManager();
-                        return _telefonoMgr.RecalcularDVH_DVV();
+                        _telefonoMgr.RecalcularIntegridadRegistros();
+                        break;
                     case "TablaDVV":
-                        TablaDVVManager _tablaDVVMgr = new TablaDVVManager();
-                        return _tablaDVVMgr.RecalcularDVH_DVV();
-                    default:
-                        return 0;
+                        RecalcularIntegridadRegistros();
+                        break;
                 }
             }
             catch (Exception e)
@@ -227,37 +141,22 @@ namespace Negocio.Managers.Seguridad
 
 
         }
+        #endregion
 
-        private int RecalcularDVH_DVV()
+
+        #region DigitoVerificador
+        public override void ValidarIntegridadRegistros()
         {
-            try
-            {
-                List<TablaDVV> tdvvs = Retrieve(new TablaDVV());
-                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-                int acumulador = 0;
-                foreach (TablaDVV tddv in tdvvs)
-                {
-                    string cadena = ConcatenarDVH(tddv);
-                    Save(tddv);
-                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
-                }
-                return acumulador;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-            
+            ValidarIntegridad(Retrieve(null));
         }
 
-        private string ConcatenarDVH(TablaDVV entity)
+        protected override string ConcatenarPropiedadesDelObjeto(TablaDVV entity)
         {
             try
             {
                 return string.Concat(
                 entity.Id.ToString(),
                 entity.Descripcion,
-                entity.DVV.ToString(),
                 entity.UsuarioCreacion.ToString(),
                 entity.FechaCreacion.ToString(),
                 entity.UsuarioModificacion.ToString(),
@@ -268,14 +167,23 @@ namespace Negocio.Managers.Seguridad
                 throw e;
             }
         }
-        private void GenerarEImpactarDVH(TablaDVV entity)
+
+        protected override void AplicarIntegridadRegistro(TablaDVV entity)
+        {
+            TablaDVV tablaDVV = Retrieve(entity).First();
+            tablaDVV.DVH = CalcularIntegridadRegistro(tablaDVV);
+            _Repository.Save(tablaDVV);
+        }
+
+        public override void RecalcularIntegridadRegistros()
         {
             try
             {
-                entity = Retrieve(entity).First();
-                TablaDVVManager _digitoVerificadorMgr = new TablaDVVManager();
-                entity.DVH = _digitoVerificadorMgr.CalcularImpactarDVH_DVV(ConcatenarDVH(entity), _table);
-                _Repository.Save(entity);
+                List<TablaDVV> dvvs = Retrieve(null);
+                foreach (TablaDVV dvv in dvvs)
+                {
+                    Save(dvv);
+                }
             }
             catch (Exception e)
             {
