@@ -3,6 +3,7 @@ using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
+using Negocio.DigitoVerificador;
 using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
@@ -10,16 +11,13 @@ using System.Linq;
 
 namespace Negocio.Managers.Shared
 {
-    public class ConfiguracionManager : IManagerCrud<Configuracion>
+    public class ConfiguracionManager : DigitoVerificador<Configuracion>, IManagerCrud<Configuracion>
     {
         private readonly IRepository<Configuracion> _Repository;
 
-        private readonly TablaDVVManager _digitoVerificadorMgr;
-        private readonly string _table = "Seguridad.Configuracion";
         public ConfiguracionManager()
         {
             _Repository = new Repository<Configuracion>();
-            _digitoVerificadorMgr = new TablaDVVManager();
         }
         public void Delete(int id)
         {
@@ -41,7 +39,7 @@ namespace Negocio.Managers.Shared
             try
             {
                 entity.Id = _Repository.Save(entity);
-                GenerarEImpactarDVH(entity);
+                AplicarIntegridadRegistro(entity);
                 return entity.Id;
             }
             catch (Exception e)
@@ -56,21 +54,12 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        private void GenerarEImpactarDVH(Configuracion entity)
+        public override void ValidarIntegridadRegistros()
         {
-            try
-            {
-                entity = Retrieve(entity).First();
-                entity.DVH = _digitoVerificadorMgr.CalcularImpactarDVH_DVV(ConcatenarDVH(entity), _table);
-                _Repository.Save(entity);
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+            ValidarIntegridad(Retrieve(null));
         }
 
-        private string ConcatenarDVH(Configuracion entity)
+        protected override string ConcatenarPropiedadesDelObjeto(Configuracion entity)
         {
             try
             {
@@ -89,26 +78,27 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public int RecalcularDVH_DVV()
+        protected override void AplicarIntegridadRegistro(Configuracion entity)
+        {
+            Configuracion config = Retrieve(entity).First();
+            config.DVH = CalcularIntegridadRegistro(config);
+            _Repository.Save(config);
+        }
+
+        public override void RecalcularIntegridadRegistros()
         {
             try
             {
-                List<Configuracion> configuraciones = Retrieve(new Configuracion());
-                TablaDVVManager _dVerificadorMgr = new TablaDVVManager();
-                int acumulador = 0;
-                foreach (Configuracion configuracion in configuraciones)
+                List<Configuracion> configuraciones = Retrieve(null);
+                foreach (Configuracion config in configuraciones)
                 {
-                    string cadena = ConcatenarDVH(configuracion);
-                    Save(configuracion);
-                    acumulador += _dVerificadorMgr.ObtenerDVH(cadena);
+                    Save(config);
                 }
-                return acumulador;
             }
             catch (Exception e)
             {
                 throw e;
             }
-            
         }
     }
 }

@@ -22,9 +22,12 @@ namespace Negocio.Managers.Seguridad
             //encripto campos punto 9 del caso de uso
             string contraseñaEncriptada = EncriptacionManager.EncriptarMD5(contraseña);
             string usuarioEncriptado = EncriptacionManager.EncriptarAES(nombreUsuario);
+
             UsuarioManager _usuarioMgr = new UsuarioManager();
             SessionManager _sessionMgr = new SessionManager();
             PermisoManager _permisoMgr = new PermisoManager();
+
+
 
             try
             {
@@ -33,12 +36,29 @@ namespace Negocio.Managers.Seguridad
                 // Obtengo de la base de datos el usuario que se corresponda con el nombre de usuario ingresado punto 10 del caso de uso
                 Usuario usuario = _usuarioMgr.Retrieve(new Usuario { NombreUsuario = usuarioEncriptado }).FirstOrDefault();
 
+                if (ComprobarConsistenciaBD())
+                {
+                    Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
+
+                    return ses != null ? Mensaje.CrearMensaje("OK", false, false, ses, null) :
+                        Mensaje.CrearMensaje("ER01", true, true, null, RedireccionesEnum.Error.GetDescription());
+                }
+
                 if (usuario == null) // Valida existencia del usuario
                 {
                     // No existe el usuario
                     // creo bitacora punto 18 del caso de uso
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Intento de ingreso de un usuario no registrado", 1);
-                    return Mensaje.CrearMensaje("MS09", false, true, null, null);
+                    Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
+                    if (ses != null)
+                    {
+                        return Mensaje.CrearMensaje("OK", false, false, ses, null);
+                    }
+                    else
+                    {
+                        _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Intento de ingreso de un usuario no registrado", 1);
+                        return Mensaje.CrearMensaje("MS09", false, true, null, null);
+                    }
+
                 }
 
                 if (usuario.Contraseña != contraseñaEncriptada) // Valida que las contraseñas sean iguales punto 11
@@ -59,7 +79,6 @@ namespace Negocio.Managers.Seguridad
                         _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Intento de ingreso por un usuario registrado, no concidio su contraseña, IdUsuario: " + usuario.Id.ToString(), 1);
                         return Mensaje.CrearMensaje("MS05", false, true, null, null);
                     }
-
                 }
 
                 if (!usuario.Habilitado)
@@ -91,7 +110,6 @@ namespace Negocio.Managers.Seguridad
                 // punto 15 del caso de uso
 
                 // creo el objeto session punto 16 del caso de uso
-
                 Sesion session = _sessionMgr.CrearSession(usuario.Id, _permisoMgr.ObtenerSoloIdsDePermisos(usuario.Permisos), nombreUsuario);
                 // punto 16
 
@@ -105,25 +123,45 @@ namespace Negocio.Managers.Seguridad
             }
             catch (Exception e)
             {
-                if (usuarioEncriptado == ConfigurationManager.AppSettings["userName"] && contraseñaEncriptada == ConfigurationManager.AppSettings["pass"])
+                Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
+                if (ses != null)
                 {
-                    List<int> permisos = new List<int>
-                    {
-                        12,
-                        13,
-                        14,
-                        15,
-                        42
-                    };
-                    Sesion session = _sessionMgr.CrearSession(1, permisos, nombreUsuario);
-                    return Mensaje.CrearMensaje("OK", false, false, session, null);
+                    return Mensaje.CrearMensaje("OK", false, false, ses, null);
                 }
                 else
                 {
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Se produjo una excepción en el login", 1);
                     return Mensaje.CrearMensaje("ER01", true, true, e, RedireccionesEnum.Error.GetDescription());
                 }
+
             }
+        }
+
+        private Sesion AdminLogin(string usuarioEncriptado, string contraseñaEncriptada, string nombreUsuario)
+        {
+            if (usuarioEncriptado == ConfigurationManager.AppSettings["userName"] && contraseñaEncriptada == ConfigurationManager.AppSettings["pass"])
+            {
+                SessionManager _sessionMgr = new SessionManager();
+                List<int> permisos = new List<int>
+                    {
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        42
+                    };
+                Sesion session = _sessionMgr.CrearSession(1, permisos, nombreUsuario);
+                return session;
+            }
+            return null;
+        }
+
+        private bool ComprobarConsistenciaBD()
+        {
+            BDManager _bdMgr = new BDManager();
+            return _bdMgr.ValidarIntegridadBD();
         }
     }
 }

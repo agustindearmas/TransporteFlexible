@@ -38,8 +38,5 @@ namespace Common.Attributes
         /// <para/>Para updates, rellerar el campo Id
         /// </summary>
         public bool IsForeingKey { get; set; }
-
-
-        public string[] EagerData { get; set; }
     }
 }
