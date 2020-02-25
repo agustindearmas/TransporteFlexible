@@ -248,6 +248,78 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
+        public Mensaje ObtenerUsuariosNegocioDesencriptados(int id, string nombreUsuario, string dni)
+        {
+            try
+            {
+                string nombreUsuariEncrip = "";
+                Usuario usuario = new Usuario();
+                PersonaManager _prsMgr = new PersonaManager();
+
+
+                if (id != 0)
+                {
+                    usuario.Id = id;
+
+                }
+
+                if (!String.IsNullOrWhiteSpace(nombreUsuario))
+                {
+                    nombreUsuariEncrip = EncriptacionManager.EncriptarAES(nombreUsuario);
+                    usuario.NombreUsuario = nombreUsuariEncrip;
+
+                }
+
+                string dniEncriptado = "";
+                if (!String.IsNullOrWhiteSpace(dni))
+                {
+                    dniEncriptado = EncriptacionManager.EncriptarAES(dni);
+                    Persona prs = _prsMgr.Retrieve(new Persona { DNI = dniEncriptado }).FirstOrDefault();
+                    if (prs.Id != 0)
+                    {
+                        usuario.Persona = prs;
+
+                    }
+                }
+
+                List<Usuario> usuarios = Retrieve(usuario);
+
+                if (usuarios.Count > 0)
+                {
+                    foreach (var usr in usuarios)
+                    {
+                        usr.NombreUsuario = EncriptacionManager.DesencriptarAES(usr.NombreUsuario);
+                        usr.Persona = _prsMgr.Retrieve(usr.Persona).FirstOrDefault();
+
+                        PermisoManager _permisoMgr = new PermisoManager();
+                        RolManager _rolesMgr = new RolManager();
+                        List<Permiso> permisos = new List<Permiso>();
+                        List<Rol> roles = new List<Rol>();
+
+                        foreach (var prm in usr.Permisos)
+                        {
+                            permisos.Add(_permisoMgr.Retrieve(prm).First());
+                        }
+
+                        foreach (var rl in usr.Roles)
+                        {
+                            roles.Add(_rolesMgr.Retrieve(rl).First());
+                        }
+
+                        usr.Permisos = permisos;
+                        usr.Roles = roles;
+                    }
+                }
+
+                return Mensaje.CrearMensaje("OK", false, false, usuarios, null);
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+        }
+
         #region DIGITO VERIFICADOR
         /// <summary> 
         /// Concatena todas las propiedades del objeto necesarias para el caculo de DVH

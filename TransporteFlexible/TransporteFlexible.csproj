@@ -1851,6 +1851,7 @@
     <Content Include="Views\Seguridad\BitacoraView.aspx" />
     <Content Include="Views\Seguridad\Ingreso.aspx" />
     <Content Include="Views\Seguridad\Registro.aspx" />
+    <Content Include="Views\Seguridad\Usuarios\Usuario.aspx" />
     <Content Include="Views\Seguridad\ValidaEmail.aspx" />
     <Content Include="Views\Shared\Bienvenida.aspx" />
     <Content Include="Views\Shared\Error.aspx" />
@@ -1982,6 +1983,13 @@
     </Compile>
     <Compile Include="Views\Seguridad\Registro.aspx.designer.cs">
       <DependentUpon>Registro.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\Usuario.aspx.cs">
+      <DependentUpon>Usuario.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\Usuario.aspx.designer.cs">
+      <DependentUpon>Usuario.aspx</DependentUpon>
     </Compile>
     <Compile Include="Views\Seguridad\ValidaEmail.aspx.cs">
       <DependentUpon>ValidaEmail.aspx</DependentUpon>

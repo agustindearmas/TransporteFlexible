@@ -25,7 +25,7 @@ namespace TransporteFlexible
                         CrearItemDeMenu(PermisosEnum.LeerRolesPerfiles.GetDescription(), "fa-tags", "");
                         break;
                     case (int)PermisosEnum.LeerUsuariosAdministrativos:
-                        CrearItemDeMenu(PermisosEnum.LeerUsuariosAdministrativos.GetDescription(), "fa-users", "");
+                        CrearItemDeMenu(PermisosEnum.LeerUsuariosAdministrativos.GetDescription(), "fa-users", "../Seguridad/Usuarios/Usuario.aspx");
                         break;
                     case (int)PermisosEnum.LeerPermisos:
                         CrearItemDeMenu(PermisosEnum.LeerPermisos.GetDescription(), "fa-lock", "");

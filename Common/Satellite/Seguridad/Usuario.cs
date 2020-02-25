@@ -34,6 +34,7 @@ namespace Common.Satellite.Seguridad
         [NameEntity(IdEntity = "Intentos", NameEntity = "Intentos")]
         public int Intentos { get; set; }
 
+        [NameEntity(IdEntity = "IdRol", NameEntity = "Rol.Id")]
         public List<Rol> Roles { get; set; }
 
         [NameEntity(IdEntity = "IdPermiso", NameEntity = "Permiso.Id")]
