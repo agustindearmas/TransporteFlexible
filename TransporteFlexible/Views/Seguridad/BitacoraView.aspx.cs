@@ -123,7 +123,6 @@ namespace TransporteFlexible.Views.Seguridad
                         {
                             row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
                         }
-
                     }
                 }
                 table.Rows.Add(row);

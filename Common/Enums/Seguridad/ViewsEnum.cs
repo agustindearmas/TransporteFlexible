@@ -2,7 +2,7 @@
 
 namespace Common.Enums.Seguridad
 {
-    public enum RedireccionesEnum
+    public enum ViewsEnum
     {
         [Description("/Views/Shared/Error.aspx")]
         Error,
@@ -13,6 +13,8 @@ namespace Common.Enums.Seguridad
         [Description("/Views/Seguridad/Ingreso.aspx")]
         Ingreso,
         [Description("/Views/Seguridad/BitacoraView.aspx")]
-        Bitacora
+        Bitacora,
+        [Description("/Views/Seguridad/Usuarios/Permisos/PermisoView.aspx")]
+        Permiso
     }
 }

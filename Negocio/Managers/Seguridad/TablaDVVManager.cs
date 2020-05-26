@@ -63,7 +63,7 @@ namespace Negocio.Managers.Seguridad
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 Usuario sistema
                 }
                 catch { }
-                return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
+                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
             }
         }
 

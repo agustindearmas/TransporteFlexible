@@ -170,12 +170,12 @@ namespace Negocio.Managers.Seguridad
                     string idEncriptado = EncriptacionManager.EncriptarAES(idUsuario.ToString());
                     _envioEmailMgr.EnviarEmailRegistro(registro.Email, idEncriptado);
                     _bitacoraMgr.Create(CriticidadBitacora.Baja, "Registro", "El usuario: " + idUsuario + " fue creado con éxito", 1); // 1 Usuario sistema
-                    _msjReturn = Mensaje.CrearMensaje("MS04", false, true, null, RedireccionesEnum.Default.GetDescription());
+                    _msjReturn = Mensaje.CrearMensaje("MS04", false, true, null, ViewsEnum.Default.GetDescription());
                 }
                 else
                 {
                     _bitacoraMgr.Create(CriticidadBitacora.Baja, "Registro", "Algo salio mal registrando un nuevo usuario", 1); // 1 Usuario sistema
-                    _msjReturn = Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
+                    _msjReturn = Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
                 }
 
                 return _msjReturn;
@@ -188,7 +188,7 @@ namespace Negocio.Managers.Seguridad
                     " de la clase UsuarioManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
                 }
                 catch {}                
-                return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
+                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
             }
         }
 
@@ -215,7 +215,7 @@ namespace Negocio.Managers.Seguridad
                 if (string.IsNullOrEmpty(idUsuarioEncriptado))
                 {
                     // ALGO ANDA MAL
-                    _returnMensaje = Mensaje.CrearMensaje("MS64", true, true, null, RedireccionesEnum.Error.GetDescription());
+                    _returnMensaje = Mensaje.CrearMensaje("MS64", true, true, null, ViewsEnum.Error.GetDescription());
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "ValidarEmail", "Error al intentar activar un usuario", 1);
                 }
                 else
@@ -226,13 +226,13 @@ namespace Negocio.Managers.Seguridad
                     {
                         usuarioActivar.Activo = true;
                         Save(usuarioActivar);
-                        _returnMensaje = Mensaje.CrearMensaje("MS63", false, true, null, RedireccionesEnum.Ingreso.GetDescription());
+                        _returnMensaje = Mensaje.CrearMensaje("MS63", false, true, null, ViewsEnum.Ingreso.GetDescription());
                         _bitacoraMgr.Create(CriticidadBitacora.Media, "ValidarEmail", "Se activo el Usuario: " + idUser.ToString() + "en el Sistema", 1);
                     }
                     else
                     {
                         _bitacoraMgr.Create(CriticidadBitacora.Alta, "ValidarEmail", "Se intentó activar un usuario con un Id null o inexistente", 1);
-                        _returnMensaje = Mensaje.CrearMensaje("MS64", true, true, null, RedireccionesEnum.Error.GetDescription());
+                        _returnMensaje = Mensaje.CrearMensaje("MS64", true, true, null, ViewsEnum.Error.GetDescription());
                     }
                 }
                 return _returnMensaje;
@@ -244,7 +244,7 @@ namespace Negocio.Managers.Seguridad
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "ValidarEmail", "Se produjo una excepción activando un usuario", 1);
                 }
                 catch {}
-                return Mensaje.CrearMensaje("MS64", true, true, e, RedireccionesEnum.Error.GetDescription());
+                return Mensaje.CrearMensaje("MS64", true, true, e, ViewsEnum.Error.GetDescription());
             }
         }
 
@@ -318,6 +318,20 @@ namespace Negocio.Managers.Seguridad
 
                 throw e;
             }
+        }
+
+        public List<Permiso> ObtenerPermisosDeUnUsuario(int userId)
+        {
+            try
+            {
+                return Retrieve(new Usuario { Id = userId }).Single().Permisos;
+            }
+            catch (Exception e)
+            {
+                // flujod e si no encuentra ningun usuario con ese id
+                throw e;
+            }
+            
         }
 
         #region DIGITO VERIFICADOR

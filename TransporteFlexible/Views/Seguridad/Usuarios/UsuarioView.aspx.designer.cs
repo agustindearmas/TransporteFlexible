@@ -10,7 +10,7 @@
 namespace TransporteFlexible.Views.Seguridad.Usuarios {
     
     
-    public partial class Usuario {
+    public partial class UsuarioView {
         
         /// <summary>
         /// Control _tbIdUsuario.

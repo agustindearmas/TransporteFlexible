@@ -22,6 +22,7 @@
     <link href="~/fonts/fontawesome-free/css/brands.min.css" rel="stylesheet" />
     <link href="~/fonts/fontawesome-free/css/svg-with-js.min.css" rel="stylesheet" />
     <link href="~/fonts/fontawesome-free/css/v4-shims.min.css" rel="stylesheet" />
+    <link href="~/Content/GridView/HideColumn.css" rel="stylesheet" />
 </head>
 
 <body id="page-top">

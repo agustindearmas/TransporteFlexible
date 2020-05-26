@@ -48,7 +48,7 @@ namespace TransporteFlexible.Views.Seguridad
                 }
                 else
                 {
-                    Mensaje msj = Mensaje.CrearMensaje("MS36", false, true, null, RedireccionesEnum.Default.GetDescription());
+                    Mensaje msj = Mensaje.CrearMensaje("MS36", false, true, null, Common.Enums.Seguridad.ViewsEnum.Default.GetDescription());
                     MensajesHelper.ProcesarMensajeGenerico(this.GetType(), msj, Page);                    
                 }
             }            

@@ -41,7 +41,7 @@ namespace Negocio.Managers.Seguridad
                     Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
 
                     return ses != null ? Mensaje.CrearMensaje("OK", false, false, ses, null) :
-                        Mensaje.CrearMensaje("ER01", true, true, null, RedireccionesEnum.Error.GetDescription());
+                        Mensaje.CrearMensaje("ER01", true, true, null, ViewsEnum.Error.GetDescription());
                 }
 
                 if (usuario == null) // Valida existencia del usuario
@@ -70,7 +70,7 @@ namespace Negocio.Managers.Seguridad
                         usuario.Habilitado = false;
                         _usuarioMgr.Save(usuario);
                         _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Usuario bloqueado por reiterado intentos, IdUsuario: " + usuario.Id.ToString(), 0);
-                        return Mensaje.CrearMensaje("MS06", false, true, null, RedireccionesEnum.Default.GetDescription());
+                        return Mensaje.CrearMensaje("MS06", false, true, null, ViewsEnum.Default.GetDescription());
                     }
                     else
                     {
@@ -131,7 +131,7 @@ namespace Negocio.Managers.Seguridad
                 else
                 {
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Se produjo una excepción en el login", 1);
-                    return Mensaje.CrearMensaje("ER01", true, true, e, RedireccionesEnum.Error.GetDescription());
+                    return Mensaje.CrearMensaje("ER01", true, true, e, ViewsEnum.Error.GetDescription());
                 }
 
             }

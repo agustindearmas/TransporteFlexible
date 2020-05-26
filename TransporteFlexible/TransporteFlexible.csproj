@@ -275,6 +275,7 @@
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Content\grayscale.css" />
     <Content Include="Content\grayscale.min.css" />
+    <Content Include="Content\GridView\HideColumn.css" />
     <Content Include="Content\RegistradoEstilos\dataTables.bootstrap4.css" />
     <Content Include="Content\RegistradoEstilos\dataTables.bootstrap4.min.css" />
     <Content Include="Content\RegistradoEstilos\sb-admin.css" />
@@ -1851,7 +1852,8 @@
     <Content Include="Views\Seguridad\BitacoraView.aspx" />
     <Content Include="Views\Seguridad\Ingreso.aspx" />
     <Content Include="Views\Seguridad\Registro.aspx" />
-    <Content Include="Views\Seguridad\Usuarios\Usuario.aspx" />
+    <Content Include="Views\Seguridad\Usuarios\Permisos\PermisoView.aspx" />
+    <Content Include="Views\Seguridad\Usuarios\UsuarioView.aspx" />
     <Content Include="Views\Seguridad\ValidaEmail.aspx" />
     <Content Include="Views\Shared\Bienvenida.aspx" />
     <Content Include="Views\Shared\Error.aspx" />
@@ -1931,6 +1933,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helper\GridView\GridViewExtensions.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Helper\PermisosHelper.cs" />
     <Compile Include="Helper\TablaHelper.cs" />
     <Compile Include="Mensajes\MensajesHelper.cs" />
@@ -1984,12 +1989,19 @@
     <Compile Include="Views\Seguridad\Registro.aspx.designer.cs">
       <DependentUpon>Registro.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Views\Seguridad\Usuarios\Usuario.aspx.cs">
-      <DependentUpon>Usuario.aspx</DependentUpon>
+    <Compile Include="Views\Seguridad\Usuarios\Permisos\PermisoView.aspx.cs">
+      <DependentUpon>PermisoView.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Views\Seguridad\Usuarios\Usuario.aspx.designer.cs">
-      <DependentUpon>Usuario.aspx</DependentUpon>
+    <Compile Include="Views\Seguridad\Usuarios\Permisos\PermisoView.aspx.designer.cs">
+      <DependentUpon>PermisoView.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\UsuarioView.aspx.cs">
+      <DependentUpon>UsuarioView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\UsuarioView.aspx.designer.cs">
+      <DependentUpon>UsuarioView.aspx</DependentUpon>
     </Compile>
     <Compile Include="Views\Seguridad\ValidaEmail.aspx.cs">
       <DependentUpon>ValidaEmail.aspx</DependentUpon>

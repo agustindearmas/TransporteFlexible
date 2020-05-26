@@ -2,6 +2,7 @@
 using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
+using Common.Satellite.Shared;
 using DataAccess.Concrete;
 using Negocio.DigitoVerificador;
 using System;
@@ -14,16 +15,59 @@ namespace Negocio.Managers.Seguridad
     {
         private readonly IRepository<Permiso> _Repository;
         private readonly BitacoraManager _bitacoraMgr;
+        private readonly UsuarioManager _usuarioMgr;
 
         public PermisoManager()
         {
             _Repository = new Repository<Permiso>();
             _bitacoraMgr = new BitacoraManager();
+            _usuarioMgr = new UsuarioManager();
         }
 
         public List<Permiso> Retrieve(Permiso filter)
         {
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
+        }
+
+        /// <summary>
+        /// Este metodo obtiene todos los permisos asignados que posee un usuario
+        /// </summary>
+        public Mensaje ObtenerPermisosPorUsuarioId(int userId)
+        {
+            try
+            {
+                List<Permiso> permisos = 
+                    _usuarioMgr.ObtenerPermisosDeUnUsuario(userId);
+                permisos.OrderBy(x => x.Id);
+                return Mensaje.CrearMensaje("OK", false, false, permisos, "");
+            }
+            catch (Exception e)
+            {
+                // NO ENCUENTRA EL USUARIO
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// Este metodo obtiene todos los permisos desasignados que posee un usuario
+        /// </summary>
+        public Mensaje ObtenerPermisosDesasignados(int userId)
+        {
+            try
+            {
+                List<Permiso> todos = Retrieve(null);
+                List<Permiso> asignados = _usuarioMgr.ObtenerPermisosDeUnUsuario(userId);
+
+                List<Permiso> noAsignados = todos.Where(x => !asignados.Any(y => y.Id == x.Id)).ToList();
+                noAsignados.OrderBy(x => x.Id);
+                return Mensaje.CrearMensaje("OK", false, false, noAsignados, "");
+            }
+            catch (Exception e)
+            {
+
+                throw e;
+            }
+
         }
 
         public int Save(Permiso entity)
@@ -40,7 +84,7 @@ namespace Negocio.Managers.Seguridad
                 {
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: " + e.Message, 1); // 1 Usuario sistema
                 }
-                catch{}
+                catch { }
                 throw e;
             }
         }
@@ -53,7 +97,7 @@ namespace Negocio.Managers.Seguridad
         public void Delete(Permiso entity)
         {
             throw new NotImplementedException();
-        }        
+        }
 
         public List<Permiso> ObtenerPermisosPorRolId(int idRol)
         {
@@ -86,7 +130,7 @@ namespace Negocio.Managers.Seguridad
 
                 throw e;
             }
-            
+
         }
 
 

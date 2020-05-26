@@ -24,7 +24,7 @@ namespace TransporteFlexible.Mensajes
 
         public static void ProcesarMensajeGenerico(Type type, Mensaje msj, Page page)
         {
-            if (msj.EsError && msj.RutaRedireccion == RedireccionesEnum.Error.GetDescription())
+            if (msj.EsError && msj.RutaRedireccion == Common.Enums.Seguridad.ViewsEnum.Error.GetDescription())
             {
                 System.Web.HttpContext.Current.Session["Error"] = ObtenerMensaje(msj.CodigoMensaje);
                 System.Web.HttpContext.Current.Response.Redirect(msj.RutaRedireccion);

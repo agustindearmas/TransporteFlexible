@@ -54,7 +54,7 @@ namespace Negocio.Managers.Seguridad
                 }
                 catch { }
 
-                return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
+                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
             }
         }
 
@@ -87,7 +87,7 @@ namespace Negocio.Managers.Seguridad
                 }
                 catch { }
 
-                return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
+                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
             }
         }
 

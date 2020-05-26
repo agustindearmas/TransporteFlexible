@@ -112,7 +112,7 @@ namespace Negocio.Managers.Seguridad
                     fechaHastaConvertida = Convert.ToDateTime(fechaHasta);
                     if (fechaDesdeConvertida > fechaHastaConvertida)
                     {
-                        return Mensaje.CrearMensaje("MS37", false, true, null, RedireccionesEnum.Bitacora.GetDescription());
+                        return Mensaje.CrearMensaje("MS37", false, true, null, ViewsEnum.Bitacora.GetDescription());
                     }
                 }
 
@@ -151,7 +151,7 @@ namespace Negocio.Managers.Seguridad
                        " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
                 }
                 catch { }
-                return Mensaje.CrearMensaje("ER03", true, true, null, RedireccionesEnum.Error.GetDescription());
+                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
             }
         }
 
