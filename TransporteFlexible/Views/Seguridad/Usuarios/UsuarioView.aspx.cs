@@ -1,4 +1,6 @@
-﻿using Common.Extensions;
+﻿using Common.Enums.Seguridad;
+using Common.Extensions;
+using Common.FactoryMensaje;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
@@ -26,7 +28,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             }
             else
             {
-                Mensaje msj = Mensaje.CrearMensaje("MS39", false, true, null, "/");
+                Mensaje msj = MessageFactory.CrearMensaje("MS39", "/");
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
         }
@@ -55,7 +57,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             catch (Exception e)
             {
                 throw e;
-            }   
+            }
         }
 
         protected void _usuariosGridView_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -70,33 +72,50 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             // by the user from the Rows collection.      
             GridViewRow row = _usuariosGridView.Rows[index];
 
+            string userId = row.Cells[0].Text;
+
+            Session[SV.UsuarioModificado.GD()] = userId;
+
+            int userIdInt = Convert.ToInt32(userId);
+
             switch (commandName)
             {
                 case "_verPermisos":
-                    VerPermisos(row.Cells[0].Text);
+                    VerPermisos(userIdInt);
                     break;
                 case "_modificar":
+                    VerEditarUsuario(userIdInt);
                     break;
                 case "_eliminar":
+                    break;
+                case "_habdes":
+                    ModificarHabilitado(userIdInt);
                     break;
                 default:
                     break;
             }
         }
 
-        private void VerPermisos(string id)
+        private void ModificarHabilitado(int id)
         {
-            if (!string.IsNullOrEmpty(id) || id != "0")
-            {
-                string urlRedirect = string.Concat(Common.Enums.Seguridad.ViewsEnum.Permiso.GetDescription(),
-                    "?id=", id);
-                Response.Redirect(urlRedirect);
+            UsuarioManager _usuarioMgr = new UsuarioManager();
+            Mensaje msj = _usuarioMgr.HabilitrDeshabilitarUsuario(id);
+            MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+            PopularTabla();
+        }
 
-            }
-            else
-            {
-                //FLUJIN DE ERROR
-            }
+        private void VerPermisos(int id)
+        {
+            string urlRedirect = string.Concat(ViewsEnum.Permiso.GD(),
+                "?id=", id);
+            Response.Redirect(urlRedirect);
+        }
+
+        private void VerEditarUsuario(int id)
+        {
+            string urlRedirect = string.Concat(ViewsEnum.UsuarioAM.GD(),
+                "?id=", id);
+            Response.Redirect(urlRedirect);
         }
 
         internal override bool EsCampoNoNecesario(PropertyDescriptor prop)
@@ -113,6 +132,11 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             _usuariosGridView.DataSource = dt;
             _usuariosGridView.DataBind();
             _lblFechaActualizacion.Text = DateTime.Now.ToString();
+        }
+
+        protected void btnFiltrarUsuarios_Click(object sender, EventArgs e)
+        {
+            PopularTabla();
         }
     }
 }

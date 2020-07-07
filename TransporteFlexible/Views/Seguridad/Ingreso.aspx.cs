@@ -1,4 +1,6 @@
-﻿using Common.Satellite.Seguridad;
+﻿using Common.Enums.Seguridad;
+using Common.Extensions;
+using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
 using System;
@@ -27,10 +29,11 @@ namespace TransporteFlexible.Views.Seguridad
                 // redirigir a la pagina principal
                 // Session
                 Sesion ses = (Sesion)msj.Resultado;
-                Session["UsuarioLogueado"] = ses.IdUsuario;
-                Session["NombreUsuario"] = ses.NombreUsuario;
-                Session["Permisos"] = ses.Permisos;
-                Response.Redirect("~/Views/Shared/Bienvenida.aspx");
+                Session[SV.UsuarioLogueado.GD()] = ses.IdUsuario;
+                Session[SV.NombreUsuario.GD()] = ses.NombreUsuario;
+                Session[SV.Permisos.GD()] = ses.Permisos;
+                ;
+                Response.Redirect("~" + ViewsEnum.Bienvenida.GD());
             }
             else
             {

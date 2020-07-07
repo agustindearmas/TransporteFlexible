@@ -8,9 +8,9 @@ using System.Linq;
 
 namespace Negocio.DigitoVerificador
 {
-    public abstract class DigitoVerificador<T>
+    public abstract class CheckDigit<T>
     {
-        protected bool ValidarIntegridad(List<T> entities)
+        protected bool ValidateIntegrity(List<T> entities)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace Negocio.DigitoVerificador
             
         }
 
-        public int CalcularIntegridadRegistro(T entidad)
+        public int CalculateRegistryIntegrity(T entidad)
         {   
             int dvh = AlgoritmoDVH(entidad);
             var tableAtt = (TableAttribute)Attribute.GetCustomAttribute(entidad.GetType(), typeof(TableAttribute));

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class NivelCriticidadManager : DigitoVerificador<NivelCriticidad>, IManagerCrud<NivelCriticidad>
+    public class NivelCriticidadManager : CheckDigit<NivelCriticidad>, IManagerCrud<NivelCriticidad>
     {
         private readonly IRepository<NivelCriticidad> _Repository;
         public NivelCriticidadManager()
@@ -70,7 +70,7 @@ namespace Negocio.Managers.Seguridad
 
         public override void ValidarIntegridadRegistros()
         {
-            ValidarIntegridad(Retrieve(null));
+            ValidateIntegrity(Retrieve(null));
         }
 
         protected override void AplicarIntegridadRegistro(NivelCriticidad entity)

@@ -1,4 +1,7 @@
-﻿using Common.Satellite.Shared;
+﻿using Common.Enums.Seguridad;
+using Common.Extensions;
+using Common.FactoryMensaje;
+using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
 using System;
 using TransporteFlexible.Helper;
@@ -10,7 +13,7 @@ namespace TransporteFlexible.Views.Seguridad
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!PermisosHelper.ValidarPermisos(42, Session["Permisos"]))
+            if (!PermisosHelper.ValidarPermisos(42, Session[SV.Permisos.GD()]))
             {
                 RebotarUsuarioSinPermisos("/");
             }
@@ -18,10 +21,10 @@ namespace TransporteFlexible.Views.Seguridad
 
         protected void btnGenerarRespaldo_Click(object sender, EventArgs e)
         {
-            if (Session["Permisos"] != null && PermisosHelper.ValidarPermisos(12, Session["Permisos"]))
+            if (Session[SV.Permisos.GD()] != null && PermisosHelper.ValidarPermisos(12, Session[SV.Permisos.GD()]))
             {   
                 BDManager _bdMgr = new BDManager();
-                Mensaje msj = _bdMgr.GenerarBKP(txtNombreRespaldo.Text, Convert.ToInt32(Session["UsuarioLogueado"]));
+                Mensaje msj = _bdMgr.GenerarBKP(txtNombreRespaldo.Text, Convert.ToInt32(SV.UsuarioLogueado.GD()));
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
             else
@@ -32,10 +35,10 @@ namespace TransporteFlexible.Views.Seguridad
 
         protected void btnRestaurar_Click(object sender, EventArgs e)
         {
-            if (Session["Permisos"] != null && PermisosHelper.ValidarPermisos(13, Session["Permisos"]))
+            if (Session[SV.Permisos.GD()] != null && PermisosHelper.ValidarPermisos(13, Session[SV.Permisos.GD()]))
             {
                 BDManager _bdMgr = new BDManager();
-                Mensaje msj = _bdMgr.MontarBKP(fuRestore.FileName, Convert.ToInt32(Session["UsuarioLogueado"]));
+                Mensaje msj = _bdMgr.MontarBKP(fuRestore.FileName, Convert.ToInt32(SV.UsuarioLogueado.GD()));
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
             else
@@ -46,7 +49,7 @@ namespace TransporteFlexible.Views.Seguridad
 
         protected void btnRecalDV_Click(object sender, EventArgs e)
         {
-            if (PermisosHelper.ValidarPermisos(14, Session["Permisos"]))
+            if (PermisosHelper.ValidarPermisos(14, Session[SV.Permisos.GD()]))
             {
                 TablaDVVManager _dVerificadorManager = new TablaDVVManager();
                 Mensaje msj = _dVerificadorManager.RecalcularDigitosVerificadores();
@@ -60,7 +63,7 @@ namespace TransporteFlexible.Views.Seguridad
 
         private void RebotarUsuarioSinPermisos(string redirect = null)
         {
-            Mensaje msj = Mensaje.CrearMensaje("MS39", false, true, null, redirect);
+            Mensaje msj = MessageFactory.CrearMensaje("MS39", redirect);
             MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
         }
     }

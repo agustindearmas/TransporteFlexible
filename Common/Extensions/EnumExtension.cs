@@ -8,7 +8,13 @@ namespace Common.Extensions
 {
     public static class EnumExtension
     {
-        public static string GetDescription(this Enum value)
+        /// <summary>
+        /// Obtiene la descripción del enum
+        /// GetDescription
+        /// </summary>
+        /// <param name="value">Recibe como parametro el enum que lo llama</param>
+        /// <returns>Devuelve la descripcion en string del enum</returns>
+        public static string GD(this Enum value)
         {
             FieldInfo field = value.GetType().GetField(value.ToString());
 

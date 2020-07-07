@@ -1,11 +1,12 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Default.Master" AutoEventWireup="true" CodeBehind="UsuarioView.aspx.cs" Inherits="TransporteFlexible.Views.Seguridad.Usuarios.UsuarioView" %>
+
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="container-fluid">
 
         <!-- Breadcrumbs-->
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="/Views/Shared/Bienvenida.aspx">Bienvenida</a>
+                <a href="../../Shared/Bienvenida.aspx">Bienvenida</a>
             </li>
             <li class="breadcrumb-item">
                 <a>Usuarios</a>
@@ -38,7 +39,7 @@
 
         </div>
         <div class="form-group w-100">
-            <asp:Button ID="btnFiltrarUsuarios" class="btn btn-info btn-block my-4" runat="server" Text="Filtrar Usuario" />
+            <asp:Button ID="btnFiltrarUsuarios" class="btn btn-info btn-block my-4" runat="server" Text="Filtrar Usuario" OnClick="btnFiltrarUsuarios_Click" />
         </div>
     </div>
 
@@ -54,16 +55,47 @@
                 <asp:GridView ID="_usuariosGridView" AutoGenerateColumns="false" class="table table-bordered" runat="server" OnRowCommand="_usuariosGridView_RowCommand">
                     <Columns>
                         <asp:BoundField DataField="ID" HeaderText="Id" HeaderStyle-CssClass="hiddencol" ItemStyle-CssClass="hiddencol" />
-                        <asp:BoundField DataField="NombreUsuario" HeaderText="Nombre Usuario"/>
-                        <asp:BoundField DataField="Habilitado" HeaderText="Habilitado"/>
-                        <asp:BoundField DataField="Activo" HeaderText="Activo"/>
-                        <asp:BoundField DataField="Baja" HeaderText="Baja"/>
-                        <asp:BoundField DataField="Intentos" HeaderText="Intentos"/>
+                        <asp:BoundField DataField="NombreUsuario" HeaderText="Nombre Usuario" />
+
+                        <asp:TemplateField HeaderText="Roles">
+                            <ItemTemplate>
+                                <asp:Repeater ID="Repeater1" runat="server" DataSource='<%# Eval("Roles") %>'>
+                                    <ItemTemplate>
+                                        <%# (Container.ItemIndex+1)+"."+ Container.DataItem  %><br />
+                                    </ItemTemplate>
+                                </asp:Repeater>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Habilitado">
+                            <ItemTemplate>
+                                <span class="<%# ((bool)Eval("Habilitado")) ? "fas fa-check" : "fas fa-times"%>"></span>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Activo">
+                            <ItemTemplate>
+                                <span class="<%# ((bool)Eval("Activo")) ? "fas fa-check" : "fas fa-times"%>"></span>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:TemplateField HeaderText="Baja">
+                            <ItemTemplate>
+                                <span class="<%# ((bool)Eval("Baja")) ? "fas fa-check" : "fas fa-times"%>"></span>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+
+                        <asp:BoundField DataField="Intentos" HeaderText="Intentos" />
                         <asp:TemplateField HeaderText="Acciones">
                             <ItemTemplate>
-                                <asp:Button runat="server" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CommandName="_verPermisos" Text="Ver Permisos" />
-                                <asp:Button runat="server" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CommandName="_modificar" Text="Modificar" />
-                                <asp:Button runat="server" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CommandName="_eliminar" Text="Eliminar" />
+
+
+                                <asp:LinkButton runat="server" ToolTip="Permisos" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CommandName="_verPermisos" CssClass="btn btn-secondary"> <i class='fas fa-key'></i></asp:LinkButton>
+                                <asp:LinkButton runat="server" ToolTip="Editar" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CommandName="_modificar" CssClass="btn btn-secondary"><i class="fas fa-user-edit"></i> </asp:LinkButton>
+                                <asp:LinkButton runat="server" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CommandName="_habdes" CssClass="btn btn-warning"> <div title="<%# (bool)Eval("Habilitado") ? "Deshabilitar" : "Habilitar" %>"><i class="<%# (bool)Eval("Habilitado") ? "fas fa-user-slash " : "fas fa-user-check" %>"></i></div></asp:LinkButton>
+                                <asp:LinkButton runat="server" ToolTip="Eliminar" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CommandName="_eliminar" CssClass="btn btn-danger"> <i class="far fa-trash-alt"></i></asp:LinkButton>
+
+
                             </ItemTemplate>
                         </asp:TemplateField>
                     </Columns>

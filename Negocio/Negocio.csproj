@@ -54,12 +54,12 @@
     <Compile Include="Managers\Seguridad\RolManager.cs" />
     <Compile Include="Managers\Seguridad\SesionManager.cs" />
     <Compile Include="Managers\Seguridad\UsuarioManager.cs" />
-    <Compile Include="Managers\Shared\ConfiguracionManager.cs" />
+    <Compile Include="Managers\Shared\ConfigManager.cs" />
     <Compile Include="Managers\Shared\CrudManager.cs" />
     <Compile Include="Managers\Shared\EmailManager.cs" />
-    <Compile Include="Managers\Shared\EnvioEmailManager.cs" />
+    <Compile Include="Managers\Shared\SendEmailManager.cs" />
     <Compile Include="Managers\Shared\PersonaManager.cs" />
-    <Compile Include="Managers\Shared\TelefonoManager.cs" />
+    <Compile Include="Managers\Shared\PhoneManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -11,12 +11,12 @@ using System.Linq;
 
 namespace Negocio.Managers.Shared
 {
-    public class TelefonoManager : DigitoVerificador<Telefono>, IManagerCrud<Telefono>
+    public class PhoneManager : CheckDigit<Telefono>, IManagerCrud<Telefono>
     {
         private readonly IRepository<Telefono> _Repository;
         private readonly BitacoraManager _bitacoraMgr;
 
-        public TelefonoManager()
+        public PhoneManager()
         {
             _Repository = new Repository<Telefono>();
             _bitacoraMgr = new BitacoraManager();
@@ -27,7 +27,7 @@ namespace Negocio.Managers.Shared
             {
                 Telefono tel = new Telefono
                 {
-                    NumeroTelefono = EncriptacionManager.EncriptarAES(telefono),
+                    NumeroTelefono = CryptManager.EncryptAES(telefono),
                     UsuarioCreacion = usuarioCreacion,
                     UsuarioModificacion = usuarioCreacion,
                     FechaCreacion = DateTime.Now,
@@ -76,7 +76,7 @@ namespace Negocio.Managers.Shared
         #region Digito Verificador
         public override void ValidarIntegridadRegistros()
         {
-            ValidarIntegridad(Retrieve(null));
+            ValidateIntegrity(Retrieve(null));
         }
 
         protected override string ConcatenarPropiedadesDelObjeto(Telefono entity)
@@ -100,7 +100,7 @@ namespace Negocio.Managers.Shared
         protected override void AplicarIntegridadRegistro(Telefono entity)
         {
             Telefono tel = Retrieve(entity).First();
-            tel.DVH = CalcularIntegridadRegistro(tel);
+            tel.DVH = CalculateRegistryIntegrity(tel);
             _Repository.Save(tel);
         }
 

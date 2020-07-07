@@ -61,7 +61,17 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
@@ -1853,7 +1863,10 @@
     <Content Include="Views\Seguridad\Ingreso.aspx" />
     <Content Include="Views\Seguridad\Registro.aspx" />
     <Content Include="Views\Seguridad\Usuarios\Permisos\PermisoView.aspx" />
+    <Content Include="Views\Seguridad\Usuarios\UsuarioAMView.aspx" />
     <Content Include="Views\Seguridad\Usuarios\UsuarioView.aspx" />
+    <Content Include="Views\Seguridad\Usuarios\WUCEmails.ascx" />
+    <Content Include="Views\Seguridad\Usuarios\WUCTelefonos.ascx" />
     <Content Include="Views\Seguridad\ValidaEmail.aspx" />
     <Content Include="Views\Shared\Bienvenida.aspx" />
     <Content Include="Views\Shared\Error.aspx" />
@@ -1933,6 +1946,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helper\GridView\GridViewASCXExtensions.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Helper\GridView\GridViewExtensions.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
@@ -1996,12 +2012,33 @@
     <Compile Include="Views\Seguridad\Usuarios\Permisos\PermisoView.aspx.designer.cs">
       <DependentUpon>PermisoView.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\UsuarioAMView.aspx.cs">
+      <DependentUpon>UsuarioAMView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\UsuarioAMView.aspx.designer.cs">
+      <DependentUpon>UsuarioAMView.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Views\Seguridad\Usuarios\UsuarioView.aspx.cs">
       <DependentUpon>UsuarioView.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Views\Seguridad\Usuarios\UsuarioView.aspx.designer.cs">
       <DependentUpon>UsuarioView.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\WUCEmails.ascx.cs">
+      <DependentUpon>WUCEmails.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\WUCEmails.ascx.designer.cs">
+      <DependentUpon>WUCEmails.ascx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\WUCTelefonos.ascx.cs">
+      <DependentUpon>WUCTelefonos.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\WUCTelefonos.ascx.designer.cs">
+      <DependentUpon>WUCTelefonos.ascx</DependentUpon>
     </Compile>
     <Compile Include="Views\Seguridad\ValidaEmail.aspx.cs">
       <DependentUpon>ValidaEmail.aspx</DependentUpon>

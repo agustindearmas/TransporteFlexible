@@ -14,6 +14,9 @@ namespace Common.Satellite.Shared
         [NameEntity(IdEntity = "Email", NameEntity = "EmailAddress")]
         public string EmailAddress { get; set; }
 
+        [NameEntity(IdEntity = "Habilitado", NameEntity = "Habilitado")]
+        public bool Habilitado { get; set; }
+
         [NameEntity(IdEntity = "UsuarioCreacion", NameEntity = "UsuarioCreacion")]
         public int? UsuarioCreacion { get; set; }
 

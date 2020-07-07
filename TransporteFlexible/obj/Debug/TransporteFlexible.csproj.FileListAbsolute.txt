@@ -79,3 +79,12 @@ C:\Users\ajfde\Documents\Facultad\TransporteFlexible\obj\Debug\TransporteFlexibl
 C:\Users\ajfde\Documents\Facultad\TransporteFlexible\obj\Debug\TransporteFlexible.csproj.CopyComplete
 C:\Users\ajfde\Documents\Facultad\TransporteFlexible\obj\Debug\TransporteFlexible.dll
 C:\Users\ajfde\Documents\Facultad\TransporteFlexible\obj\Debug\TransporteFlexible.pdb
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\System.Net.Http.Formatting.dll
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\System.Web.Http.dll
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\System.Web.Http.WebHost.dll
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\System.Net.Http.Formatting.xml
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\System.Web.Http.xml
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\System.Web.Http.WebHost.xml
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\es\System.Net.Http.Formatting.resources.dll
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\es\System.Web.Http.resources.dll
+C:\Users\ajfde\Documents\Facultad\TransporteFlexible\bin\es\System.Web.Http.WebHost.resources.dll

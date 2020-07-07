@@ -4,11 +4,11 @@ using System.Text;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class EncriptacionManager
+    public class CryptManager
     {
         private const string mysecurityKey = "agustin";
 
-        public static string EncriptarMD5(string cadena)
+        public static string EncriptMD5(string cadena)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        public static string EncriptarAES(string TextToEncrypt)
+        public static string EncryptAES(string TextToEncrypt)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace Negocio.Managers.Seguridad
 
         }
 
-        public static string DesencriptarAES(string TextToDecrypt)
+        public static string DecryptAES(string TextToDecrypt)
         {
             try
             {

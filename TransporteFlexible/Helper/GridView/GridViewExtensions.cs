@@ -39,9 +39,7 @@ namespace TransporteFlexible.Helper.GridView
         }
 
         internal abstract void BuildDataGridView(List<T> entities);
-        
 
         internal abstract bool EsCampoNoNecesario(PropertyDescriptor prop);
-
     }
 }

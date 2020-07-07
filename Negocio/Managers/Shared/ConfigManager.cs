@@ -11,11 +11,11 @@ using System.Linq;
 
 namespace Negocio.Managers.Shared
 {
-    public class ConfiguracionManager : DigitoVerificador<Configuracion>, IManagerCrud<Configuracion>
+    public class ConfigManager : CheckDigit<Configuracion>, IManagerCrud<Configuracion>
     {
         private readonly IRepository<Configuracion> _Repository;
 
-        public ConfiguracionManager()
+        public ConfigManager()
         {
             _Repository = new Repository<Configuracion>();
         }
@@ -56,7 +56,7 @@ namespace Negocio.Managers.Shared
 
         public override void ValidarIntegridadRegistros()
         {
-            ValidarIntegridad(Retrieve(null));
+            ValidateIntegrity(Retrieve(null));
         }
 
         protected override string ConcatenarPropiedadesDelObjeto(Configuracion entity)
@@ -81,7 +81,7 @@ namespace Negocio.Managers.Shared
         protected override void AplicarIntegridadRegistro(Configuracion entity)
         {
             Configuracion config = Retrieve(entity).First();
-            config.DVH = CalcularIntegridadRegistro(config);
+            config.DVH = CalculateRegistryIntegrity(config);
             _Repository.Save(config);
         }
 

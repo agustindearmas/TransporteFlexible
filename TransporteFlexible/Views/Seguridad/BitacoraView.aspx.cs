@@ -1,4 +1,5 @@
-﻿using Common.Satellite.Seguridad;
+﻿using Common.FactoryMensaje;
+using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
 using System;
@@ -27,7 +28,7 @@ namespace TransporteFlexible.Views.Seguridad
             }
             else
             {
-               Mensaje msj = Mensaje.CrearMensaje("MS39", false, true, null, "/");
+               Mensaje msj = MessageFactory.CrearMensaje("MS39", "/");
                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
         }

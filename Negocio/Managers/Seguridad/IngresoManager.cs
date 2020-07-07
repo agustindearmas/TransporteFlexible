@@ -1,5 +1,6 @@
 ﻿using Common.Enums.Seguridad;
 using Common.Extensions;
+using Common.FactoryMensaje;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using System;
@@ -20,8 +21,8 @@ namespace Negocio.Managers.Seguridad
         public Mensaje Ingresar(string nombreUsuario, string contraseña)
         {
             //encripto campos punto 9 del caso de uso
-            string contraseñaEncriptada = EncriptacionManager.EncriptarMD5(contraseña);
-            string usuarioEncriptado = EncriptacionManager.EncriptarAES(nombreUsuario);
+            string contraseñaEncriptada = CryptManager.EncriptMD5(contraseña);
+            string usuarioEncriptado = CryptManager.EncryptAES(nombreUsuario);
 
             UsuarioManager _usuarioMgr = new UsuarioManager();
             SessionManager _sessionMgr = new SessionManager();
@@ -40,8 +41,8 @@ namespace Negocio.Managers.Seguridad
                 {
                     Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
 
-                    return ses != null ? Mensaje.CrearMensaje("OK", false, false, ses, null) :
-                        Mensaje.CrearMensaje("ER01", true, true, null, ViewsEnum.Error.GetDescription());
+                    return ses != null ? MessageFactory.GetOkMessage(ses) :
+                        throw new Exception("Falla Admin login");
                 }
 
                 if (usuario == null) // Valida existencia del usuario
@@ -51,12 +52,12 @@ namespace Negocio.Managers.Seguridad
                     Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
                     if (ses != null)
                     {
-                        return Mensaje.CrearMensaje("OK", false, false, ses, null);
+                        return MessageFactory.GetOkMessage(ses);
                     }
                     else
                     {
                         _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Intento de ingreso de un usuario no registrado", 1);
-                        return Mensaje.CrearMensaje("MS09", false, true, null, null);
+                        return MessageFactory.CrearMensaje("MS09");
                     }
 
                 }
@@ -70,14 +71,14 @@ namespace Negocio.Managers.Seguridad
                         usuario.Habilitado = false;
                         _usuarioMgr.Save(usuario);
                         _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Usuario bloqueado por reiterado intentos, IdUsuario: " + usuario.Id.ToString(), 0);
-                        return Mensaje.CrearMensaje("MS06", false, true, null, ViewsEnum.Default.GetDescription());
+                        return MessageFactory.CrearMensaje("MS06", ViewsEnum.Default.GD());
                     }
                     else
                     {
                         // creo bitacora punto 18 del caso de uso
                         _usuarioMgr.Save(usuario);
                         _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Intento de ingreso por un usuario registrado, no concidio su contraseña, IdUsuario: " + usuario.Id.ToString(), 1);
-                        return Mensaje.CrearMensaje("MS05", false, true, null, null);
+                        return MessageFactory.CrearMensaje("MS05");
                     }
                 }
 
@@ -85,14 +86,14 @@ namespace Negocio.Managers.Seguridad
                 {
                     _bitacoraMgr.Create(CriticidadBitacora.Baja, "Login", "Intento de ingreso por un usuario inhabilitado, IdUsuario: " + usuario.Id.ToString(), 1);
                     // Usuario Inhabilitado
-                    return Mensaje.CrearMensaje("MS06", false, true, null, null);
+                    return MessageFactory.CrearMensaje("MS06");
                 }
 
                 if (usuario.Baja)
                 {
                     _bitacoraMgr.Create(CriticidadBitacora.Baja, "Login", "Intento de ingreso por un usuario dado de baja, IdUsuario: " + usuario.Id.ToString(), 1);
                     //Usuario Dado de Baja
-                    return Mensaje.CrearMensaje("MS07", false, true, null, null);
+                    return MessageFactory.CrearMensaje("MS07");
                 }
 
                 if (!usuario.Activo) // valida que se encuentre activo punto 14
@@ -100,7 +101,7 @@ namespace Negocio.Managers.Seguridad
                     _bitacoraMgr.Create(CriticidadBitacora.Baja, "Login", "Intento de ingreso por un usuario inactivo, IdUsuario: " + usuario.Id.ToString(), 1);
                     // Usuario inactivo
                     //Usuario Dado de Baja
-                    return Mensaje.CrearMensaje("MS08", false, true, null, null);
+                    return MessageFactory.CrearMensaje("MS08");
                 }
 
                 // punto 15 del caso de uso
@@ -117,7 +118,7 @@ namespace Negocio.Managers.Seguridad
 
                 // creo bitacora punto 18 del caso de uso
                 _bitacoraMgr.Create(CriticidadBitacora.Media, "Login", "Se logueo el usuario: " + usuario.Id.ToString() + " en el sistema", 1);
-                return Mensaje.CrearMensaje("OK", false, false, session, null);
+                return MessageFactory.GetOkMessage(session);
 
                 //Punto 19 es ejecutado en la capa de presentacion
             }
@@ -126,12 +127,12 @@ namespace Negocio.Managers.Seguridad
                 Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
                 if (ses != null)
                 {
-                    return Mensaje.CrearMensaje("OK", false, false, ses, null);
+                    return MessageFactory.GetOkMessage(ses);
                 }
                 else
                 {
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Se produjo una excepción en el login", 1);
-                    return Mensaje.CrearMensaje("ER01", true, true, e, ViewsEnum.Error.GetDescription());
+                    return MessageFactory.CrearMensajeError("ER01", e);
                 }
 
             }

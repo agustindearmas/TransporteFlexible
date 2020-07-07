@@ -1,5 +1,6 @@
 ﻿using Common.Enums.Seguridad;
 using Common.Extensions;
+using Common.FactoryMensaje;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
@@ -30,7 +31,7 @@ namespace Negocio.Managers.Seguridad
             {
                 if (string.IsNullOrWhiteSpace(nombreBKP))
                 {
-                    return Mensaje.CrearMensaje("MS44", false, true, null, null);
+                    return MessageFactory.CrearMensaje("MS44");
                 }
                 else
                 {
@@ -43,7 +44,7 @@ namespace Negocio.Managers.Seguridad
 
                     _Repository.Execute(resp, "GenerarRespaldo");
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se genero un respaldo de la base de datos", idUsuario);
-                    return Mensaje.CrearMensaje("MS22", false, true, null, null);
+                    return MessageFactory.CrearMensaje("MS22");
                 }
             }
             catch (Exception e)
@@ -54,7 +55,7 @@ namespace Negocio.Managers.Seguridad
                 }
                 catch { }
 
-                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
+                return MessageFactory.CrearMensajeError("ER03", e);
             }
         }
 
@@ -64,7 +65,7 @@ namespace Negocio.Managers.Seguridad
             {
                 if (string.IsNullOrWhiteSpace(fileName))
                 {
-                    return Mensaje.CrearMensaje("MS38", false, true, null, null);
+                    return MessageFactory.CrearMensaje("MS38");
                 }
                 else
                 {
@@ -76,7 +77,7 @@ namespace Negocio.Managers.Seguridad
 
                     _Repository.ExecuteQuery(sqlQuery, "master");
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se genero un respaldo de la base de datos", idUsuario);
-                    return Mensaje.CrearMensaje("MS23", false, true, null, null);
+                    return MessageFactory.CrearMensaje("MS23");
                 }
             }
             catch (Exception e)
@@ -87,13 +88,13 @@ namespace Negocio.Managers.Seguridad
                 }
                 catch { }
 
-                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
+                return MessageFactory.CrearMensajeError("ER03", e);
             }
         }
 
         public void BloquearBase()
         {
-            ConfiguracionManager _confMgr = new ConfiguracionManager();
+            ConfigManager _confMgr = new ConfigManager();
             Configuracion config = new Configuracion
             {
                 Id = 1,
@@ -107,7 +108,7 @@ namespace Negocio.Managers.Seguridad
 
         public void DesbloquearBase()
         {
-            ConfiguracionManager _confMgr = new ConfiguracionManager();
+            ConfigManager _confMgr = new ConfigManager();
             Configuracion config = new Configuracion
             {
                 Id = 1,
@@ -123,7 +124,7 @@ namespace Negocio.Managers.Seguridad
         {
             try
             {
-                ConfiguracionManager _configuracionMgr = new ConfiguracionManager();
+                ConfigManager _configuracionMgr = new ConfigManager();
                 Configuracion config = _configuracionMgr.Retrieve(new Configuracion { Id = 1 }).First();
                 if (config.Valor == "1")
                 {
@@ -134,9 +135,9 @@ namespace Negocio.Managers.Seguridad
                 UsuarioManager _usuarioMgr = new UsuarioManager();
                 PermisoManager _permisoMgr = new PermisoManager();
                 RolManager _rolMgr = new RolManager();
-                PersonaManager _personaMgr = new PersonaManager();
+                PersonManager _personaMgr = new PersonManager();
                 BitacoraManager _bitacoraMgr = new BitacoraManager();
-                TelefonoManager _telefonoMgr = new TelefonoManager();
+                PhoneManager _telefonoMgr = new PhoneManager();
                 TablaDVVManager _tablaDvvMgr = new TablaDVVManager();
 
                 _emailMgr.ValidarIntegridadRegistros();

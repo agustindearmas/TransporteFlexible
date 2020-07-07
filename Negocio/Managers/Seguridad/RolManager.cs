@@ -10,7 +10,7 @@ using Negocio.DigitoVerificador;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class RolManager : DigitoVerificador<Rol>, IManagerCrud<Rol>
+    public class RolManager : CheckDigit<Rol>, IManagerCrud<Rol>
     {
         private readonly IRepository<Rol> _Repository;
         private readonly BitacoraManager _bitacoraMgr;
@@ -57,7 +57,7 @@ namespace Negocio.Managers.Seguridad
         #region DigitoVerificador
         public override void ValidarIntegridadRegistros()
         {
-            ValidarIntegridad(Retrieve(null));
+            ValidateIntegrity(Retrieve(null));
         }
 
         protected override string ConcatenarPropiedadesDelObjeto(Rol entity)
@@ -81,7 +81,7 @@ namespace Negocio.Managers.Seguridad
         protected override void AplicarIntegridadRegistro(Rol entity)
         {
             Rol rol = Retrieve(entity).First();
-            rol.DVH = CalcularIntegridadRegistro(rol);
+            rol.DVH = CalculateRegistryIntegrity(rol);
             _Repository.Save(rol);
         }
 

@@ -28,5 +28,11 @@ namespace Common.Satellite.Seguridad
 
         [NameEntity(IdEntity = "DVH", NameEntity = "DVH")]
         public int DVH { get; set; }
+
+
+        public override string ToString()
+        {
+            return Descripcion;
+        }
     }
 }

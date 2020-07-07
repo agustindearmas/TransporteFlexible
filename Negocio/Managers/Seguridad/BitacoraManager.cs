@@ -1,5 +1,6 @@
 ﻿using Common.Enums.Seguridad;
 using Common.Extensions;
+using Common.FactoryMensaje;
 using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
@@ -12,7 +13,7 @@ using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class BitacoraManager : DigitoVerificador<Bitacora>, IManagerCrud<Bitacora>
+    public class BitacoraManager : CheckDigit<Bitacora>, IManagerCrud<Bitacora>
     {
         private readonly IRepository<Bitacora> _Repository;
 
@@ -78,8 +79,8 @@ namespace Negocio.Managers.Seguridad
                 new Bitacora
                 {
                     NivelCriticidad = new NivelCriticidad { Id = (int)nivelCriticidad },
-                    Evento = EncriptacionManager.EncriptarAES(evento),
-                    Suceso = EncriptacionManager.EncriptarAES(suceso),
+                    Evento = CryptManager.EncryptAES(evento),
+                    Suceso = CryptManager.EncryptAES(suceso),
                     UsuarioCreacion = idUsuario,
                     FechaCreacion = DateTime.Now,
                     UsuarioModificacion = idUsuario,
@@ -112,12 +113,12 @@ namespace Negocio.Managers.Seguridad
                     fechaHastaConvertida = Convert.ToDateTime(fechaHasta);
                     if (fechaDesdeConvertida > fechaHastaConvertida)
                     {
-                        return Mensaje.CrearMensaje("MS37", false, true, null, ViewsEnum.Bitacora.GetDescription());
+                        return MessageFactory.CrearMensaje("MS37", ViewsEnum.Bitacora.GD());
                     }
                 }
 
                 UsuarioManager _usuarioManager = new UsuarioManager();
-                string usuarioEncriptado = EncriptacionManager.EncriptarAES(usuario);
+                string usuarioEncriptado = CryptManager.EncryptAES(usuario);
                 Usuario userDB = _usuarioManager.Retrieve(new Usuario { NombreUsuario = usuarioEncriptado, Id = 0 }).FirstOrDefault();
 
                 int? usuarioAux;
@@ -132,7 +133,7 @@ namespace Negocio.Managers.Seguridad
 
                 Bitacora bitacoraFilter = new Bitacora
                 {
-                    Evento = string.IsNullOrWhiteSpace(evento) ? null : EncriptacionManager.EncriptarAES(evento),
+                    Evento = string.IsNullOrWhiteSpace(evento) ? null : CryptManager.EncryptAES(evento),
                     NivelCriticidad = new NivelCriticidad { Id = nivel },
                     UsuarioCreacion = usuarioAux,
                     FechaDesde = fechaDesdeConvertida,
@@ -141,7 +142,7 @@ namespace Negocio.Managers.Seguridad
 
                 List<Bitacora> bitacoras = Retrieve(bitacoraFilter, "Filtrada");
                 bitacoras = DesencriptadorBitacora(bitacoras);
-                return Mensaje.CrearMensaje("OK", false, false, bitacoras, null);
+                return MessageFactory.GetOkMessage(bitacoras);
             }
             catch (Exception e)
             {
@@ -151,7 +152,7 @@ namespace Negocio.Managers.Seguridad
                        " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
                 }
                 catch { }
-                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
+                return MessageFactory.CrearMensajeError("ER03", e);
             }
         }
 
@@ -159,8 +160,8 @@ namespace Negocio.Managers.Seguridad
         {
             foreach (var encrip in encriptadas)
             {
-                encrip.Evento = EncriptacionManager.DesencriptarAES(encrip.Evento);
-                encrip.Suceso = EncriptacionManager.DesencriptarAES(encrip.Suceso);
+                encrip.Evento = CryptManager.DecryptAES(encrip.Evento);
+                encrip.Suceso = CryptManager.DecryptAES(encrip.Suceso);
             }
             return encriptadas;
         }
@@ -168,7 +169,7 @@ namespace Negocio.Managers.Seguridad
         #region DigitoVerificador
         public override void ValidarIntegridadRegistros()
         {
-            ValidarIntegridad(Retrieve(null));
+            ValidateIntegrity(Retrieve(null));
         }
 
         protected override string ConcatenarPropiedadesDelObjeto(Bitacora entity)
@@ -200,7 +201,7 @@ namespace Negocio.Managers.Seguridad
         protected override void AplicarIntegridadRegistro(Bitacora entity)
         {
             Bitacora bitacora = Retrieve(entity).First();
-            bitacora.DVH = CalcularIntegridadRegistro(bitacora);
+            bitacora.DVH = CalculateRegistryIntegrity(bitacora);
             _Repository.Save(bitacora);
         }
 

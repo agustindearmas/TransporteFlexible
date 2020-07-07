@@ -47,8 +47,8 @@
                         <asp:ListBox ID="lbxAsignados" CssClass="align-content-center col-md-12" runat="server"></asp:ListBox>
                     </div>
                     <div class="col-md-4">
-                        <asp:LinkButton ID="lbAsignar" CssClass="btn btn-success" runat="server"><span class="fa fa-arrow-left"/></asp:LinkButton>
-                        <asp:LinkButton ID="lbDesasignar" CssClass="btn btn-success" runat="server"><span class="fa fa-arrow-right"/></asp:LinkButton>
+                        <asp:LinkButton ID="lbAsignar" ToolTip="Asignar" CssClass="btn btn-warning" runat="server" OnClick="lbAsignar_Click"><span class="fa fa-arrow-left"/></asp:LinkButton>
+                        <asp:LinkButton ID="lbDesasignar" ToolTip="Desasignar" CssClass="btn btn-warning" runat="server" OnClick="lbDesasignar_Click"><span class="fa fa-arrow-right"/></asp:LinkButton>
                     </div>
                     <div class="col-md-4">
                         <asp:ListBox ID="lbxDesasignados" CssClass="align-content-center col-md-12" runat="server"></asp:ListBox>
@@ -56,7 +56,14 @@
                 </div>
 
             </div>
+            <br />
+            <div style="float:right">
+                <asp:Button ID="btnGuardar" CssClass="btn btn-success" runat="server" Text="Guardar" OnClick="btnGuardar_Click" />
+                <asp:Button ID="btnCancelar" CssClass="btn btn-secondary" runat="server" Text="Cancelar" OnClick="btnCancelar_Click"/>
+            </div>
 
         </div>
+
     </div>
+
 </asp:Content>

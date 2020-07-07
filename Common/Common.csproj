@@ -49,8 +49,10 @@
     <Compile Include="Enums\Mappings\Schema.cs" />
     <Compile Include="Enums\Mappings\SQLType.cs" />
     <Compile Include="Enums\Seguridad\CriticidadBitacora.cs" />
+    <Compile Include="Enums\Seguridad\SessionVariablesEnum.cs" />
     <Compile Include="Enums\Seguridad\ViewsEnum.cs" />
     <Compile Include="Extensions\EnumExtension.cs" />
+    <Compile Include="FactoryMensaje\MensajesFactory.cs" />
     <Compile Include="Interfaces\Seguridad\IAuditoria.cs" />
     <Compile Include="Interfaces\Shared\IManagerCrud.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

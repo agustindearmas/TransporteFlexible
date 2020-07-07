@@ -2,7 +2,6 @@
 using Common.Extensions;
 using Common.Satellite.Shared;
 using System;
-using System.Threading;
 using System.Web.UI;
 using TransporteFlexible.Enums;
 
@@ -10,11 +9,35 @@ namespace TransporteFlexible.Mensajes
 {
     public static class MensajesHelper
     {
+        public static void ProcesarMensajeGenerico(Type type, Mensaje msj, Page page)
+        {
+            if (msj.EsError && msj.RutaRedireccion == ViewsEnum.Error.GD())
+            {
+                System.Web.HttpContext.Current.Session["Error"] = ObtenerMensaje(msj.CodigoMensaje);
+
+                if (msj.Resultado is Exception)
+                {
+                    Exception a = msj.Resultado as Exception;
+                    System.Web.HttpContext.Current.Session["Error"] = 
+                        string.Concat(System.Web.HttpContext.Current.Session["Error"], " Excepción: ", a.Message);
+                }
+
+                System.Web.HttpContext.Current.Response.Redirect(msj.RutaRedireccion);
+            }
+
+            if (msj.MuestraMensaje)
+                MostrarMensaje(msj, page, type);
+
+            if (!string.IsNullOrWhiteSpace(msj.RutaRedireccion) && !msj.MuestraMensaje)
+                System.Web.HttpContext.Current.Response.Redirect(msj.RutaRedireccion);
+        }
+
         private static string ObtenerMensaje(string codMensaje)
         {
             if (Enum.TryParse(codMensaje, out MensajesEnum resultado))
             {
-                return resultado.GetDescription();
+
+                return resultado.GD();
             }
             else
             {
@@ -22,26 +45,17 @@ namespace TransporteFlexible.Mensajes
             }
         }
 
-        public static void ProcesarMensajeGenerico(Type type, Mensaje msj, Page page)
-        {
-            if (msj.EsError && msj.RutaRedireccion == Common.Enums.Seguridad.ViewsEnum.Error.GetDescription())
-            {
-                System.Web.HttpContext.Current.Session["Error"] = ObtenerMensaje(msj.CodigoMensaje);
-                System.Web.HttpContext.Current.Response.Redirect(msj.RutaRedireccion);
-            }
-
-            if (msj.MuestraMensaje)
-                MostrarMensaje(msj.CodigoMensaje, page, type, msj.RutaRedireccion);
-
-            if (!string.IsNullOrWhiteSpace(msj.RutaRedireccion) && !msj.MuestraMensaje)            
-                System.Web.HttpContext.Current.Response.Redirect(msj.RutaRedireccion);
-        }
-
-        private static void MostrarMensaje(string codigoMensaje, Page page, Type type, string redireccion)
+        private static void MostrarMensaje(Mensaje mensaje, Page page, Type type)
         {
             string title = "¡Atención!";
-            string body = ObtenerMensaje(codigoMensaje);            
-            page.ClientScript.RegisterStartupScript(type, "Popup", "ShowPopup('" + title + "', '" + body + "', '" + redireccion + "');", true);
+            string body = ObtenerMensaje(mensaje.CodigoMensaje);
+
+            if (!string.IsNullOrWhiteSpace(mensaje.Concatena))
+            {
+                body = string.Format(body, mensaje.Concatena);
+            }
+
+            page.ClientScript.RegisterStartupScript(type, "Popup", "ShowPopup('" + title + "', '" + body + "', '" + mensaje.RutaRedireccion + "');", true);
         }
     }
 }

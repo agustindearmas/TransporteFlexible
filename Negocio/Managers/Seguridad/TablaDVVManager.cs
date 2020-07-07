@@ -1,6 +1,7 @@
 ﻿
 using Common.Enums.Seguridad;
 using Common.Extensions;
+using Common.FactoryMensaje;
 using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
@@ -14,7 +15,7 @@ using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class TablaDVVManager : DigitoVerificador<TablaDVV>, IManagerCrud<TablaDVV>
+    public class TablaDVVManager : CheckDigit<TablaDVV>, IManagerCrud<TablaDVV>
     {
         private readonly IRepository<TablaDVV> _Repository;
         public TablaDVVManager()
@@ -53,7 +54,7 @@ namespace Negocio.Managers.Seguridad
                 }
                 BDManager _bdMgr = new BDManager();
                 _bdMgr.DesbloquearBase();
-                return Mensaje.CrearMensaje("MS24", false, true, null, null);
+                return MessageFactory.CrearMensaje("MS24");
             }
             catch (Exception e)
             {
@@ -63,7 +64,7 @@ namespace Negocio.Managers.Seguridad
                     _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 Usuario sistema
                 }
                 catch { }
-                return Mensaje.CrearMensaje("ER03", true, true, null, ViewsEnum.Error.GetDescription());
+                return MessageFactory.CrearMensajeError("ER03", e);
             }
         }
 
@@ -114,7 +115,7 @@ namespace Negocio.Managers.Seguridad
                         _rolMgr.RecalcularIntegridadRegistros();
                         break;
                     case "Persona":
-                        PersonaManager _personaMgr = new PersonaManager();
+                        PersonManager _personaMgr = new PersonManager();
                         _personaMgr.RecalcularIntegridadRegistros();
                         break;
                     case "Bitacora":
@@ -122,11 +123,11 @@ namespace Negocio.Managers.Seguridad
                         _bitacoraMgr.RecalcularIntegridadRegistros();
                         break;
                     case "Configuracion":
-                        ConfiguracionManager _configuracionMgr = new ConfiguracionManager();
+                        ConfigManager _configuracionMgr = new ConfigManager();
                         _configuracionMgr.RecalcularIntegridadRegistros();
                         break;
                     case "Telefono":
-                        TelefonoManager _telefonoMgr = new TelefonoManager();
+                        PhoneManager _telefonoMgr = new PhoneManager();
                         _telefonoMgr.RecalcularIntegridadRegistros();
                         break;
                     case "TablaDVV":
@@ -147,7 +148,7 @@ namespace Negocio.Managers.Seguridad
         #region DigitoVerificador
         public override void ValidarIntegridadRegistros()
         {
-            ValidarIntegridad(Retrieve(null));
+            ValidateIntegrity(Retrieve(null));
         }
 
         protected override string ConcatenarPropiedadesDelObjeto(TablaDVV entity)
@@ -171,7 +172,7 @@ namespace Negocio.Managers.Seguridad
         protected override void AplicarIntegridadRegistro(TablaDVV entity)
         {
             TablaDVV tablaDVV = Retrieve(entity).First();
-            tablaDVV.DVH = CalcularIntegridadRegistro(tablaDVV);
+            tablaDVV.DVH = CalculateRegistryIntegrity(tablaDVV);
             _Repository.Save(tablaDVV);
         }
 

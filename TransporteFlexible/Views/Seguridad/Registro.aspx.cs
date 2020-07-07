@@ -1,6 +1,7 @@
 ﻿using Common.DTO.Shared;
 using Common.Enums.Seguridad;
 using Common.Extensions;
+using Common.FactoryMensaje;
 using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
 using System;
@@ -48,7 +49,7 @@ namespace TransporteFlexible.Views.Seguridad
                 }
                 else
                 {
-                    Mensaje msj = Mensaje.CrearMensaje("MS36", false, true, null, Common.Enums.Seguridad.ViewsEnum.Default.GetDescription());
+                    Mensaje msj = MessageFactory.CrearMensaje("MS36", ViewsEnum.Default.GD());
                     MensajesHelper.ProcesarMensajeGenerico(this.GetType(), msj, Page);                    
                 }
             }            

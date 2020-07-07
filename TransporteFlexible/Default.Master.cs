@@ -1,4 +1,5 @@
-﻿using Common.Extensions;
+﻿using Common.Enums.Seguridad;
+using Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Web.UI.HtmlControls;
@@ -10,49 +11,50 @@ namespace TransporteFlexible
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            _lblUsuario.Text = Session["NombreUsuario"].ToString();
+            _lblUsuario.Text = Session[SV.NombreUsuario.GD()].ToString();
             ArmarMenu();
         }
         private void ArmarMenu()
         {
-            List<int> permisos = (List<int>)Session["Permisos"];
+            // ESTOS PERMISOS DEBERIAMOS IR A BUSCARLOS A LA BASE 
+            List<int> permisos = (List<int>)Session[SV.Permisos.GD()];
 
             foreach (var permiso in permisos)
             {
                 switch (permiso)
                 {
                     case (int)PermisosEnum.LeerRolesPerfiles:
-                        CrearItemDeMenu(PermisosEnum.LeerRolesPerfiles.GetDescription(), "fa-tags", "");
+                        CrearItemDeMenu(PermisosEnum.LeerRolesPerfiles.GD(), "fa-tags", "");
                         break;
                     case (int)PermisosEnum.LeerUsuariosAdministrativos:
-                        CrearItemDeMenu(PermisosEnum.LeerUsuariosAdministrativos.GetDescription(), "fa-users", "../Seguridad/Usuarios/UsuarioView.aspx");
+                        CrearItemDeMenu(PermisosEnum.LeerUsuariosAdministrativos.GD(), "fa-users", ViewsEnum.Usuario.GD());
                         break;
                     case (int)PermisosEnum.LeerPermisos:
-                        CrearItemDeMenu(PermisosEnum.LeerPermisos.GetDescription(), "fa-lock", "");
+                        CrearItemDeMenu(PermisosEnum.LeerPermisos.GD(), "fa-lock", "");
                         break;
                     case (int)PermisosEnum.LeerBitacora:
-                        CrearItemDeMenu(PermisosEnum.LeerBitacora.GetDescription(), "fa-table", "../Seguridad/BitacoraView.aspx");
+                        CrearItemDeMenu(PermisosEnum.LeerBitacora.GD(), "fa-table", ViewsEnum.Bitacora.GD());
                         break;
                     case (int)PermisosEnum.LeerBasedeDatos:
-                        CrearItemDeMenu(PermisosEnum.LeerBasedeDatos.GetDescription(), "fa-database", "../Seguridad/BaseDeDatos.aspx");
+                        CrearItemDeMenu(PermisosEnum.LeerBasedeDatos.GD(), "fa-database", ViewsEnum.BaseDeDatos.GD());
                         break;
                     case (int)PermisosEnum.LeerCargas:
-                        CrearItemDeMenu(PermisosEnum.LeerCargas.GetDescription(), "fa-truck-loading", "");
+                        CrearItemDeMenu(PermisosEnum.LeerCargas.GD(), "fa-truck-loading", "");
                         break;
                     case (int)PermisosEnum.LeerViajes:
-                        CrearItemDeMenu(PermisosEnum.LeerViajes.GetDescription(), "fa-route", "");
+                        CrearItemDeMenu(PermisosEnum.LeerViajes.GD(), "fa-route", "");
                         break;
                     case (int)PermisosEnum.LeerReputacion:
-                        CrearItemDeMenu(PermisosEnum.LeerReputacion.GetDescription(), "fa-retweet", "");
+                        CrearItemDeMenu(PermisosEnum.LeerReputacion.GD(), "fa-retweet", "");
                         break;
                     case (int)PermisosEnum.LeerConductores:
-                        CrearItemDeMenu(PermisosEnum.LeerConductores.GetDescription(), "fa-user-friends", "");
+                        CrearItemDeMenu(PermisosEnum.LeerConductores.GD(), "fa-user-friends", "");
                         break;
                     case (int)PermisosEnum.LeerVehiculos:
-                        CrearItemDeMenu(PermisosEnum.LeerVehiculos.GetDescription(), "fa-truck", "");
+                        CrearItemDeMenu(PermisosEnum.LeerVehiculos.GD(), "fa-truck", "");
                         break;
                     case (int)PermisosEnum.LeerOfertas:
-                        CrearItemDeMenu(PermisosEnum.LeerOfertas.GetDescription(), "fa-money-check-alt", "");
+                        CrearItemDeMenu(PermisosEnum.LeerOfertas.GD(), "fa-money-check-alt", "");
                         break;
                 }
             }
@@ -86,9 +88,9 @@ namespace TransporteFlexible
 
         protected void _btnLogout_Click(object sender, EventArgs e)
         {
-            Session["UsuarioLogueado"] = null;
-            Session["NombreUsuario"] = null;
-            Session["Permisos"] = null;
+            Session[SV.UsuarioLogueado.GD()] = null;
+            Session[SV.NombreUsuario.GD()] = null;
+            Session[SV.Permisos.GD()] = null;
             Response.Redirect("/");
         }
     }

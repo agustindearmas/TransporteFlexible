@@ -135,43 +135,74 @@ namespace TransporteFlexible.Enums
 
         [Description("El vehículo seleccionado no es el propicio para la carga a transportar.")]
         MS45,
+
         [Description("Todos los conductores se encuentran ocupados en esas fechas y horarios")]
         MS46,
+
         [Description("Se ha creado una oferta nueva.")]
         MS47,
+
         [Description("Se ha cancelado una oferta.")]
         MS48,
+
         [Description("La oferta no puede ser eliminada ya que el viaje está en proceso")]
         MS49,
+
         [Description("No se puede eliminar ofertas Terminadas.")]
         MS50,
+
         [Description("No se pueden eliminar ofertas Canceladas.")]
         MS51,
+
         [Description("Se ha creado una carga.")]
         MS52,
+
         [Description("Ya existe una carga con las mismas características.")]
         MS53,
+
         [Description("Se ha eliminado la carga.")]
         MS54,
+
         [Description("No se puede cancelar la carga ya que se encuentra en viaje.")]
         MS55,
+
         [Description("Se ha creado un viaje, revise su email para más información.")]
         MS56,
+
         [Description("Su perfil no puede ser eliminado hasta que finalice o cancele todas sus transacciones ")]
         MS57,
+
         [Description("Su contraseña ha sido cambiada.")]
         MS58,
+
         [Description("Error en los datos ingresados reintente. ")]
         MS59,
+
         [Description("Calificación Enviada")]
         MS60,
+
         [Description("Resulta imposible localizar el dispositivo móvil en viaje, intente más tarde.")]
         MS61,
+
         [Description("Las contraseñas no coinciden")]
         MS62,
+
         [Description("Usuario Activado")]
-        MS63,
+        M5S63,
+
         [Description("Imposible activar el usuario")]
-        MS64
+        MS64,
+
+        [Description("Debe seleccionar un permiso para poder asignarlo")]
+        MS65,
+
+        [Description("Debe seleccionar un permiso para poder desasignarlo")]
+        MS66,
+
+        [Description("Es el único Usuario que posee el Permiso: {0}, no se puede completar la operación")]
+        MS67,
+
+        [Description("El usuario no puede ser deshabilitado ya que es el único que posee el permiso {0}")]
+        MS68,
     }
 }
