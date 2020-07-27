@@ -70,13 +70,15 @@ namespace DataAccess.Concrete
         {
             foreach (var prop in GetPropertiesList(entity))
             {
-                var clasePropiedad = prop.PropertyType.GenericTypeArguments[0].Name;
-                var nameRelation = entity.GetType().Name + clasePropiedad;
-
+                TableAttribute TableAtt = (TableAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(TableAttribute));
+                var childType = prop.PropertyType.GenericTypeArguments[0].GetTypeInfo();
+                TableAttribute SonTableAtt = (TableAttribute)Attribute.GetCustomAttribute(childType, typeof(TableAttribute));
+                string nameRelation = TableAtt.ProcedureName + SonTableAtt.ProcedureName;
+                
                 var idParent = GetPropertyValue(Mapper.GetPropertyDBKey(entity.GetType())[0], entity);
                 //Considerando entidades de una sola clave
 
-                var TableAtt = (TableAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(TableAttribute));
+               
 
                 DataBase.ExecuteSPNonQuery(GetSpName("spNameDelete", TableAtt.Schema.GetName(), nameRelation, null), p => FillParametersRelation(p, idParent));
 
@@ -320,12 +322,14 @@ namespace DataAccess.Concrete
 
             foreach (var prop in GetPropertiesList(entity))
             {
+                var TableAtt = (TableAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(TableAttribute));
                 var childType = prop.PropertyType.GenericTypeArguments[0].GetTypeInfo();
-                var nameRelation = entity.GetType().Name + childType.Name;
+                var SonAtt = (TableAttribute)Attribute.GetCustomAttribute(childType, typeof(TableAttribute));
+                var nameRelation = TableAtt.ProcedureName + SonAtt.ProcedureName;
 
                 var idParent = GetPropertyValue(Mapper.GetPropertyDBKey(entity.GetType())[0], entity);
                 //Considerando entidades de una sola clave
-                var TableAtt = (TableAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(TableAttribute));
+         
 
                 IList lista = null;
 
@@ -395,7 +399,7 @@ namespace DataAccess.Concrete
             var TableAtt = (TableAttribute)Attribute.GetCustomAttribute(typeof(T), typeof(TableAttribute));
 
             var schemaName = TableAtt.Schema != Schema.None ? TableAtt.Schema.ToString() : "dbo";//TableAtt.PrefixSp;
-            return GetSpName(nameOperation, schemaName, typeof(T).Name, executionName);
+            return GetSpName(nameOperation, schemaName, TableAtt.ProcedureName, executionName);
         }
 
         private static string GetSpName(string nameOperation, string schema, string entityName, string executionName)

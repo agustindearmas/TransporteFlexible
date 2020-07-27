@@ -42,21 +42,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DigitoVerificador\DigitoVerificador.cs" />
+    <Compile Include="CheckDigit\CheckDigit.cs" />
     <Compile Include="Managers\Seguridad\BDManager.cs" />
     <Compile Include="Managers\Seguridad\BitacoraManager.cs" />
     <Compile Include="Managers\Seguridad\CriticidadBitacoraManager.cs" />
     <Compile Include="Managers\Seguridad\TablaDVVManager.cs" />
-    <Compile Include="Managers\Seguridad\EncriptacionManager.cs" />
+    <Compile Include="Managers\Seguridad\CryptManager.cs" />
     <Compile Include="Managers\Seguridad\IngresoManager.cs" />
     <Compile Include="Managers\Seguridad\NivelCriticidadManager.cs" />
     <Compile Include="Managers\Seguridad\PermisoManager.cs" />
     <Compile Include="Managers\Seguridad\RolManager.cs" />
     <Compile Include="Managers\Seguridad\SesionManager.cs" />
-    <Compile Include="Managers\Seguridad\UsuarioManager.cs" />
+    <Compile Include="Managers\Seguridad\UserManager.cs" />
+    <Compile Include="Managers\Shared\AddressManager.cs" />
     <Compile Include="Managers\Shared\ConfigManager.cs" />
     <Compile Include="Managers\Shared\CrudManager.cs" />
     <Compile Include="Managers\Shared\EmailManager.cs" />
+    <Compile Include="Managers\Shared\LocationManager.cs" />
+    <Compile Include="Managers\Shared\ProvinceManager.cs" />
     <Compile Include="Managers\Shared\SendEmailManager.cs" />
     <Compile Include="Managers\Shared\PersonaManager.cs" />
     <Compile Include="Managers\Shared\PhoneManager.cs" />
@@ -71,6 +74,9 @@
       <Project>{3C10D2F5-9DAC-4205-BFF0-E862345442B8}</Project>
       <Name>DataAccess</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

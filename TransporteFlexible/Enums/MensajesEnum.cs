@@ -19,7 +19,7 @@ namespace TransporteFlexible.Enums
         [Description("La dirección de correo electrónica ingresada es utilizada por otro usuario registrado en el sistema, por favor cámbiela y pruebe nuevamente.")]
         MS02,
 
-        [Description("Usuario y/o contraseña invalidos.")]
+        [Description("User y/o contraseña invalidos.")]
         MS03,
 
         [Description("El usuario ha sido creado con éxito, se ha enviado un email para validar su correo electrónico, siga los pasos detallados para activar su usuario.")]
@@ -188,7 +188,7 @@ namespace TransporteFlexible.Enums
         MS62,
 
         [Description("Usuario Activado")]
-        M5S63,
+        MS63,
 
         [Description("Imposible activar el usuario")]
         MS64,
@@ -199,10 +199,25 @@ namespace TransporteFlexible.Enums
         [Description("Debe seleccionar un permiso para poder desasignarlo")]
         MS66,
 
-        [Description("Es el único Usuario que posee el Permiso: {0}, no se puede completar la operación")]
+        [Description("Es el único User que posee el Permiso: {0}, no se puede completar la operación")]
         MS67,
 
         [Description("El usuario no puede ser deshabilitado ya que es el único que posee el permiso {0}")]
         MS68,
+
+        [Description("No existe el email, contacte una Administrador del Sistema")]
+        MS69,
+
+        [Description("No se puede borrar el Email, es el único mail o el único habilitado para el usuario")]
+        MS70,
+
+        [Description("No existe ninguna persona con ese Id")]
+        MS71,
+
+        [Description("No existe un telefono con ese Id")]
+        MS72,
+
+        [Description("No se puede borrar el Teléfono, es el único asignado para el usuario")]
+        MS73,
     }
 }

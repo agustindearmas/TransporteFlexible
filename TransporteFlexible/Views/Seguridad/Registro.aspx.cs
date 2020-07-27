@@ -24,7 +24,7 @@ namespace TransporteFlexible.Views.Seguridad
             {
                 Button _btnRegistrarme = (Button)sender;
                 _btnRegistrarme.Enabled = false;
-                UsuarioManager _usrManager = new UsuarioManager();
+                UserManager _usrManager = new UserManager();
                 string rolId = Request.QueryString["perfil"];
                 if (!string.IsNullOrWhiteSpace(rolId))
                 {
@@ -43,13 +43,13 @@ namespace TransporteFlexible.Views.Seguridad
                         Rol = rolId
                     };
 
-                    Mensaje msj = _usrManager.RegistrarUsuario(registro);
+                    Message msj = _usrManager.RegisterNewBusinessUser(registro);
                     MensajesHelper.ProcesarMensajeGenerico(this.GetType(), msj, Page);
                     _btnRegistrarme.Enabled = true;
                 }
                 else
                 {
-                    Mensaje msj = MessageFactory.CrearMensaje("MS36", ViewsEnum.Default.GD());
+                    Message msj = MessageFactory.GetMessage("MS36", ViewsEnum.Default.GD());
                     MensajesHelper.ProcesarMensajeGenerico(this.GetType(), msj, Page);                    
                 }
             }            

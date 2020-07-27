@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Negocio.DigitoVerificador
+namespace Negocio.CheckDigit
 {
     public abstract class CheckDigit<T>
     {
@@ -28,12 +28,12 @@ namespace Negocio.DigitoVerificador
                     }
                     else
                     {
-                        BitacoraManager _bitacoraMgr = new BitacoraManager();
+                        LogManager _bitacoraMgr = new LogManager();
                         
                         var tableAtt = (TableAttribute)Attribute.GetCustomAttribute(entity.GetType(), typeof(TableAttribute));
                         string nombreTabla = string.Concat(tableAtt.Schema, '.', tableAtt.ProcedureName);
-                        _bitacoraMgr.Create(CriticidadBitacora.Alta, "Problema Integirdad", "Error de integridad en la tabla " + nombreTabla + " en el registro con Id: " +
-                            entity.GetType().GetProperty("Id").GetValue(entity).ToString(), 1); // 1 Usuario sistema
+                        _bitacoraMgr.Create(LogCriticality.Alta, "Problema Integridad", "Error de integridad en la tabla " + nombreTabla + " en el registro con Id: " +
+                            entity.GetType().GetProperty("Id").GetValue(entity).ToString(), 1); // 1 User sistema
                         _bdMgr.BloquearBase();
                         return false;
                     }

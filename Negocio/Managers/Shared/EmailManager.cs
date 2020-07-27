@@ -1,10 +1,11 @@
 ﻿using Common.Enums.Seguridad;
+using Common.Extensions;
 using Common.FactoryMensaje;
 using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
-using Negocio.DigitoVerificador;
+using Negocio.CheckDigit;
 using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
@@ -15,12 +16,12 @@ namespace Negocio.Managers.Shared
     public class EmailManager : CheckDigit<Email>, IManagerCrud<Email>
     {
         private readonly IRepository<Email> _Repository;
-        private readonly BitacoraManager _bitacoraMgr;
+        private readonly LogManager _bitacoraMgr;
 
         public EmailManager()
         {
             _Repository = new Repository<Email>();
-            _bitacoraMgr = new BitacoraManager();
+            _bitacoraMgr = new LogManager();
         }
         public int Save(Email entity)
         {
@@ -34,7 +35,7 @@ namespace Negocio.Managers.Shared
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarEmail", "Se produjo una excepción salvando un Email. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(LogCriticality.Alta, "GuardarEmail", "Se produjo una excepción salvando un Email. Exception: " + e.Message, 1); // 1 User sistema
                 }
                 catch { }
                 throw e;
@@ -77,6 +78,10 @@ namespace Negocio.Managers.Shared
             }
         }
 
+        /// <summary>
+        /// Devuelve un booleano indicando TRUE si existe el Email en la BD y FALSE si lo contrario
+        /// </summary>
+        /// <param name="emailSinEncriptar">El email a buscar en la base de datos</param>
         public bool ExistEmail(string emailSinEncriptar)
         {
             try
@@ -91,7 +96,7 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public Mensaje ExistEmail(string emailSinEncriptar, int emailId)
+        public Message ExistEmail(string emailSinEncriptar, int emailId)
         {
             try
             {
@@ -99,8 +104,8 @@ namespace Negocio.Managers.Shared
                 Email emailBD = Retrieve(new Email { EmailAddress = emailEncriptado }).FirstOrDefault();
 
                 return (emailBD != null && emailBD.Id > 0 && emailBD.Id != emailId) ?
-                    MessageFactory.CrearMensaje("MS02")
-                    : MessageFactory.CrearMensajeOk();
+                    MessageFactory.GetMessage("MS02")
+                    : MessageFactory.GetOKMessage();
             }
             catch (Exception e)
             {
@@ -108,7 +113,7 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public Mensaje UpdateEmail(int emailId, string plainEmail, int loggedUser = 1) // Si no se pasa el loggedUser se guarda user 1 
+        public Message SaveEmail(int emailId, string plainEmail, int loggedUser = 1) // Si no se pasa el loggedUser se guarda user 1 
         {
             try
             {
@@ -122,7 +127,7 @@ namespace Negocio.Managers.Shared
                     emailBD.EmailAddress = CryptManager.DecryptAES(emailBD.EmailAddress);
                     SendEmailManager _sendEmailMgr = new SendEmailManager();
                     _sendEmailMgr.SendValidationEmail(emailBD.EmailAddress, CryptManager.EncryptAES(emailBD.Id.ToString()));
-                    return MessageFactory.GetOkMessage(emailBD);
+                    return MessageFactory.GetOKMessage(emailBD);
                 }
                 else
                 {
@@ -133,10 +138,52 @@ namespace Negocio.Managers.Shared
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Actualizar Email", "Se produjo una excepción actualizando un Email. Exception: " + e.Message, loggedUser);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Actualizar Email", "Se produjo una excepción actualizando un Email. Exception: " + e.Message, loggedUser);
                 }
-                catch {}
-                throw;
+                catch { }
+                return MessageFactory.GettErrorMessage("ER03", e);
+            }
+        }
+
+        public Message ValidateEmailAccount(string encryptedEmailId)
+        {
+            try
+            {
+                bool parseFlag = int.TryParse(CryptManager.DecryptAES(encryptedEmailId), out int emailId);
+                
+                if (parseFlag && emailId != 0)
+                {
+                    Email email = new Email { Id = emailId };
+                    email = Retrieve(email).FirstOrDefault();
+                    if (email != null)
+                    {
+                        email.Habilitado = true;
+                        int saveFlag = Save(email);
+                        if (saveFlag == emailId)
+                        {
+                            _bitacoraMgr.Create(LogCriticality.Medium, "ValidarEmail", "Se activo el User con EmailId: " + emailId.ToString() + "en el Sistema", 1);
+                            return MessageFactory.GetMessage("MS63", ViewsEnum.Ingreso.GD());
+                            
+                        }
+                        else
+                        {
+                            throw new Exception("Error al ejecutar metodo save en Email Manager");
+                        }
+                        
+                    }
+                }
+                _bitacoraMgr.Create(LogCriticality.Alta, "ValidarEmail", "Se intentó activar un usuario con un Id null o inexistente", 1);
+                return MessageFactory.GetMessage("MS69");
+
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _bitacoraMgr.Create(LogCriticality.Alta, "ValidarEmail", "Se produjo una excepción actualizando un Email. Exception: " + e.Message, 1);
+                }
+                catch { }
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
@@ -154,6 +201,7 @@ namespace Negocio.Managers.Shared
                 entity.Id.ToString(),
                 entity.EmailAddress,
                 entity.UsuarioCreacion.ToString(),
+                entity.Habilitado.ToString(),
                 entity.FechaCreacion.ToString(),
                 entity.UsuarioModificacion.ToString(),
                 entity.FechaModificacion.ToString());

@@ -35,15 +35,15 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
         {
             try
             {
-                UsuarioManager _usuarioMgr = new UsuarioManager();
-                Mensaje msj = _usuarioMgr.ObtenerUsuariosNegocioDesencriptados(userId, null, null);
+                UserManager _usuarioMgr = new UserManager();
+                Message msj = _usuarioMgr.ObtenerUsuariosNegocioDesencriptados(userId, null, null);
                 if (msj.CodigoMensaje != "OK")
                 {
                     MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
                 }
                 else
                 {
-                    List<Usuario> usuarios = (List<Usuario>)msj.Resultado;
+                    List<User> usuarios = (List<User>)msj.Resultado;
                     lblUser.Text = usuarios.Single().NombreUsuario;
                 }
 
@@ -60,8 +60,8 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
             try
             {
                 PermisoManager _permisoMgr = new PermisoManager();
-                Mensaje msj = _permisoMgr.ObtenerPermisosPorUsuarioId(userId);
-                Mensaje msj1 = _permisoMgr.ObtenerPermisosDesasignados(userId);
+                Message msj = _permisoMgr.ObtenerPermisosPorUsuarioId(userId);
+                Message msj1 = _permisoMgr.ObtenerPermisosDesasignados(userId);
 
                 if (msj.CodigoMensaje != "OK" && msj1.CodigoMensaje != "OK")
                 {
@@ -91,16 +91,16 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
             }
             catch (Exception ex)
             {
-                BitacoraManager _bitacoraMgr = new BitacoraManager();
+                LogManager _bitacoraMgr = new LogManager();
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Modificando Permisos del Usuario", "Se produjo una excepcion modificndo los permisos del Usuario: "
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Modificando Permisos del User", "Se produjo una excepcion modificndo los permisos del User: "
                    + Session[SV.UsuarioModificado.GD()], Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
                 }
                 catch { }
                 
                
-                Mensaje msj = MessageFactory.CrearMensajeError("ER03", ex);
+                Message msj = MessageFactory.GettErrorMessage("ER03", ex);
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
         }
@@ -109,7 +109,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
         {
             try
             {
-                Mensaje msj = null;
+                Message msj = null;
                 if (!string.IsNullOrWhiteSpace(lbxDesasignados.SelectedValue))
                 {
                     List<Permiso> permisosAsignados =
@@ -141,22 +141,22 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 else
                 {
                     // Se debe seleccionar un permiso para que sea asignado 
-                    msj = MessageFactory.CrearMensaje("MS65");
+                    msj = MessageFactory.GetMessage("MS65");
                     MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
                 }
 
             }
             catch (Exception ex)
             {
-                BitacoraManager _bitacoraMgr = new BitacoraManager();
+                LogManager _bitacoraMgr = new LogManager();
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Modificando Permisos del Usuario", "Se produjo una excepcion modificndo los permisos del Usuario: "
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Modificando Permisos del User", "Se produjo una excepcion modificndo los permisos del User: "
                                       + Session[SV.UsuarioModificado.GD()], Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
                 }
                 catch {}
               
-                Mensaje msj = MessageFactory.CrearMensajeError("ER03", ex);
+                Message msj = MessageFactory.GettErrorMessage("ER03", ex);
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
 
@@ -166,7 +166,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
         {
             try
             {
-                Mensaje msj = null;
+                Message msj = null;
                 if (!string.IsNullOrWhiteSpace(lbxAsignados.SelectedValue))
                 {
                     List<Permiso> permisosAsignados = (List<Permiso>)Session[SV.PermisosAsignados.GD()];
@@ -203,21 +203,21 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 else
                 {
                     // Se debe seleccionar un permiso para que sea asignado 
-                    msj = MessageFactory.CrearMensaje("MS66");
+                    msj = MessageFactory.GetMessage("MS66");
                     MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
                 }
             }
             catch (Exception ex)
             {
-                BitacoraManager _bitacoraMgr = new BitacoraManager();
+                LogManager _bitacoraMgr = new LogManager();
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Modificando Permisos del Usuario", "Se produjo una excepcion modificndo los permisos del Usuario: "
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Modificando Permisos del User", "Se produjo una excepcion modificndo los permisos del User: "
                    + Session[SV.UsuarioModificado.GD()], Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
                 }
                 catch{}
                
-                Mensaje msj = MessageFactory.CrearMensajeError("ER03", ex);
+                Message msj = MessageFactory.GettErrorMessage("ER03", ex);
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
         }
@@ -226,14 +226,14 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
         {
             try
             {
-                Mensaje msj = null;
-                UsuarioManager _usuarioMgr = new UsuarioManager();
+                Message msj = null;
+                UserManager _usuarioMgr = new UserManager();
                 if (ValidarFormulario())
                 {
                     int userId = Convert.ToInt32(Session[SV.UsuarioModificado.GD()]);
                     List<Permiso> permisosAsignadosSession =
                         (List<Permiso>)Session[SV.PermisosAsignados.GD()];
-                    msj = _usuarioMgr.AsignarPermisos(userId, permisosAsignadosSession, Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+                    msj = _usuarioMgr.AsignPermits(userId, permisosAsignadosSession, Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
                     MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
 
                 }
@@ -241,15 +241,15 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
             }
             catch (Exception ex)
             {
-                BitacoraManager _bitacoraMgr = new BitacoraManager();
+                LogManager _bitacoraMgr = new LogManager();
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Modificando Permisos del Usuario", "Se produjo una excepcion modificando los permisos del Usuario: "
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Modificando Permisos del User", "Se produjo una excepcion modificando los permisos del User: "
                  + Session[SV.UsuarioModificado.GD()], Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
                 }
                 catch{}
              
-                Mensaje msj = MessageFactory.CrearMensajeError("ER03", ex);
+                Message msj = MessageFactory.GettErrorMessage("ER03", ex);
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
         }
@@ -281,7 +281,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
             {
                 PermisoManager _permisoMgr = new PermisoManager();
                 int userId = Convert.ToInt32(Session[SV.UsuarioModificado.GD()]);
-                Mensaje msj = _permisoMgr.ObtenerPermisosPorUsuarioId(userId);
+                Message msj = _permisoMgr.ObtenerPermisosPorUsuarioId(userId);
 
                 if (msj.CodigoMensaje != "OK")
                 {

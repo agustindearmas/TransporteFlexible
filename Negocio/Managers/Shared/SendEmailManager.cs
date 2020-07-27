@@ -37,13 +37,13 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public void SendRegisterEmail(string receiver, string encriptedUserId)
+        public void SendRegisterEmail(string receiver, string emailId)
         {
             try
             {
                 string subject = "REGISTRO T-FLEX";
                 string body = "Hola bienvenido a T-FLEX, para poder activar tu usuario debes hacer click en el siguiente Link: "
-                    + ConfigurationManager.AppSettings["validarEmailLink"] + "?id=" + encriptedUserId.Replace("+", "%2B");
+                    + ConfigurationManager.AppSettings["validarEmailLink"] + "?id=" + emailId.Replace("+", "%2B");
                 SendEmail(receiver, subject, body);
             }
             catch (Exception e)
@@ -57,7 +57,8 @@ namespace Negocio.Managers.Shared
             try
             {
                 string subject = "T-FLEX Validación de Correo";
-                string body = "Hola haga click en el siguiente link para validar la cuenta de correo agregada en T-FLEX. /n" + System.Configuration.ConfigurationManager.AppSettings["validarEmailLink"] + "?id=" + emailId.Replace("+", "%2B")
+                string body = "Hola haga click en el siguiente link para validar la cuenta de corre en T-FLEX." 
+                    + ConfigurationManager.AppSettings["validarEmailLink"] + "?id=" + emailId.Replace("+", "%2B")
                     + " Si desconoce el proceso mencionado desestime este correo.";
                 SendEmail(receiver, subject, body);
             }

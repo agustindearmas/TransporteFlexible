@@ -4,12 +4,25 @@ using Common.Interfaces.Seguridad;
 using Common.Satellite.Shared;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Common.Satellite.Seguridad
 {
     [Table(ProcedureName = "Usuario", Schema = Schema.Seguridad)]
-    public class Usuario : IAuditoria
+    public class User : IAuditoria
     {
+        public bool Habilitado
+        {
+            get
+            {
+                if (Persona.Emails != null)
+                {
+                    return Persona.Emails.Where(x => x.Habilitado).ToList().Count > 0;
+                }
+                else return false;
+            }
+        }
+
         [NameEntity(IdEntity = "IdUsuario", NameEntity = "Id", IsPrimaryKey = true)]
         public int Id { get; set; }
 
@@ -27,9 +40,7 @@ namespace Common.Satellite.Seguridad
 
         [NameEntity(IdEntity = "Activo", NameEntity = "Activo")]
         public bool Activo { get; set; }
-
-        [NameEntity(IdEntity = "Habilitado", NameEntity = "Habilitado")]
-        public bool Habilitado { get; set; }
+        
 
         [NameEntity(IdEntity = "Intentos", NameEntity = "Intentos")]
         public int Intentos { get; set; }

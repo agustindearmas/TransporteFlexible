@@ -24,7 +24,7 @@ namespace TransporteFlexible.Views.Seguridad
             if (Session[SV.Permisos.GD()] != null && PermisosHelper.ValidarPermisos(12, Session[SV.Permisos.GD()]))
             {   
                 BDManager _bdMgr = new BDManager();
-                Mensaje msj = _bdMgr.GenerarBKP(txtNombreRespaldo.Text, Convert.ToInt32(SV.UsuarioLogueado.GD()));
+                Message msj = _bdMgr.GenerarBKP(txtNombreRespaldo.Text, Convert.ToInt32(SV.UsuarioLogueado.GD()));
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
             else
@@ -38,7 +38,7 @@ namespace TransporteFlexible.Views.Seguridad
             if (Session[SV.Permisos.GD()] != null && PermisosHelper.ValidarPermisos(13, Session[SV.Permisos.GD()]))
             {
                 BDManager _bdMgr = new BDManager();
-                Mensaje msj = _bdMgr.MontarBKP(fuRestore.FileName, Convert.ToInt32(SV.UsuarioLogueado.GD()));
+                Message msj = _bdMgr.MontarBKP(fuRestore.FileName, Convert.ToInt32(SV.UsuarioLogueado.GD()));
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
             else
@@ -52,7 +52,7 @@ namespace TransporteFlexible.Views.Seguridad
             if (PermisosHelper.ValidarPermisos(14, Session[SV.Permisos.GD()]))
             {
                 TablaDVVManager _dVerificadorManager = new TablaDVVManager();
-                Mensaje msj = _dVerificadorManager.RecalcularDigitosVerificadores();
+                Message msj = _dVerificadorManager.RecalcularDigitosVerificadores();
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
             else
@@ -63,7 +63,7 @@ namespace TransporteFlexible.Views.Seguridad
 
         private void RebotarUsuarioSinPermisos(string redirect = null)
         {
-            Mensaje msj = MessageFactory.CrearMensaje("MS39", redirect);
+            Message msj = MessageFactory.GetMessage("MS39", redirect);
             MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
         }
     }

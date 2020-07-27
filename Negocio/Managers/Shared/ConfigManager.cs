@@ -3,7 +3,7 @@ using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
-using Negocio.DigitoVerificador;
+using Negocio.CheckDigit;
 using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
@@ -46,8 +46,8 @@ namespace Negocio.Managers.Shared
             {
                 try
                 {
-                    BitacoraManager _bitacoraMgr = new BitacoraManager();
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarConfiguracion", "Se produjo una excepción salvando una Configuracion. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    LogManager _bitacoraMgr = new LogManager();
+                    _bitacoraMgr.Create(LogCriticality.Alta, "GuardarConfiguracion", "Se produjo una excepción salvando una Configuracion. Exception: " + e.Message, 1); // 1 User sistema
                 }
                 catch{}
                 throw e;

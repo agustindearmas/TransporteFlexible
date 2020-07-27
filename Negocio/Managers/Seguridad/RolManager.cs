@@ -6,19 +6,19 @@ using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using DataAccess.Concrete;
-using Negocio.DigitoVerificador;
+using Negocio.CheckDigit;
 
 namespace Negocio.Managers.Seguridad
 {
     public class RolManager : CheckDigit<Rol>, IManagerCrud<Rol>
     {
         private readonly IRepository<Rol> _Repository;
-        private readonly BitacoraManager _bitacoraMgr;
+        private readonly LogManager _bitacoraMgr;
 
         public RolManager()
         {
             _Repository = new Repository<Rol>();
-            _bitacoraMgr = new BitacoraManager();
+            _bitacoraMgr = new LogManager();
         }
 
         public int Save(Rol entity)
@@ -33,7 +33,7 @@ namespace Negocio.Managers.Seguridad
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarRol", "Se produjo una excepción salvando un Rol. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(LogCriticality.Alta, "GuardarRol", "Se produjo una excepción salvando un Rol. Exception: " + e.Message, 1); // 1 User sistema
                 }
                 catch {}
                 throw e;

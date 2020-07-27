@@ -18,7 +18,7 @@
             </div>
         </section>
         <div class="form-group">
-            <asp:Button ID="btnValidarCuenta" class="btn btn-info btn-block my-4" runat="server" Text="Validar Cuenta" OnClick="btnValidarCuenta_Click" />
+            <asp:Button ID="btnValidarCuenta" class="btn btn-info btn-block my-4" runat="server" Text="Validar Cuenta" OnClick="BtnValidarCuenta_Click" />
         </div>
     </div>
 </asp:Content>

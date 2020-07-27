@@ -1865,6 +1865,7 @@
     <Content Include="Views\Seguridad\Usuarios\Permisos\PermisoView.aspx" />
     <Content Include="Views\Seguridad\Usuarios\UsuarioAMView.aspx" />
     <Content Include="Views\Seguridad\Usuarios\UsuarioView.aspx" />
+    <Content Include="Views\Seguridad\Usuarios\WUCAddress.ascx" />
     <Content Include="Views\Seguridad\Usuarios\WUCEmails.ascx" />
     <Content Include="Views\Seguridad\Usuarios\WUCTelefonos.ascx" />
     <Content Include="Views\Seguridad\ValidaEmail.aspx" />
@@ -2025,6 +2026,13 @@
     </Compile>
     <Compile Include="Views\Seguridad\Usuarios\UsuarioView.aspx.designer.cs">
       <DependentUpon>UsuarioView.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\WUCAddress.ascx.cs">
+      <DependentUpon>WUCAddress.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\Usuarios\WUCAddress.ascx.designer.cs">
+      <DependentUpon>WUCAddress.ascx</DependentUpon>
     </Compile>
     <Compile Include="Views\Seguridad\Usuarios\WUCEmails.ascx.cs">
       <DependentUpon>WUCEmails.ascx</DependentUpon>

@@ -14,13 +14,13 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
 {
     public partial class WUCEmails : GridViewASCXExtensions<Email>
     {
-        public List<Email> emails;
+        public List<Email> Emails;
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                LoadDataGridView(emails);
-                Session[SV.Emails.GD()] = emails;
+                LoadDataGridView(Emails);
+                Session[SV.Emails.GD()] = Emails;
             }
         }
 
@@ -42,7 +42,6 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
 
         protected void EmailsGridView_RowCommands(object sender, GridViewCommandEventArgs e)
         {
-
             // Convert the row index stored in the CommandArgument
             // property to an Integer
             int rowIndex = Convert.ToInt32(e.CommandArgument);
@@ -78,6 +77,14 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             }
         }
 
+        protected void Add_Click(object sender, EventArgs e)
+        {
+            Email email = new Email();
+            List<Email> emailsSession = (List<Email>)Session[SV.Emails.GD()];
+            emailsSession.Add(email);
+            LoadDataGridView(emailsSession);
+        }
+
         private void EditEmail(int rowIndex)
         {
             if (_emailsGridView.Rows[rowIndex].Cells[1].FindControl("txtEmail") is WebControl wc)
@@ -95,32 +102,51 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                 {
                     if (wc is TextBox emailTB)
                     {
-                        EmailManager _emailMgr = new EmailManager();
-                        Mensaje msj = _emailMgr.ExistEmail(emailTB.Text, emailId);
-
-                        if (msj.CodigoMensaje != "OK")
+                        if (emailId != 0)
                         {
-                            MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
-                        }
-                        else
-                        {
-                            HideSaveCancel(rowIndex);
-                            msj = _emailMgr.UpdateEmail(emailId, emailTB.Text, Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+                            EmailManager _emailMgr = new EmailManager();
+                            Message msj = _emailMgr.ExistEmail(emailTB.Text, emailId);
 
                             if (msj.CodigoMensaje != "OK")
                             {
                                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
                             }
-
-                            if (msj.Resultado is Email email)
+                            else
                             {
-                                // Remuevo el email viejo de la lista en session 
-                                // y le agrego el mail nuevo que es devuelto por el metodo que salva 
-                                // el mail actualizado
-                                List<Email> emailsSession = (List<Email>)Session[SV.Emails.GD()];
-                                emailsSession.RemoveAll(x => x.Id == email.Id);
-                                emailsSession.Add(email);
-                                Session[SV.Emails.GD()] = emailsSession;
+
+                                msj = _emailMgr.SaveEmail(emailId, emailTB.Text, Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+
+                                if (msj.CodigoMensaje != "OK")
+                                {
+                                    MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                                }
+
+                                if (msj.Resultado is Email email)
+                                {
+                                    // Remuevo el email viejo de la lista en session 
+                                    // y le agrego el mail nuevo que es devuelto por el metodo que salva 
+                                    // el mail actualizado
+                                    List<Email> emailsSession = (List<Email>)Session[SV.Emails.GD()];
+                                    emailsSession.RemoveAll(x => x.Id == email.Id);
+                                    emailsSession.Add(email);
+                                    Session[SV.Emails.GD()] = emailsSession;
+                                    LoadDataGridView(emailsSession);
+                                    wc.Enabled = false;
+                                }
+                                HideSaveCancel(rowIndex);
+                            }
+                        }
+                        else
+                        {
+                            PersonManager _personMgr = new PersonManager();
+                            Message msjAdd = _personMgr.AddEmail(emailTB.Text, (int)Session[SV.UsuarioLogueado.GD()], (int)Session[SV.EditingPersonId.GD()]);
+                            if (msjAdd.CodigoMensaje != "OK")
+                            {
+                                MensajesHelper.ProcesarMensajeGenerico(GetType(), msjAdd, Page);
+                            }
+                            else
+                            {
+                                HideSaveCancel(rowIndex);
                                 wc.Enabled = false;
                             }
                         }
@@ -139,6 +165,21 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
 
         private void DeleteEmail(int emailId)
         {
+            if (Page.IsValid)
+            {
+                PersonManager _personMgr = new PersonManager();
+                int sessionUserId = (int)Session[SV.UsuarioLogueado.GD()];
+                int sessionPeopleId = (int)Session[SV.EditingPersonId.GD()];
+                Message msj = _personMgr.DeleteEmail(emailId, sessionUserId, sessionPeopleId);
+                if (msj.CodigoMensaje == "OK")
+                {
+                    List<Email> emailsSession = (List<Email>)Session[SV.Emails.GD()];
+                    emailsSession.RemoveAll(x => x.Id == emailId);
+                    Session[SV.Emails.GD()] = emailsSession;
+                    LoadDataGridView(emailsSession);
+                }
+                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+            }
         }
 
         private void ShowSaveCancel(int rowIndex)

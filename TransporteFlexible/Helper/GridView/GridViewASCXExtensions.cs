@@ -24,19 +24,23 @@ namespace TransporteFlexible.Helper.GridView
                 }
             }
 
-            foreach (T item in data)
+            if (data != null)
             {
-                DataRow row = table.NewRow();
-                foreach (PropertyDescriptor prop in properties)
+                foreach (T item in data)
                 {
-                    if (!EsCampoNoNecesario(prop))
+                    DataRow row = table.NewRow();
+                    foreach (PropertyDescriptor prop in properties)
                     {
-                        row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                        if (!EsCampoNoNecesario(prop))
+                        {
+                            row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
 
+                        }
                     }
+                    table.Rows.Add(row);
                 }
-                table.Rows.Add(row);
             }
+           
             return table;
         }
         /// <summary>

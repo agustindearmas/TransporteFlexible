@@ -1,6 +1,8 @@
-﻿<%@ Page Title="" Language="C#"  MaintainScrollPositionOnPostback="true" MasterPageFile="~/Default.Master" AutoEventWireup="true" CodeBehind="UsuarioAMView.aspx.cs" Inherits="TransporteFlexible.Views.Seguridad.Usuarios.UsuarioAMView" %>
+﻿<%@ Page Title="" Language="C#" MaintainScrollPositionOnPostback="true" MasterPageFile="~/Default.Master" AutoEventWireup="true" CodeBehind="UsuarioAMView.aspx.cs" Inherits="TransporteFlexible.Views.Seguridad.Usuarios.UsuarioAMView" %>
+
 <%@ Register Src="~/Views/Seguridad/Usuarios/WUCEmails.ascx" TagPrefix="UserControlEmails" TagName="WUCEmails" %>
 <%@ Register Src="~/Views/Seguridad/Usuarios/WUCTelefonos.ascx" TagPrefix="UserControlTelefonos" TagName="WUCTelefonos" %>
+<%@ Register Src="~/Views/Seguridad/Usuarios/WUCAddress.ascx" TagPrefix="UserControlAddresses" TagName="WUCAddress" %>
 
 
 
@@ -169,57 +171,15 @@
             <div class="card-body">
 
                 <%--EMAILS--%>
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <i class="fas fa-at"></i>
-                        Emails
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <UserControlEmails:WUCEmails runat="server" id="WUCEmails" />
-                            
-                        </div>
-                    </div>
-                </div>
+                <UserControlEmails:WUCEmails runat="server" ID="WUCEmails" />
                 <%--EMAILS--%>
 
                 <%--TELEFONOS--%>
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <i class="fas fa-mobile"></i>
-                        Teléfonos
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <UserControlTelefonos:WUCTelefonos runat="server" id="WUCTelefonos" />
-                        </div>
-                    </div>
-                </div>
+                <UserControlTelefonos:WUCTelefonos runat="server" ID="WUCTelefonos" />
                 <%--TELEFONOS--%>
 
                 <%--DIRECCIONES--%>
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <i class="fas fa-map-marker-alt"></i>
-                        Direcciones
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <asp:Table CssClass="table table-bordered" ID="_tblDirecciones" runat="server">
-                                <asp:TableHeaderRow>
-                                    <asp:TableHeaderCell>Provincia</asp:TableHeaderCell>
-                                    <asp:TableHeaderCell>Localidad</asp:TableHeaderCell>
-                                    <asp:TableHeaderCell>Calle</asp:TableHeaderCell>
-                                    <asp:TableHeaderCell>N°</asp:TableHeaderCell>
-                                    <asp:TableHeaderCell>Piso</asp:TableHeaderCell>
-                                    <asp:TableHeaderCell>Departamento</asp:TableHeaderCell>
-                                    <asp:TableHeaderCell>Acciones</asp:TableHeaderCell>
-                                </asp:TableHeaderRow>
-
-                            </asp:Table>
-                        </div>
-                    </div>
-                </div>
+                <UserControlAddresses:WUCAddress runat="server" id="WUCAddress" />
                 <%--DIRECCIONES--%>
             </div>
         </div>

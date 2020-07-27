@@ -7,7 +7,7 @@ using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
-using Negocio.DigitoVerificador;
+using Negocio.CheckDigit;
 using Negocio.Managers.Shared;
 using System;
 using System.Collections.Generic;
@@ -35,15 +35,15 @@ namespace Negocio.Managers.Seguridad
             {
                 try
                 {
-                    BitacoraManager _bitacoraMgr = new BitacoraManager();
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    LogManager _bitacoraMgr = new LogManager();
+                    _bitacoraMgr.Create(LogCriticality.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 User sistema
                 }
                 catch{}               
                 throw e;
             }
         }
 
-        public Mensaje RecalcularDigitosVerificadores()
+        public Message RecalcularDigitosVerificadores()
         {
             try
             {
@@ -54,17 +54,17 @@ namespace Negocio.Managers.Seguridad
                 }
                 BDManager _bdMgr = new BDManager();
                 _bdMgr.DesbloquearBase();
-                return MessageFactory.CrearMensaje("MS24");
+                return MessageFactory.GetMessage("MS24");
             }
             catch (Exception e)
             {
                 try
                 {
-                    BitacoraManager _bitacoraMgr = new BitacoraManager();
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    LogManager _bitacoraMgr = new LogManager();
+                    _bitacoraMgr.Create(LogCriticality.Alta, "GuardarDVV", "Se produjo una excepción salvando DVV. Exception: " + e.Message, 1); // 1 User sistema
                 }
                 catch { }
-                return MessageFactory.CrearMensajeError("ER03", e);
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Negocio.Managers.Seguridad
                         _emailMgr.RecalcularIntegridadRegistros();
                         break;
                     case "Usuario":
-                        UsuarioManager _usuarioMgr = new UsuarioManager();
+                        UserManager _usuarioMgr = new UserManager();
                         _usuarioMgr.RecalcularIntegridadRegistros();
                         break;
                     case "Permiso":
@@ -119,7 +119,7 @@ namespace Negocio.Managers.Seguridad
                         _personaMgr.RecalcularIntegridadRegistros();
                         break;
                     case "Bitacora":
-                        BitacoraManager _bitacoraMgr = new BitacoraManager();
+                        LogManager _bitacoraMgr = new LogManager();
                         _bitacoraMgr.RecalcularIntegridadRegistros();
                         break;
                     case "Configuracion":
@@ -129,6 +129,10 @@ namespace Negocio.Managers.Seguridad
                     case "Telefono":
                         PhoneManager _telefonoMgr = new PhoneManager();
                         _telefonoMgr.RecalcularIntegridadRegistros();
+                        break;
+                    case "Direccion":
+                        AddressManager _addressMgr = new AddressManager();
+                        _addressMgr.RecalcularIntegridadRegistros();
                         break;
                     case "TablaDVV":
                         RecalcularIntegridadRegistros();

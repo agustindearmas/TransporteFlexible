@@ -14,9 +14,9 @@ namespace Common.FactoryMensaje
         /// <param name="codigoMensaje">El codigo de la leyenda que se desea mostrar en la pagina de error</param>
         /// <param name="resultado"> La excepción encontrada en el flujo</param>
         /// <returns> Devuelve un mensaje</returns>
-        public static Mensaje CrearMensajeError(string codigoMensaje, Exception resultado)
+        public static Message GettErrorMessage(string codigoMensaje, Exception resultado)
         {
-            return new Mensaje
+            return new Message
             {
                 CodigoMensaje = codigoMensaje,
                 EsError = true,
@@ -31,9 +31,9 @@ namespace Common.FactoryMensaje
         /// </summary>
         /// <param name="codigoMensaje">TIENE QUE SER DISTINTO DE OK</param>
         /// <returns></returns>
-        public static Mensaje CrearMensaje(string codigoMensaje)
+        public static Message GetMessage(string codigoMensaje)
         {
-            return new Mensaje
+            return new Message
             {
                 CodigoMensaje = codigoMensaje,
                 EsError = false,
@@ -48,9 +48,9 @@ namespace Common.FactoryMensaje
         /// </summary>
         /// <param name="codigoMensaje">Es el mensaje que sea desea mostrar en la pagina de error</param>
         /// <returns></returns>
-        public static Mensaje CrearMensajeErrorFuncional(string codigoMensaje)
+        public static Message CrearMensajeErrorFuncional(string codigoMensaje)
         {
-            return new Mensaje
+            return new Message
             {
                 CodigoMensaje = codigoMensaje,
                 EsError = true,
@@ -66,9 +66,9 @@ namespace Common.FactoryMensaje
         /// <param name="codigoMensaje">La leyenda que se desea mostrar</param>
         /// <param name="rutaRedireccion">La pagina a la que se desea rediriguir una vez mostrado el mensaje</param>
         /// <returns></returns>
-        public static Mensaje CrearMensaje(string codigoMensaje, string rutaRedireccion)
+        public static Message GetMessage(string codigoMensaje, string rutaRedireccion)
         {
-            return new Mensaje
+            return new Message
             {
                 CodigoMensaje = codigoMensaje,
                 EsError = false,
@@ -79,13 +79,13 @@ namespace Common.FactoryMensaje
         }
 
         /// <summary>
-        /// Devuelve un Mensaje con información necesaria para la capa de presentación
+        /// Devuelve un Message con información necesaria para la capa de presentación
         /// </summary>
         /// <param name="resultado">Es el objeto que necesita la capa de presentación</param>
         /// <returns></returns>
-        public static Mensaje GetOkMessage(object resultado)
+        public static Message GetOKMessage(object resultado)
         {
-            return new Mensaje
+            return new Message
             {
                 CodigoMensaje = "OK",
                 EsError = false,
@@ -96,12 +96,12 @@ namespace Common.FactoryMensaje
         }
 
         /// <summary>
-        /// Devuelve un Mensaje que solo informara que lo slicitado al servidor ha sido resuelto con exito
+        /// Devuelve un Message que solo informara que lo slicitado al servidor ha sido resuelto con exito
         /// </summary>
         /// <returns></returns>
-        public static Mensaje CrearMensajeOk()
+        public static Message GetOKMessage()
         {
-            return new Mensaje
+            return new Message
             {
                 CodigoMensaje = "OK",
                 EsError = false,
@@ -115,9 +115,9 @@ namespace Common.FactoryMensaje
         /// Devuelve un mensaje que permite concatenar algo al mensaje generico
         /// </summary>
         /// <returns></returns>
-        public static Mensaje CrearMensajeErrorFuncional(string codigoMensaje, string aConcatenar)
+        public static Message CrearMensajeErrorFuncional(string codigoMensaje, string aConcatenar)
         {
-            return new Mensaje
+            return new Message
             {
                 CodigoMensaje = codigoMensaje,
                 EsError = false,

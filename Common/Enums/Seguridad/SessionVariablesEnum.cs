@@ -17,6 +17,16 @@ namespace Common.Enums.Seguridad
         [Description("PermisosDesasignados")]
         PermisosDesasignados,
         [Description("Emails")]
-        Emails
+        Emails,
+        [Description("Telefonos")]
+        Telefonos,
+        [Description("EditingPersonId")]
+        EditingPersonId,
+        [Description("Addresses")]
+        Addresses,
+        [Description("Provinces")]
+        Provinces,
+        [Description("Locations")]
+        Locations
     }
 }

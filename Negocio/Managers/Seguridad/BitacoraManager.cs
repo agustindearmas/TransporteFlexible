@@ -6,18 +6,18 @@ using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
-using Negocio.DigitoVerificador;
+using Negocio.CheckDigit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class BitacoraManager : CheckDigit<Bitacora>, IManagerCrud<Bitacora>
+    public class LogManager : CheckDigit<Bitacora>, IManagerCrud<Bitacora>
     {
         private readonly IRepository<Bitacora> _Repository;
 
-        public BitacoraManager()
+        public LogManager()
         {
             _Repository = new Repository<Bitacora>();
         }
@@ -66,14 +66,14 @@ namespace Negocio.Managers.Seguridad
             {
                 try
                 {
-                    Create(CriticidadBitacora.Alta, "GuardarBitacora", "Se produjo una excepción salvando Bitacora. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    Create(LogCriticality.Alta, "GuardarBitacora", "Se produjo una excepción salvando Bitacora. Exception: " + e.Message, 1); // 1 User sistema
                 }
                 catch { }
                 throw e;
             }
         }
 
-        public int Create(CriticidadBitacora nivelCriticidad, string evento, string suceso, int idUsuario)
+        public int Create(LogCriticality nivelCriticidad, string evento, string suceso, int idUsuario)
         {
             Bitacora bitacora =
                 new Bitacora
@@ -95,7 +95,7 @@ namespace Negocio.Managers.Seguridad
             return Save(entity);
         }
 
-        public Mensaje ObtenerBitacorasDesencriptadas(string fechaDesde, string fechaHasta, int nivel, string evento, string usuario)
+        public Message ObtenerBitacorasDesencriptadas(string fechaDesde, string fechaHasta, int nivel, string evento, string usuario)
         {
             try
             {
@@ -113,13 +113,13 @@ namespace Negocio.Managers.Seguridad
                     fechaHastaConvertida = Convert.ToDateTime(fechaHasta);
                     if (fechaDesdeConvertida > fechaHastaConvertida)
                     {
-                        return MessageFactory.CrearMensaje("MS37", ViewsEnum.Bitacora.GD());
+                        return MessageFactory.GetMessage("MS37", ViewsEnum.Bitacora.GD());
                     }
                 }
 
-                UsuarioManager _usuarioManager = new UsuarioManager();
+                UserManager _usuarioManager = new UserManager();
                 string usuarioEncriptado = CryptManager.EncryptAES(usuario);
-                Usuario userDB = _usuarioManager.Retrieve(new Usuario { NombreUsuario = usuarioEncriptado, Id = 0 }).FirstOrDefault();
+                User userDB = _usuarioManager.Retrieve(new User { NombreUsuario = usuarioEncriptado, Id = 0 }).FirstOrDefault();
 
                 int? usuarioAux;
                 if (userDB != null && userDB.Id != 0)
@@ -142,17 +142,17 @@ namespace Negocio.Managers.Seguridad
 
                 List<Bitacora> bitacoras = Retrieve(bitacoraFilter, "Filtrada");
                 bitacoras = DesencriptadorBitacora(bitacoras);
-                return MessageFactory.GetOkMessage(bitacoras);
+                return MessageFactory.GetOKMessage(bitacoras);
             }
             catch (Exception e)
             {
                 try
                 {
-                    Create(CriticidadBitacora.Alta, "Filtro Bitacora", "Se produjo una excepción en el método ObtenerBitacoras()" +
-                       " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                    Create(LogCriticality.Alta, "Filtro Bitacora", "Se produjo una excepción en el método ObtenerBitacoras()" +
+                       " de la clase LogManager. Excepción: " + e.Message, 1); // 1 User sistema
                 }
                 catch { }
-                return MessageFactory.CrearMensajeError("ER03", e);
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
@@ -190,8 +190,8 @@ namespace Negocio.Managers.Seguridad
             {
                 try
                 {
-                    Create(CriticidadBitacora.Alta, "Generando DVH", "Se produjo una excepción en el método ConcatenarDVH()" +
-                                      " de la clase BitacoraManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                    Create(LogCriticality.Alta, "Generando DVH", "Se produjo una excepción en el método ConcatenarDVH()" +
+                                      " de la clase LogManager. Excepción: " + e.Message, 1); // 1 User sistema
                 }
                 catch { }
                 throw e;

@@ -16,22 +16,22 @@ namespace Negocio.Managers.Seguridad
     {
 
         private readonly IRepository<Respaldo> _Repository;
-        private readonly BitacoraManager _bitacoraMgr;
+        private readonly LogManager _bitacoraMgr;
 
 
         public BDManager()
         {
             _Repository = new Repository<Respaldo>();
-            _bitacoraMgr = new BitacoraManager();
+            _bitacoraMgr = new LogManager();
         }
 
-        public Mensaje GenerarBKP(string nombreBKP, int idUsuario)
+        public Message GenerarBKP(string nombreBKP, int idUsuario)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(nombreBKP))
                 {
-                    return MessageFactory.CrearMensaje("MS44");
+                    return MessageFactory.GetMessage("MS44");
                 }
                 else
                 {
@@ -43,29 +43,29 @@ namespace Negocio.Managers.Seguridad
                     resp.Path = string.Concat(path, resp.NombreRespaldo);
 
                     _Repository.Execute(resp, "GenerarRespaldo");
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se genero un respaldo de la base de datos", idUsuario);
-                    return MessageFactory.CrearMensaje("MS22");
+                    _bitacoraMgr.Create(LogCriticality.Alta, "RespaldoBD", "Se genero un respaldo de la base de datos", idUsuario);
+                    return MessageFactory.GetMessage("MS22");
                 }
             }
             catch (Exception e)
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se produjo una Excepcion generarndo un respaldo de la BD. Exception: " + e.Message, idUsuario);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "RespaldoBD", "Se produjo una Excepcion generarndo un respaldo de la BD. Exception: " + e.Message, idUsuario);
                 }
                 catch { }
 
-                return MessageFactory.CrearMensajeError("ER03", e);
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
-        public Mensaje MontarBKP(string fileName, int idUsuario)
+        public Message MontarBKP(string fileName, int idUsuario)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(fileName))
                 {
-                    return MessageFactory.CrearMensaje("MS38");
+                    return MessageFactory.GetMessage("MS38");
                 }
                 else
                 {
@@ -76,19 +76,19 @@ namespace Negocio.Managers.Seguridad
                         "TransporteFlexible SET Multi_User";
 
                     _Repository.ExecuteQuery(sqlQuery, "master");
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se genero un respaldo de la base de datos", idUsuario);
-                    return MessageFactory.CrearMensaje("MS23");
+                    _bitacoraMgr.Create(LogCriticality.Alta, "RespaldoBD", "Se genero un respaldo de la base de datos", idUsuario);
+                    return MessageFactory.GetMessage("MS23");
                 }
             }
             catch (Exception e)
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "RespaldoBD", "Se produjo una Excepcion montando un respaldo de la BD. Exception: " + e.Message, idUsuario);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "RespaldoBD", "Se produjo una Excepcion montando un respaldo de la BD. Exception: " + e.Message, idUsuario);
                 }
                 catch { }
 
-                return MessageFactory.CrearMensajeError("ER03", e);
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
@@ -132,13 +132,14 @@ namespace Negocio.Managers.Seguridad
                 }
 
                 EmailManager _emailMgr = new EmailManager();
-                UsuarioManager _usuarioMgr = new UsuarioManager();
+                UserManager _usuarioMgr = new UserManager();
                 PermisoManager _permisoMgr = new PermisoManager();
                 RolManager _rolMgr = new RolManager();
                 PersonManager _personaMgr = new PersonManager();
-                BitacoraManager _bitacoraMgr = new BitacoraManager();
+                LogManager _bitacoraMgr = new LogManager();
                 PhoneManager _telefonoMgr = new PhoneManager();
                 TablaDVVManager _tablaDvvMgr = new TablaDVVManager();
+                AddressManager _addressMgr = new AddressManager();
 
                 _emailMgr.ValidarIntegridadRegistros();
                 _usuarioMgr.ValidarIntegridadRegistros();
@@ -148,6 +149,7 @@ namespace Negocio.Managers.Seguridad
                 _bitacoraMgr.ValidarIntegridadRegistros();
                 _configuracionMgr.ValidarIntegridadRegistros();
                 _telefonoMgr.ValidarIntegridadRegistros();
+                _addressMgr.ValidarIntegridadRegistros();
                 _tablaDvvMgr.ValidarIntegridadRegistros();
 
                 config = _configuracionMgr.Retrieve(new Configuracion { Id = 1 }).First();

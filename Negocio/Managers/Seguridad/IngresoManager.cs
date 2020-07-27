@@ -3,6 +3,7 @@ using Common.Extensions;
 using Common.FactoryMensaje;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
+using Negocio.Managers.Shared;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,21 +11,21 @@ using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class IngresoManager
+    public class LogInManager
     {
-        private BitacoraManager _bitacoraMgr;
+        private readonly LogManager _bitacoraMgr;
 
-        public IngresoManager()
+        public LogInManager()
         {
-            _bitacoraMgr = new BitacoraManager();
+            _bitacoraMgr = new LogManager();
         }
-        public Mensaje Ingresar(string nombreUsuario, string contraseña)
+        public Message LogIn(string userName, string password)
         {
             //encripto campos punto 9 del caso de uso
-            string contraseñaEncriptada = CryptManager.EncriptMD5(contraseña);
-            string usuarioEncriptado = CryptManager.EncryptAES(nombreUsuario);
+            string encryptedPassword = CryptManager.EncriptMD5(password);
+            string encryptedUser = CryptManager.EncryptAES(userName);
 
-            UsuarioManager _usuarioMgr = new UsuarioManager();
+            UserManager _usuarioMgr = new UserManager();
             SessionManager _sessionMgr = new SessionManager();
             PermisoManager _permisoMgr = new PermisoManager();
 
@@ -32,118 +33,120 @@ namespace Negocio.Managers.Seguridad
 
             try
             {
-                Mensaje msj = new Mensaje();
+                Message msj = new Message();
 
-                // Obtengo de la base de datos el usuario que se corresponda con el nombre de usuario ingresado punto 10 del caso de uso
-                Usuario usuario = _usuarioMgr.Retrieve(new Usuario { NombreUsuario = usuarioEncriptado }).FirstOrDefault();
+                // Obtengo de la base de datos el user que se corresponda con el nombre de user ingresado punto 10 del caso de uso
+                User user = _usuarioMgr.Retrieve(new User { NombreUsuario = encryptedUser }).FirstOrDefault();
 
-                if (ComprobarConsistenciaBD())
+                if (CheckBdConsistency())
                 {
-                    Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
+                    Sesion ses = AdminLogin(encryptedUser, encryptedPassword, userName);
 
-                    return ses != null ? MessageFactory.GetOkMessage(ses) :
+                    return ses != null ? MessageFactory.GetOKMessage(ses) :
                         throw new Exception("Falla Admin login");
                 }
 
-                if (usuario == null) // Valida existencia del usuario
+                if (user == null) // Valida existencia del user
                 {
-                    // No existe el usuario
+                    // No existe el user
                     // creo bitacora punto 18 del caso de uso
-                    Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
+                    Sesion ses = AdminLogin(encryptedUser, encryptedPassword, userName);
                     if (ses != null)
                     {
-                        return MessageFactory.GetOkMessage(ses);
+                        return MessageFactory.GetOKMessage(ses);
                     }
                     else
                     {
-                        _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Intento de ingreso de un usuario no registrado", 1);
-                        return MessageFactory.CrearMensaje("MS09");
+                        _bitacoraMgr.Create(LogCriticality.Alta, "Login", "Intento de ingreso de un user no registrado", 1);
+                        return MessageFactory.GetMessage("MS09");
                     }
 
                 }
 
-                if (usuario.Contraseña != contraseñaEncriptada) // Valida que las contraseñas sean iguales punto 11
+                if (user.Contraseña != encryptedPassword) // Valida que las contraseñas sean iguales punto 11
                 {
                     // Contraseña Incorrecta
-                    usuario.Intentos++;
-                    if (usuario.Intentos >= 3)
+                    user.Intentos++;
+                    if (user.Intentos >= 3)
                     {
-                        usuario.Habilitado = false;
-                        _usuarioMgr.Save(usuario);
-                        _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Usuario bloqueado por reiterado intentos, IdUsuario: " + usuario.Id.ToString(), 0);
-                        return MessageFactory.CrearMensaje("MS06", ViewsEnum.Default.GD());
+                        user.Activo = false;
+                        _usuarioMgr.Save(user);
+                        _bitacoraMgr.Create(LogCriticality.Alta, "Login", "User bloqueado por reiterado intentos, IdUsuario: " + user.Id.ToString(), 0);
+                        return MessageFactory.GetMessage("MS06", ViewsEnum.Default.GD());
                     }
                     else
                     {
                         // creo bitacora punto 18 del caso de uso
-                        _usuarioMgr.Save(usuario);
-                        _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Intento de ingreso por un usuario registrado, no concidio su contraseña, IdUsuario: " + usuario.Id.ToString(), 1);
-                        return MessageFactory.CrearMensaje("MS05");
+                        _usuarioMgr.Save(user);
+                        _bitacoraMgr.Create(LogCriticality.Alta, "Login", "Intento de ingreso por un user registrado, no concidio su password, IdUsuario: " + user.Id.ToString(), 1);
+                        return MessageFactory.GetMessage("MS05");
                     }
                 }
 
-                if (!usuario.Habilitado)
+                PersonManager _personMgr = new PersonManager();
+                user.Persona = _personMgr.Retrieve(user.Persona).Single();
+                if (!user.Habilitado)
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Baja, "Login", "Intento de ingreso por un usuario inhabilitado, IdUsuario: " + usuario.Id.ToString(), 1);
-                    // Usuario Inhabilitado
-                    return MessageFactory.CrearMensaje("MS06");
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Login", "Intento de ingreso por un user inhabilitado, IdUsuario: " + user.Id.ToString(), 1);
+                    // User Inhabilitado
+                    return MessageFactory.GetMessage("MS08");
                 }
 
-                if (usuario.Baja)
+                if (user.Baja)
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Baja, "Login", "Intento de ingreso por un usuario dado de baja, IdUsuario: " + usuario.Id.ToString(), 1);
-                    //Usuario Dado de Baja
-                    return MessageFactory.CrearMensaje("MS07");
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Login", "Intento de ingreso por un user dado de baja, IdUsuario: " + user.Id.ToString(), 1);
+                    //User Dado de Baja
+                    return MessageFactory.GetMessage("MS07");
                 }
 
-                if (!usuario.Activo) // valida que se encuentre activo punto 14
+                if (!user.Activo) // valida que se encuentre activo punto 14
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Baja, "Login", "Intento de ingreso por un usuario inactivo, IdUsuario: " + usuario.Id.ToString(), 1);
-                    // Usuario inactivo
-                    //Usuario Dado de Baja
-                    return MessageFactory.CrearMensaje("MS08");
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Login", "Intento de ingreso por un user inactivo, IdUsuario: " + user.Id.ToString(), 1);
+                    // User inactivo
+                    //User Dado de Baja
+                    return MessageFactory.GetMessage("MS08");
                 }
 
                 // punto 15 del caso de uso
-                usuario.Intentos = 0;
-                usuario.Habilitado = true;
-                _usuarioMgr.Save(usuario);
+                user.Intentos = 0;
+                user.Activo = true;
+                _usuarioMgr.Save(user);
                 // punto 15 del caso de uso
 
                 // creo el objeto session punto 16 del caso de uso
-                Sesion session = _sessionMgr.CrearSession(usuario.Id, _permisoMgr.ObtenerSoloIdsDePermisos(usuario.Permisos), nombreUsuario);
+                Sesion session = _sessionMgr.CreateSession(user.Id, _permisoMgr.GetOnlyPermissionIds(user.Permisos), userName);
                 // punto 16
 
                 // punto 17 es ejecutado en la capa de presentacion 
 
                 // creo bitacora punto 18 del caso de uso
-                _bitacoraMgr.Create(CriticidadBitacora.Media, "Login", "Se logueo el usuario: " + usuario.Id.ToString() + " en el sistema", 1);
-                return MessageFactory.GetOkMessage(session);
+                _bitacoraMgr.Create(LogCriticality.Medium, "Login", "Se logueo el user: " + user.Id.ToString() + " en el sistema", 1);
+                return MessageFactory.GetOKMessage(session);
 
                 //Punto 19 es ejecutado en la capa de presentacion
             }
             catch (Exception e)
             {
-                Sesion ses = AdminLogin(usuarioEncriptado, contraseñaEncriptada, nombreUsuario);
+                Sesion ses = AdminLogin(encryptedUser, encryptedPassword, userName);
                 if (ses != null)
                 {
-                    return MessageFactory.GetOkMessage(ses);
+                    return MessageFactory.GetOKMessage(ses);
                 }
                 else
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Login", "Se produjo una excepción en el login", 1);
-                    return MessageFactory.CrearMensajeError("ER01", e);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Login", "Se produjo una excepción en el login", 1);
+                    return MessageFactory.GettErrorMessage("ER01", e);
                 }
 
             }
         }
 
-        private Sesion AdminLogin(string usuarioEncriptado, string contraseñaEncriptada, string nombreUsuario)
+        private Sesion AdminLogin(string encryptedUser, string encryptedPassword, string userName)
         {
-            if (usuarioEncriptado == ConfigurationManager.AppSettings["userName"] && contraseñaEncriptada == ConfigurationManager.AppSettings["pass"])
+            if (encryptedUser == ConfigurationManager.AppSettings["userName"] && encryptedPassword == ConfigurationManager.AppSettings["pass"])
             {
                 SessionManager _sessionMgr = new SessionManager();
-                List<int> permisos = new List<int>
+                List<int> permissions = new List<int>
                     {
                         12,
                         13,
@@ -153,13 +156,13 @@ namespace Negocio.Managers.Seguridad
                         17,
                         42
                     };
-                Sesion session = _sessionMgr.CrearSession(1, permisos, nombreUsuario);
+                Sesion session = _sessionMgr.CreateSession(1, permissions, userName);
                 return session;
             }
             return null;
         }
 
-        private bool ComprobarConsistenciaBD()
+        private bool CheckBdConsistency()
         {
             BDManager _bdMgr = new BDManager();
             return _bdMgr.ValidarIntegridadBD();

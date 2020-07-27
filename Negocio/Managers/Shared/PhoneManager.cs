@@ -1,9 +1,10 @@
 ﻿using Common.Enums.Seguridad;
+using Common.FactoryMensaje;
 using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
-using Negocio.DigitoVerificador;
+using Negocio.CheckDigit;
 using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,12 @@ namespace Negocio.Managers.Shared
     public class PhoneManager : CheckDigit<Telefono>, IManagerCrud<Telefono>
     {
         private readonly IRepository<Telefono> _Repository;
-        private readonly BitacoraManager _bitacoraMgr;
+        private readonly LogManager _bitacoraMgr;
 
         public PhoneManager()
         {
             _Repository = new Repository<Telefono>();
-            _bitacoraMgr = new BitacoraManager();
+            _bitacoraMgr = new LogManager();
         }
         public int Create(string telefono, int usuarioCreacion)
         {
@@ -54,7 +55,7 @@ namespace Negocio.Managers.Shared
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarTelefono", "Se produjo una excepción salvando un Telefono. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(LogCriticality.Alta, "GuardarTelefono", "Se produjo una excepción salvando un Telefono. Exception: " + e.Message, 1); // 1 User sistema
                 }
                 catch {}
                 throw e;
@@ -117,6 +118,43 @@ namespace Negocio.Managers.Shared
             catch (Exception e)
             {
                 throw e;
+            }
+        }
+
+        public Message SavePhone(int phoneId, string phoneNumber, int loggedUserId)
+        {
+            try
+            {
+                Telefono phone = new Telefono { Id = phoneId};
+                phone = Retrieve(phone).FirstOrDefault();
+                if (phone != null && phone.Id == phoneId)
+                {
+                    phone.NumeroTelefono = CryptManager.EncryptAES(phoneNumber);
+                    int saveFlag = Save(phone);
+                    if (saveFlag == phoneId)
+                    {
+                        phone.NumeroTelefono = phoneNumber;
+                        return MessageFactory.GetOKMessage(phone);
+                    }
+                    else
+                    {
+                        throw new Exception("Error al ejecutar metodo save en Telefono Manager");
+                    }
+                }
+                else
+                {
+                    return MessageFactory.GetMessage("MS72");
+                }
+
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Actualizar Telefono", "Se produjo una excepción actualizando un Telefono. Exception: " + e.Message, loggedUserId);
+                }
+                catch { }
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
         #endregion

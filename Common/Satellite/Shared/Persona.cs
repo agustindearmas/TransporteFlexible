@@ -33,6 +33,9 @@ namespace Common.Satellite.Shared
         [NameEntity(IdEntity = "IdEmail", NameEntity = "Email.Id")]
         public List<Email> Emails { get; set; }
 
+        [NameEntity(IdEntity = "IdDireccion", NameEntity = "Address.Id")]
+        public List<Address> Addresses { get; set; }
+
         [NameEntity(IdEntity = "Baja", NameEntity = "Baja")]
         public Boolean Baja { get; set; }
 

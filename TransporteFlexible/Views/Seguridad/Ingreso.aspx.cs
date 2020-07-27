@@ -17,12 +17,12 @@ namespace TransporteFlexible.Views.Seguridad
 
         public void BtnIngresar_Click(Object sender, EventArgs e)
         {
-            IngresoManager ingresoMgr = new IngresoManager();
-            Mensaje mensaje = ingresoMgr.Ingresar(_tbNombreUsuario.Text, _tbContraseña.Text);
+            LogInManager ingresoMgr = new LogInManager();
+            Message mensaje = ingresoMgr.LogIn(_tbNombreUsuario.Text, _tbContraseña.Text);
             ProcesarMensajeDeIngreso(mensaje);
         }
 
-        private void ProcesarMensajeDeIngreso(Mensaje msj)
+        private void ProcesarMensajeDeIngreso(Message msj)
         {
             if (msj.CodigoMensaje == "OK")
             {

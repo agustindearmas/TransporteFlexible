@@ -15,11 +15,11 @@ using TransporteFlexible.Mensajes;
 
 namespace TransporteFlexible.Views.Seguridad.Usuarios
 {
-    public partial class UsuarioView : GridViewExtensions<Usuario>
+    public partial class UsuarioView : GridViewExtensions<User>
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (PermisosHelper.ValidarPermisos(16, Session["Permisos"]))
+            if (PermisosHelper.ValidarPermisos(16, Session[SV.Permisos.GD()]))
             {
                 if (!IsPostBack)
                 {
@@ -28,7 +28,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             }
             else
             {
-                Mensaje msj = MessageFactory.CrearMensaje("MS39", "/");
+                Message msj = MessageFactory.GetMessage("MS39", "/");
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
         }
@@ -37,12 +37,12 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
         {
             try
             {
-                UsuarioManager _usrMgr = new UsuarioManager();
+                UserManager _usrMgr = new UserManager();
                 int idUser = string.IsNullOrWhiteSpace(_tbIdUsuario.Text) ? 0 : int.Parse(_tbIdUsuario.Text);
                 string nombreUsuario = _tbNombreUsuario.Text;
                 string dni = _tbDni.Text;
 
-                Mensaje msj = _usrMgr.ObtenerUsuariosNegocioDesencriptados(idUser, nombreUsuario, dni);
+                Message msj = _usrMgr.ObtenerUsuariosNegocioDesencriptados(idUser, nombreUsuario, dni);
 
                 if (msj.CodigoMensaje != "OK")
                 {
@@ -50,7 +50,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                 }
                 else
                 {
-                    List<Usuario> usuarios = (List<Usuario>)msj.Resultado;
+                    List<User> usuarios = (List<User>)msj.Resultado;
                     BuildDataGridView(usuarios);
                 }
             }
@@ -98,8 +98,8 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
 
         private void ModificarHabilitado(int id)
         {
-            UsuarioManager _usuarioMgr = new UsuarioManager();
-            Mensaje msj = _usuarioMgr.HabilitrDeshabilitarUsuario(id);
+            UserManager _usuarioMgr = new UserManager();
+            Message msj = _usuarioMgr.EnableDisableUser(id);
             MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             PopularTabla();
         }
@@ -125,7 +125,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                      prop.Name == "FechaModificacion");
         }
 
-        internal override void BuildDataGridView(List<Usuario> entities)
+        internal override void BuildDataGridView(List<User> entities)
         {
             _usuariosGridView.AllowPaging = true;
             DataTable dt = ConvertToDataTable(entities);

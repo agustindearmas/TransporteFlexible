@@ -14,7 +14,7 @@ namespace TransporteFlexible.Views.Seguridad
 {
     public partial class BitacoraView : System.Web.UI.Page
     {
-        private readonly BitacoraManager _bitacoraMgr;
+        private readonly LogManager _bitacoraMgr;
         protected void Page_Load(object sender, EventArgs e)
         {
             //Permiso numero 16
@@ -28,14 +28,14 @@ namespace TransporteFlexible.Views.Seguridad
             }
             else
             {
-               Mensaje msj = MessageFactory.CrearMensaje("MS39", "/");
+               Message msj = MessageFactory.GetMessage("MS39", "/");
                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
         }
 
         public BitacoraView()
         {
-            _bitacoraMgr = new BitacoraManager();
+            _bitacoraMgr = new LogManager();
         }
 
         private void PopularFiltro()
@@ -62,7 +62,7 @@ namespace TransporteFlexible.Views.Seguridad
 
         private void PopularTabla()
         {
-            Mensaje msj = _bitacoraMgr.ObtenerBitacorasDesencriptadas(
+            Message msj = _bitacoraMgr.ObtenerBitacorasDesencriptadas(
                 _txtFechaDesde.Text,
                 _txtFechaHasta.Text,
                 _ddlNivelCriticidad.SelectedIndex,

@@ -10,7 +10,7 @@
 namespace TransporteFlexible.Views.Seguridad.Usuarios {
     
     
-    public partial class WUCEmails {
+    public partial class WUCAddress {
         
         /// <summary>
         /// Control Add.
@@ -22,12 +22,12 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios {
         protected global::System.Web.UI.WebControls.LinkButton Add;
         
         /// <summary>
-        /// Control _emailsGridView.
+        /// Control AddressGridView.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView _emailsGridView;
+        protected global::System.Web.UI.WebControls.GridView AddressGridView;
     }
 }

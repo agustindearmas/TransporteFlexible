@@ -2,12 +2,12 @@
 
 namespace Common.Enums.Seguridad
 {
-    public enum CriticidadBitacora
+    public enum LogCriticality
     {
         [Description("Baja")]
         Baja = 1,
-        [Description("Media")]
-        Media = 2,
+        [Description("Medium")]
+        Medium = 2,
         [Description("Alta")]
         Alta = 2,
     }

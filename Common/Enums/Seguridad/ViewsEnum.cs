@@ -21,7 +21,7 @@ namespace Common.Enums.Seguridad
         [Description("/Views/Seguridad/Usuarios/UsuarioView.aspx")]
         Usuario,
         /// <summary>
-        /// Pantalla de Alta y Modificacion de Usuario
+        /// Pantalla de Alta y Modificacion de User
         /// </summary>
         [Description("/Views/Seguridad/Usuarios/UsuarioAMView.aspx")]
         UsuarioAM

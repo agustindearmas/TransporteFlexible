@@ -238,12 +238,12 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios {
         protected global::TransporteFlexible.Views.Seguridad.Usuarios.WUCTelefonos WUCTelefonos;
         
         /// <summary>
-        /// Control _tblDirecciones.
+        /// Control WUCAddress.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Table _tblDirecciones;
+        protected global::TransporteFlexible.Views.Seguridad.Usuarios.WUCAddress WUCAddress;
     }
 }

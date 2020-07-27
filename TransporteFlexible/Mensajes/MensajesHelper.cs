@@ -9,7 +9,7 @@ namespace TransporteFlexible.Mensajes
 {
     public static class MensajesHelper
     {
-        public static void ProcesarMensajeGenerico(Type type, Mensaje msj, Page page)
+        public static void ProcesarMensajeGenerico(Type type, Message msj, Page page)
         {
             if (msj.EsError && msj.RutaRedireccion == ViewsEnum.Error.GD())
             {
@@ -45,7 +45,7 @@ namespace TransporteFlexible.Mensajes
             }
         }
 
-        private static void MostrarMensaje(Mensaje mensaje, Page page, Type type)
+        private static void MostrarMensaje(Message mensaje, Page page, Type type)
         {
             string title = "¡Atención!";
             string body = ObtenerMensaje(mensaje.CodigoMensaje);

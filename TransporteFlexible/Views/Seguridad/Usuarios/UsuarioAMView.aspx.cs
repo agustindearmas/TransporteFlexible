@@ -1,13 +1,13 @@
-﻿using Common.FactoryMensaje;
+﻿using Common.Enums.Seguridad;
+using Common.Extensions;
+using Common.FactoryMensaje;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
+using Negocio.Managers.Shared;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Linq;
-using System.Web.UI.WebControls;
 using TransporteFlexible.Mensajes;
 
 namespace TransporteFlexible.Views.Seguridad.Usuarios
@@ -27,26 +27,38 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             if (Request.QueryString.HasKeys() &&
                             int.TryParse(Request.QueryString.Get("id"), out int userId))
             {
-                Usuario user = ObtenerUsuario(userId);
+                User user = ObtenerUsuario(userId);
                 if (user != null)
                 {
                     PopularDatosUsuario(user);
                     if (user.Persona != null)
                     {
+                        Session[SV.EditingPersonId.GD()] = user.Persona.Id;
                         PopularDatosDePersona(user.Persona);
 
                         if (user.Persona.Emails != null)
                         {
-                            PopularEmailsGridView(user.Persona.Emails);
+                            WUCEmails.Emails = user.Persona.Emails;
                         }
-                        
-                    }
-                    
 
+                        if (user.Persona.Telefonos != null)
+                        {
+                            WUCTelefonos.Phones = user.Persona.Telefonos;
+                        }
+
+                        if (user.Persona.Addresses != null)
+                        {
+                            WUCAddress.Addresses = user.Persona.Addresses;
+                        }
+                        else
+                        {
+                            WUCAddress.Addresses = new List<Address>();
+                        }
+                    }
                 }
                 else
                 {
-                    Mensaje msj = MessageFactory.CrearMensaje("MS09");
+                    Message msj = MessageFactory.GetMessage("MS09");
                     MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
                 }
             }
@@ -54,56 +66,47 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
 
         private void PopularDatosDePersona(Persona persona)
         {
+            // DATOS DE PERSONA
             _tbNombre.Text = persona.Nombre;
             _tbApellido.Text = persona.Apellido;
             _tbDni.Text = persona.DNI;
             _tbCuil.Text = persona.NumeroCuil;
             _ddlEsCuit.SelectedValue = persona.EsCuit.ToString();
-            Usuario usuarioCreacion = ObtenerUsuario((int)persona.UsuarioCreacion);
+            User usuarioCreacion = ObtenerUsuario((int)persona.UsuarioCreacion);
             _lblUsuarioCreacionPersona.Text = usuarioCreacion != null ? usuarioCreacion.NombreUsuario : "";
             _lblFechaCreacionPersona.Text = persona.FechaCreacion.ToString("MM/dd/yyyy H:mm");
-            Usuario usuarioModificacion = ObtenerUsuario((int)persona.UsuarioModificacion);
+            User usuarioModificacion = ObtenerUsuario((int)persona.UsuarioModificacion);
             _lbUsuarioModificacionPersona.Text = usuarioModificacion != null ? usuarioModificacion.NombreUsuario : "";
             _lblFechamodificacionPersona.Text = persona.FechaModificacion.ToString("MM/dd/yyyy H:mm");
+            // DATOS DE PERSONA
         }
 
-        private void PopularDatosUsuario(Usuario user)
+        private void PopularDatosUsuario(User user)
         {
             // DATOS DE USUARIO
             _tbNombreUsuario.Text = user.NombreUsuario;
             _tbIntentos.Text = user.Intentos.ToString();
             _ddlActivo.SelectedValue = user.Activo.ToString();
-            Usuario usuarioCreacion = ObtenerUsuario((int)user.UsuarioCreacion);
+            User usuarioCreacion = ObtenerUsuario((int)user.UsuarioCreacion);
             _lblUsuarioCreación.Text = usuarioCreacion != null ? usuarioCreacion.NombreUsuario : "";
             _lblFechaCreación.Text = user.FechaCreacion.ToString("MM/dd/yyyy H:mm");
-            Usuario usuarioModificacion = ObtenerUsuario((int)user.UsuarioModificacion);
+            User usuarioModificacion = ObtenerUsuario((int)user.UsuarioModificacion);
             _lblUsuarioModificación.Text = usuarioModificacion != null ? usuarioModificacion.NombreUsuario : "";
             _lblFechaModificacion.Text = user.FechaModificacion.ToString("MM/dd/yyyy H:mm");
             // DATOS DE USUARIO
         }
 
-        private void PopularEmailsGridView(List<Email> emails)
+        private User ObtenerUsuario(int userId)
         {
-            WUCEmails.emails = emails;
-        }
-
-        private void PopularTelefonosGridView(List<Telefono> telefonos)
-        {
-            WUCTelefonos.Telefonos = telefonos;
-        }
-
-
-        private Usuario ObtenerUsuario(int userId)
-        {
-            UsuarioManager _usuarioMgr = new UsuarioManager();
-            Mensaje msj = _usuarioMgr.ObtenerUsuariosNegocioDesencriptados(userId, null, null);
+            UserManager _usuarioMgr = new UserManager();
+            Message msj = _usuarioMgr.ObtenerUsuariosNegocioDesencriptados(userId, null, null);
             if (msj.CodigoMensaje != "OK")
             {
                 MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
             }
             else
             {
-                List<Usuario> usuarios = (List<Usuario>)msj.Resultado;
+                List<User> usuarios = (List<User>)msj.Resultado;
                 if (usuarios.Count == 1)
                 {
                     return usuarios.Single();

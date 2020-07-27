@@ -5,7 +5,7 @@ using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
-using Negocio.DigitoVerificador;
+using Negocio.CheckDigit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +15,14 @@ namespace Negocio.Managers.Seguridad
     public class PermisoManager : CheckDigit<Permiso>, IManagerCrud<Permiso>
     {
         private readonly IRepository<Permiso> _Repository;
-        private readonly BitacoraManager _bitacoraMgr;
-        private readonly UsuarioManager _usuarioMgr;
+        private readonly LogManager _bitacoraMgr;
+        private readonly UserManager _usuarioMgr;
 
         public PermisoManager()
         {
             _Repository = new Repository<Permiso>();
-            _bitacoraMgr = new BitacoraManager();
-            _usuarioMgr = new UsuarioManager();
+            _bitacoraMgr = new LogManager();
+            _usuarioMgr = new UserManager();
         }
 
         public List<Permiso> Retrieve(Permiso filter)
@@ -33,7 +33,7 @@ namespace Negocio.Managers.Seguridad
         /// <summary>
         /// Este metodo obtiene todos los permisos asignados que posee un usuario
         /// </summary>
-        public Mensaje ObtenerPermisosPorUsuarioId(int userId)
+        public Message ObtenerPermisosPorUsuarioId(int userId)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace Negocio.Managers.Seguridad
                     permisos.OrderBy(x => x.Id);
                 }
 
-                return MessageFactory.GetOkMessage(permisos);
+                return MessageFactory.GetOKMessage(permisos);
             }
             catch (Exception e)
             {
@@ -57,7 +57,7 @@ namespace Negocio.Managers.Seguridad
         /// <summary>
         /// Este metodo obtiene todos los permisos desasignados que posee un usuario
         /// </summary>
-        public Mensaje ObtenerPermisosDesasignados(int userId)
+        public Message ObtenerPermisosDesasignados(int userId)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace Negocio.Managers.Seguridad
                     noAsignados.OrderBy(x => x.Id);
                 }
 
-                return MessageFactory.GetOkMessage(noAsignados);
+                return MessageFactory.GetOKMessage(noAsignados);
             }
             catch (Exception e)
             {
@@ -96,7 +96,7 @@ namespace Negocio.Managers.Seguridad
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: " + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(LogCriticality.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: " + e.Message, 1); // 1 User sistema
                 }
                 catch { }
                 throw e;
@@ -128,7 +128,7 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        public List<int> ObtenerSoloIdsDePermisos(List<Permiso> permisos)
+        public List<int> GetOnlyPermissionIds(List<Permiso> permisos)
         {
             try
             {
@@ -196,20 +196,20 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        public Mensaje ComprobarPermisoAsignadoAOtroUsuario(Permiso permiso, int userId)
+        public Message ComprobarPermisoAsignadoAOtroUsuario(Permiso permiso, int userId)
         {
             try
             {
-                Mensaje msj = null;
-                UsuarioManager _usuarioMgr = new UsuarioManager();
+                Message msj = null;
+                UserManager _usuarioMgr = new UserManager();
                 msj = _usuarioMgr.ObtenerUsuariosNegocioDesencriptados(0, null, null);
                 if (msj.CodigoMensaje == "OK")
                 {
-                    foreach (Usuario usuario in msj.Resultado as List<Usuario>)
+                    foreach (User usuario in msj.Resultado as List<User>)
                     {
                         if (usuario.Id != userId && usuario.Permisos.Where(x => x.Id == permiso.Id).Any())
                         {
-                            return MessageFactory.CrearMensajeOk();
+                            return MessageFactory.GetOKMessage();
                         }
                     }
                     return MessageFactory.CrearMensajeErrorFuncional("MS67", permiso.Descripcion);
@@ -225,7 +225,7 @@ namespace Negocio.Managers.Seguridad
 
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "ComprobandoPermiso", "Se Produjo una excepcion comprobando que un permiso este asignado a al menos un usuario" + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(LogCriticality.Alta, "ComprobandoPermiso", "Se Produjo una excepcion comprobando que un permiso este asignado a al menos un usuario" + e.Message, 1); // 1 User sistema
                 }
                 catch { }
                 throw e;

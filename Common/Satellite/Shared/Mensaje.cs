@@ -6,7 +6,7 @@ namespace Common.Satellite.Shared
     /// <summary>
     /// Esta clase obra como enlace de respuesta entre las capas de negocio y presentación 
     /// </summary>
-    public class Mensaje
+    public class Message
     {
         /// <summary>
         /// Es el codigo de mensaje que se desea mostrar

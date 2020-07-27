@@ -7,7 +7,7 @@ using Common.Repositories.Interfaces;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using DataAccess.Concrete;
-using Negocio.DigitoVerificador;
+using Negocio.CheckDigit;
 using Negocio.Managers.Shared;
 using System;
 using System.Collections.Generic;
@@ -15,18 +15,18 @@ using System.Linq;
 
 namespace Negocio.Managers.Seguridad
 {
-    public class UsuarioManager : CheckDigit<Usuario>, IManagerCrud<Usuario>
+    public class UserManager : CheckDigit<User>, IManagerCrud<User>
     {
-        private readonly IRepository<Usuario> _Repository;
-        private readonly BitacoraManager _bitacoraMgr;
+        private readonly IRepository<User> _Repository;
+        private readonly LogManager _bitacoraMgr;
 
-        public UsuarioManager()
+        public UserManager()
         {
-            _Repository = new Repository<Usuario>();
-            _bitacoraMgr = new BitacoraManager();
+            _Repository = new Repository<User>();
+            _bitacoraMgr = new LogManager();
         }
 
-        public int Save(Usuario entity)
+        public int Save(User entity)
         {
             try
             {
@@ -38,8 +38,8 @@ namespace Negocio.Managers.Seguridad
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: "
-                        + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(LogCriticality.Alta, "GuardarUsuario", "Se produjo una excepción salvando un usuario. Exception: "
+                        + e.Message, 1); // 1 User sistema
                 }
                 catch { }
                 throw e;
@@ -48,14 +48,13 @@ namespace Negocio.Managers.Seguridad
 
         public int Create(string nombreUsuarioSinEncriptar, string passwordSinEncriptar, int idPersona, List<Rol> roles, List<Permiso> permisos, int usuarioCreacion)
         {
-            Usuario user = new Usuario
+            User user = new User
             {
                 Persona = new Persona { Id = idPersona },
                 NombreUsuario = CryptManager.EncryptAES(nombreUsuarioSinEncriptar),
                 Contraseña = CryptManager.EncriptMD5(passwordSinEncriptar),
                 Activo = false,
                 Intentos = 0,
-                Habilitado = true,
                 Baja = false,
                 Roles = roles,
                 Permisos = permisos,
@@ -74,44 +73,44 @@ namespace Negocio.Managers.Seguridad
             _Repository.Delete(id);
         }
 
-        public void Delete(Usuario entity)
+        public void Delete(User entity)
         {
             _Repository.Delete(entity);
         }
 
-        public List<Usuario> Retrieve(Usuario filter)
+        public List<User> Retrieve(User filter)
         {
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
-        public Mensaje RegistrarUsuario(RegistroDto registro)
+        public Message RegisterNewBusinessUser(RegistroDto registro)
         {
             try
             {
-                Mensaje _msjReturn;
+                Message _msjReturn;
                 PhoneManager _telefonoMgr = new PhoneManager();
 
                 // Compruebo fraude
                 if (registro.Rol != "2" && registro.Rol != "3" && registro.Rol != "4")
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Registro", "Se intento crear un usuario con un perfil que no corresponde al proceso de registro automático", 1); // 1 Usuario sistema
-                    return MessageFactory.CrearMensaje("MS36"); // LAS CONTRASEÑAS NO COINCIDEN mensaje MS62
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Registro", "Se intento crear un usuario con un perfil que no corresponde al proceso de registro automático", 1); // 1 User sistema
+                    return MessageFactory.GetMessage("MS36"); // LAS CONTRASEÑAS NO COINCIDEN mensaje MS62
                 }
                 // Compruebo fraude
 
                 // Comparando contraseñas
                 if (registro.Contraseña != registro.RepetirContraseña)
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Baja, "Registro", "Las contraseñas no coinciden", 1); // 1 Usuario sistema
-                    return MessageFactory.CrearMensaje("MS62"); // LAS CONTRASEÑAS NO COINCIDEN mensaje MS62
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Registro", "Las contraseñas no coinciden", 1); // 1 User sistema
+                    return MessageFactory.GetMessage("MS62"); // LAS CONTRASEÑAS NO COINCIDEN mensaje MS62
                 }
                 // FIN Comparando contraseñas
 
                 //comprobando existencia del usuario               
-                if (ComprobarExistenciaUsuario(registro.NombreUsuario))
+                if (ExistUser(registro.NombreUsuario))
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Baja, "Registro", "El nombre de usuario ya existe", 1); // 1 Usuario sistema
-                    return MessageFactory.CrearMensaje("MS01"); // EL username ya esta en uso MENSAJE MS01
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Registro", "El nombre de usuario ya existe", 1); // 1 User sistema
+                    return MessageFactory.GetMessage("MS01"); // EL username ya esta en uso MENSAJE MS01
                 }
                 // fin comprobando existencia del usuario
 
@@ -119,8 +118,8 @@ namespace Negocio.Managers.Seguridad
                 //comprobando existencia de la persona
                 if (_personaMgr.ComprobarExistenciaPersona(registro.DNI))
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Baja, "Registro", "La persona del usuario ya existe", 1); // 1 Usuario sistema
-                    return MessageFactory.CrearMensaje("MS35");// La persona ya existe MENSAJE MS02
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Registro", "La persona del usuario ya existe", 1); // 1 User sistema
+                    return MessageFactory.GetMessage("MS35");// La persona ya existe MENSAJE MS02
                 }
                 // fin comprobando existencia de la persona
 
@@ -128,8 +127,8 @@ namespace Negocio.Managers.Seguridad
                 //comprobando existencia del Email
                 if (_emailMgr.ExistEmail(registro.Email))
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Baja, "Registro", "El email del usuario ya existe", 1); // 1 Usuario sistema
-                    return MessageFactory.CrearMensaje("MS02");// El Email ya existe Mensaje MS02  
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Registro", "El email del usuario ya existe", 1); // 1 User sistema
+                    return MessageFactory.GetMessage("MS02");// El Email ya existe Message MS02  
                 }
                 // fin comprobando existencia del Email
 
@@ -169,13 +168,18 @@ namespace Negocio.Managers.Seguridad
                 {
                     SendEmailManager _envioEmailMgr = new SendEmailManager();
                     string idEncriptado = CryptManager.EncryptAES(idUsuario.ToString());
+                    Email emailBd = new Email
+                    {
+                        EmailAddress = CryptManager.EncryptAES(registro.Email)
+                    };
+                    emailBd = _emailMgr.Retrieve(emailBd).Single();
                     _envioEmailMgr.SendRegisterEmail(registro.Email, idEncriptado);
-                    _bitacoraMgr.Create(CriticidadBitacora.Baja, "Registro", "El usuario: " + idUsuario + " fue creado con éxito", 1); // 1 Usuario sistema
-                    _msjReturn = MessageFactory.CrearMensaje("MS04", ViewsEnum.Default.GD());
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Registro", "El usuario: " + idUsuario + " fue creado con éxito", 1); // 1 User sistema
+                    _msjReturn = MessageFactory.GetMessage("MS04", ViewsEnum.Default.GD());
                 }
                 else
                 {
-                    throw new Exception("Error funcional, problemas al crear Usuario");
+                    throw new Exception("Error funcional, problemas al crear User");
                 }
 
                 return _msjReturn;
@@ -184,19 +188,19 @@ namespace Negocio.Managers.Seguridad
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Registro", "Se produjo una excepción en el método RegistrarUsuario()" +
-                    " de la clase UsuarioManager. Excepción: " + e.Message, 1); // 1 Usuario sistema
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Registro", "Se produjo una excepción en el método RegistrarUsuario()" +
+                    " de la clase UsuarioManager. Excepción: " + e.Message, 1); // 1 User sistema
                 }
                 catch { }
-                return MessageFactory.CrearMensajeError("ER03", e);
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
-        public Mensaje HabilitrDeshabilitarUsuario(int id)
+        public Message EnableDisableUser(int id)
         {
             try
             {
-                Usuario usuario = Retrieve(new Usuario { Id = id }).Single();
+                User usuario = Retrieve(new User { Id = id }).Single();
 
                 if (usuario.Habilitado)
                 {
@@ -204,20 +208,20 @@ namespace Negocio.Managers.Seguridad
                     PermisoManager _permisoMgr = new PermisoManager();
                     foreach (Permiso permiso in usuario.Permisos)
                     {
-                       Mensaje msj = _permisoMgr.ComprobarPermisoAsignadoAOtroUsuario(permiso, usuario.Id);
+                       Message msj = _permisoMgr.ComprobarPermisoAsignadoAOtroUsuario(permiso, usuario.Id);
                         if (msj.CodigoMensaje != "OK")
                         {
                             return msj;
                         }
                     }
 
-                    usuario.Habilitado = !usuario.Habilitado;
+                    usuario.Activo = !usuario.Activo;
                 }
                 else
                 {
                     // deshabilitado
                     usuario.Intentos = 0;
-                    usuario.Habilitado = !usuario.Habilitado;
+                    usuario.Activo = !usuario.Activo;
                 }
                
 
@@ -225,27 +229,27 @@ namespace Negocio.Managers.Seguridad
 
                 if (saveAnswer == id)
                 {
-                    return MessageFactory.CrearMensaje("MS13");
+                    return MessageFactory.GetMessage("MS13");
                 }
 
-                throw new Exception("Problemas guardando información de Usuario");
+                throw new Exception("Problemas guardando información de User");
             }
             catch (Exception e)
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "ModificandoUsuario", "Se produjo una excepción habilitando deshabilitando un usuario Exception: " + e.Message, 1);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "ModificandoUsuario", "Se produjo una excepción habilitando deshabilitando un usuario Exception: " + e.Message, 1);
                 }
                 catch { }
-                return MessageFactory.CrearMensajeError("ER03", e);
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
-        public Mensaje AsignarPermisos(int userId, List<Permiso> permisos, int usuarioSession)
+        public Message AsignPermits(int userId, List<Permiso> permisos, int usuarioSession)
         {
             try
             {
-                Usuario usuario = new Usuario { Id = userId };
+                User usuario = new User { Id = userId };
                 usuario = Retrieve(usuario).SingleOrDefault();
                 if (usuario != null)
                 {
@@ -253,8 +257,8 @@ namespace Negocio.Managers.Seguridad
                     int saveReturn = Save(usuario);
                     if (saveReturn != 0)
                     {
-                        _bitacoraMgr.Create(CriticidadBitacora.Alta, "Modificacion Usuarios", "Se asignaron permisos al usuario " + userId.ToString(), usuarioSession);
-                        return MessageFactory.CrearMensajeOk();
+                        _bitacoraMgr.Create(LogCriticality.Alta, "Modificacion Usuarios", "Se asignaron permisos al usuario " + userId.ToString(), usuarioSession);
+                        return MessageFactory.GetOKMessage();
                     }
                     else
                     {
@@ -262,26 +266,26 @@ namespace Negocio.Managers.Seguridad
                     }
 
                 }
-                return new Mensaje();
+                return new Message();
                 //return msj;
             }
             catch (Exception ex)
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Modificacion Usuarios", "Se produjo una excepción asignando permisos al usuario" + userId.ToString(), usuarioSession);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Modificacion Usuarios", "Se produjo una excepción asignando permisos al usuario" + userId.ToString(), usuarioSession);
                 }
                 catch { }
-                return MessageFactory.CrearMensajeError("ER01", ex);
+                return MessageFactory.GettErrorMessage("ER01", ex);
             }
         }
 
-        private bool ComprobarExistenciaUsuario(string nombreUsuarioSinEncriptar)
+        private bool ExistUser(string nombreUsuarioSinEncriptar)
         {
             try
             {
                 string nuEncriptado = CryptManager.EncryptAES(nombreUsuarioSinEncriptar);
-                Usuario usuarioBD = Retrieve(new Usuario { NombreUsuario = nuEncriptado }).FirstOrDefault();
+                User usuarioBD = Retrieve(new User { NombreUsuario = nuEncriptado }).FirstOrDefault();
                 return (usuarioBD != null && usuarioBD.Id > 0);
             }
             catch (Exception e)
@@ -290,33 +294,33 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
-        public Mensaje ValidarUsuario(string idUsuarioEncriptado)
+        public Message ValidarUsuario(string idUsuarioEncriptado)
         {
             try
             {
-                Mensaje _returnMensaje;
+                Message _returnMensaje;
                 int idUser;
                 if (string.IsNullOrEmpty(idUsuarioEncriptado))
                 {
                     // ALGO ANDA MAL
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "ValidarEmail", "Error al intentar activar un usuario", 1);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "ValidarEmail", "Error al intentar activar un usuario", 1);
                     _returnMensaje = MessageFactory.CrearMensajeErrorFuncional("MS64");
                     
                 }
                 else
                 {
                     idUser = Convert.ToInt32(CryptManager.DecryptAES(idUsuarioEncriptado.Replace(" ", "+")));
-                    Usuario usuarioActivar = Retrieve(new Usuario { Id = idUser }).FirstOrDefault();
+                    User usuarioActivar = Retrieve(new User { Id = idUser }).FirstOrDefault();
                     if (usuarioActivar != null)
                     {
                         usuarioActivar.Activo = true;
                         Save(usuarioActivar);
-                        _returnMensaje = MessageFactory.CrearMensaje("MS63", ViewsEnum.Ingreso.GD());
-                        _bitacoraMgr.Create(CriticidadBitacora.Media, "ValidarEmail", "Se activo el Usuario: " + idUser.ToString() + "en el Sistema", 1);
+                        _returnMensaje = MessageFactory.GetMessage("MS63", ViewsEnum.Ingreso.GD());
+                        _bitacoraMgr.Create(LogCriticality.Medium, "ValidarEmail", "Se activo el User: " + idUser.ToString() + "en el Sistema", 1);
                     }
                     else
                     {
-                        _bitacoraMgr.Create(CriticidadBitacora.Alta, "ValidarEmail", "Se intentó activar un usuario con un Id null o inexistente", 1);
+                        _bitacoraMgr.Create(LogCriticality.Alta, "ValidarEmail", "Se intentó activar un usuario con un Id null o inexistente", 1);
                         _returnMensaje = MessageFactory.CrearMensajeErrorFuncional("MS64");
                     }
                 }
@@ -326,19 +330,19 @@ namespace Negocio.Managers.Seguridad
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "ValidarEmail", "Se produjo una excepción activando un usuario", 1);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "ValidarEmail", "Se produjo una excepción activando un usuario", 1);
                 }
                 catch { }
-                return MessageFactory.CrearMensajeError("ER03", e);
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
-        public Mensaje ObtenerUsuariosNegocioDesencriptados(int id, string nombreUsuario, string dni)
+        public Message ObtenerUsuariosNegocioDesencriptados(int id, string nombreUsuario, string dni)
         {
             try
             {
                 string nombreUsuariEncrip = "";
-                Usuario usuario = new Usuario();
+                User usuario = new User();
                 PersonManager _prsMgr = new PersonManager();
 
 
@@ -367,14 +371,14 @@ namespace Negocio.Managers.Seguridad
                     }
                 }
 
-                List<Usuario> usuarios = Retrieve(usuario);
+                List<User> usuarios = Retrieve(usuario);
 
                 if (usuarios.Count > 0)
                 {
                     foreach (var usr in usuarios)
                     {
                         usr.NombreUsuario = CryptManager.DecryptAES(usr.NombreUsuario);
-                        usr.Persona = _prsMgr.Retrieve(usr.Persona).FirstOrDefault();
+                       
 
                         PermisoManager _permisoMgr = new PermisoManager();
                         RolManager _rolesMgr = new RolManager();
@@ -400,7 +404,7 @@ namespace Negocio.Managers.Seguridad
 
                         if (usr.Persona != null)
                         {
-                            usr.Persona = _personaMgr.ObtenerPersonaDesencriptada(usr.Persona.Id);
+                            usr.Persona = _personaMgr.GetPersonFull(usr.Persona.Id);
                         }
                        
 
@@ -409,16 +413,16 @@ namespace Negocio.Managers.Seguridad
                     }
                 }
 
-                return MessageFactory.GetOkMessage(usuarios);
+                return MessageFactory.GetOKMessage(usuarios);
             }
             catch (Exception e)
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "ObteniendoUsuarios", "Se produjo una excepción en el metodo obteniendo usuarios Exception: " + e.Message, 1);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "ObteniendoUsuarios", "Se produjo una excepción en el metodo obteniendo usuarios Exception: " + e.Message, 1);
                 }
                 catch { }
-                return MessageFactory.CrearMensajeError("ER03", e);
+                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
@@ -426,13 +430,13 @@ namespace Negocio.Managers.Seguridad
         {
             try
             {
-                return Retrieve(new Usuario { Id = userId }).Single().Permisos;
+                return Retrieve(new User { Id = userId }).Single().Permisos;
             }
             catch (Exception e)
             {
                 try
                 {
-                    _bitacoraMgr.Create(CriticidadBitacora.Alta, "Obteniendo Permisos De Un Usuario", "Se produjo una excepción en el metodo ObteniendoPermisosDeUnUsuario Exception: " + e.Message, 1);
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Obteniendo Permisos De Un User", "Se produjo una excepción en el metodo ObteniendoPermisosDeUnUsuario Exception: " + e.Message, 1);
                 }
                 catch { }
                 throw e;
@@ -444,7 +448,7 @@ namespace Negocio.Managers.Seguridad
         /// <summary> 
         /// Concatena todas las propiedades del objeto necesarias para el caculo de DVH
         /// </summary>
-        protected override string ConcatenarPropiedadesDelObjeto(Usuario entity)
+        protected override string ConcatenarPropiedadesDelObjeto(User entity)
         {
             try
             {
@@ -455,7 +459,6 @@ namespace Negocio.Managers.Seguridad
                 entity.Contraseña,
                 entity.Activo.ToString(),
                 entity.Intentos.ToString(),
-                entity.Habilitado.ToString(),
                 entity.Baja.ToString(),
                 entity.UsuarioCreacion.ToString(),
                 entity.FechaCreacion.ToString(),
@@ -479,10 +482,10 @@ namespace Negocio.Managers.Seguridad
         /// <summary>
         /// Aplica integridad en un registro especifico. Calcula el DVH
         /// </summary>
-        /// <param name="entity">Es el registro a aplicarle integridad en este caso Usuario</param>
-        protected override void AplicarIntegridadRegistro(Usuario entity)
+        /// <param name="entity">Es el registro a aplicarle integridad en este caso User</param>
+        protected override void AplicarIntegridadRegistro(User entity)
         {
-            Usuario user = Retrieve(entity).First();
+            User user = Retrieve(entity).First();
             user.DVH = CalculateRegistryIntegrity(user);
             _Repository.Save(user);
         }
@@ -495,8 +498,8 @@ namespace Negocio.Managers.Seguridad
         {
             try
             {
-                List<Usuario> usuarios = Retrieve(null);
-                foreach (Usuario usuario in usuarios)
+                List<User> usuarios = Retrieve(null);
+                foreach (User usuario in usuarios)
                 {
                     Save(usuario);
                 }
