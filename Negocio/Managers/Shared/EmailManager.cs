@@ -57,17 +57,47 @@ namespace Negocio.Managers.Shared
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
-        public int Create(string emailSinEcnriptar, int usuarioCreacion)
+        /// <summary>
+        /// Comprueba la existencia de un email en la bd si no existe lo crea si existe no lo crea
+        /// </summary>
+        /// <param name="email">El email a ser guardado</param>
+        /// <returns>El id del email creado si no lo crea devuelve un 0</returns>
+        public int CheckExistanceAndCreate(string email, int loggedUserId)
+        {
+            try
+            {
+                if (ExistEmail(email))
+                {
+                    return 0;
+                }
+                else
+                {
+                    return Create(email, loggedUserId);
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// Crea un email en la base de datos
+        /// </summary>
+        /// <param name="emailAddress">El email a ser creado</param>
+        /// <param name="loggedUserId">El usuario que impulso el flujo</param>
+        /// <returns>El id del email creado</returns>
+        public int Create(string emailAddress, int loggedUserId)
         {
             try
             {
                 Email email = new Email
                 {
-                    EmailAddress = CryptManager.EncryptAES(emailSinEcnriptar),
-                    UsuarioCreacion = usuarioCreacion,
-                    UsuarioModificacion = usuarioCreacion,
-                    FechaCreacion = DateTime.Now,
-                    FechaModificacion = DateTime.Now,
+                    EmailAddress = CryptManager.EncryptAES(emailAddress),
+                    UsuarioCreacion = loggedUserId,
+                    UsuarioModificacion = loggedUserId,
+                    FechaCreacion = DateTime.UtcNow,
+                    FechaModificacion = DateTime.UtcNow,
                     DVH = 0
                 };
                 return Save(email);
@@ -113,7 +143,7 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public Message SaveEmail(int emailId, string plainEmail, int loggedUser = 1) // Si no se pasa el loggedUser se guarda user 1 
+        public Message SaveEmail(int emailId, string plainEmail, int loggedUser)
         {
             try
             {
@@ -121,6 +151,8 @@ namespace Negocio.Managers.Shared
                 Email emailBD = Retrieve(new Email { Id = emailId }).Single();
                 emailBD.EmailAddress = encriptedEmail;
                 emailBD.Habilitado = false;
+                emailBD.UsuarioModificacion = loggedUser;
+                emailBD.FechaModificacion = DateTime.UtcNow;
                 int saveValue = Save(emailBD);
                 if (saveValue == emailId)
                 {
@@ -145,7 +177,7 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public Message ValidateEmailAccount(string encryptedEmailId)
+        public void ValidateEmailAccount(string encryptedEmailId)
         {
             try
             {
@@ -162,7 +194,6 @@ namespace Negocio.Managers.Shared
                         if (saveFlag == emailId)
                         {
                             _bitacoraMgr.Create(LogCriticality.Medium, "ValidarEmail", "Se activo el User con EmailId: " + emailId.ToString() + "en el Sistema", 1);
-                            return MessageFactory.GetMessage("MS63", ViewsEnum.Ingreso.GD());
                             
                         }
                         else
@@ -173,8 +204,6 @@ namespace Negocio.Managers.Shared
                     }
                 }
                 _bitacoraMgr.Create(LogCriticality.Alta, "ValidarEmail", "Se intentó activar un usuario con un Id null o inexistente", 1);
-                return MessageFactory.GetMessage("MS69");
-
             }
             catch (Exception e)
             {
@@ -183,7 +212,7 @@ namespace Negocio.Managers.Shared
                     _bitacoraMgr.Create(LogCriticality.Alta, "ValidarEmail", "Se produjo una excepción actualizando un Email. Exception: " + e.Message, 1);
                 }
                 catch { }
-                return MessageFactory.GettErrorMessage("ER03", e);
+                throw e;
             }
         }
 

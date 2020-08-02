@@ -40,17 +40,18 @@ namespace TransporteFlexible.Views.Seguridad
                         NombreUsuario = _tbNombreUsuario.Text,
                         Contraseña = _tbContraseña.Text,
                         RepetirContraseña = _tbRepetirContraseña.Text,
-                        Rol = rolId
+                        Rol = rolId,
+                        AutomaticRegister = true
                     };
 
-                    Message msj = _usrManager.RegisterNewBusinessUser(registro);
-                    MensajesHelper.ProcesarMensajeGenerico(this.GetType(), msj, Page);
+                    Message msj = _usrManager.RegisterNewUser(registro, 1);
+                    MessageHelper.ProcessMessage(this.GetType(), msj, Page);
                     _btnRegistrarme.Enabled = true;
                 }
                 else
                 {
                     Message msj = MessageFactory.GetMessage("MS36", ViewsEnum.Default.GD());
-                    MensajesHelper.ProcesarMensajeGenerico(this.GetType(), msj, Page);                    
+                    MessageHelper.ProcessMessage(this.GetType(), msj, Page);                    
                 }
             }            
         }

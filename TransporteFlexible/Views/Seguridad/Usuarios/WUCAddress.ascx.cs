@@ -32,8 +32,12 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
         {
             Address address = new Address();
             List<Address> addressSession = (List<Address>)Session[SV.Addresses.GD()];
-            addressSession.Add(address);
-            LoadDataGridView(addressSession);
+            int newAddressesCount = addressSession.Where(ad => ad.Id == 0).Count();
+            if (newAddressesCount == 0)
+            {
+                addressSession.Add(address);
+                LoadDataGridView(addressSession);
+            }
         }
 
         protected void AddressGridView_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -75,41 +79,19 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
 
         private void CancelUpdate(int rowIndex)
         {
-            List<Address> addressSession = (List<Address>)Session[SV.Addresses.GD()];
-            LoadDataGridView(addressSession);
             EnableDisableRowControls(rowIndex, false);
+            HideSaveCancel(rowIndex);
         }
 
         private void EnableDisableRowControls(int rowIndex, bool enabledFlag)
         {
-            Province selectedProvince = null;
             if (AddressGridView.Rows[rowIndex].Cells[1].FindControl("ddlProvinces") is WebControl ddlProvinces)
             {
-                if (enabledFlag)
-                {
-                    DropDownList ddl = ddlProvinces as DropDownList;
-                    List<Province> provinces = ((List<Province>)Session[SV.Provinces.GD()]);
-                    ddl.DataSource = provinces;
-                    ddl.DataTextField = "Description";
-                    ddl.DataValueField = "Id";
-                    ddl.DataBind();
-                    ddl.SelectedIndex = 0;
-                    selectedProvince = provinces.Where(pro => pro.Id == 1).Single();
-                   
-                }
                 ddlProvinces.Enabled = enabledFlag;
             }
 
             if (AddressGridView.Rows[rowIndex].Cells[1].FindControl("ddlLocations") is WebControl ddlLocation)
             {   
-                if (enabledFlag)
-                {
-                    DropDownList ddl = ddlLocation as DropDownList;
-                    ddl.DataSource = selectedProvince.Locations;
-                    ddl.DataTextField = "Description";
-                    ddl.DataValueField = "Id";
-                    ddl.DataBind();
-                }
                 ddlLocation.Enabled = enabledFlag;
             }
 
@@ -153,47 +135,36 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
         {
             PersonManager _personMgr = new PersonManager();
             Address address = GetAddressFromGridView(addressIdInt, rowIndex);
-            Message msjAdd = _personMgr.AddAddress(address, (int)Session[SV.UsuarioLogueado.GD()], (int)Session[SV.EditingPersonId.GD()]);
+            Message msjAdd = _personMgr.AddAddress(address, (int)Session[SV.LoggedUserId.GD()], (int)Session[SV.EditingPersonId.GD()]);
             if (msjAdd.CodigoMensaje != "OK")
             {
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msjAdd, Page);
+                MessageHelper.ProcessMessage(GetType(), msjAdd, Page);
             }
             else
             {
+                address = msjAdd.Resultado as Address;
+                // Remuevo el address viejo de la lista en session 
+                // y le agrego el address nuevo que es devuelto por el metodo que salva 
+                // el address actualizado
+                List<Address> addressSession = (List<Address>)Session[SV.Addresses.GD()];
+                addressSession.RemoveAll(x => x.Id == address.Id);
+                addressSession.Add(address);
+                Session[SV.Addresses.GD()] = addressSession;
+                LoadDataGridView(addressSession);
                 HideSaveCancel(rowIndex);
                 EnableDisableRowControls(rowIndex, false);
             }
-        }
-
-        private Address GetAddressFromGridView(int addressIdInt, int rowIndex)
-        {
-            DropDownList ddlProvinces = AddressGridView.Rows[rowIndex].Cells[1].FindControl("ddlProvinces") as DropDownList;
-            DropDownList ddlLocation = AddressGridView.Rows[rowIndex].Cells[1].FindControl("ddlLocations") as DropDownList;
-            TextBox txtStreet = AddressGridView.Rows[rowIndex].Cells[1].FindControl("txtStreet") as TextBox;
-            TextBox txtNumber = AddressGridView.Rows[rowIndex].Cells[1].FindControl("txtNumber") as TextBox;
-            TextBox txtFloor = AddressGridView.Rows[rowIndex].Cells[1].FindControl("txtFloor") as TextBox;
-            TextBox txtUnit = AddressGridView.Rows[rowIndex].Cells[1].FindControl("txtUnit") as TextBox;
-
-            List<Address> addressSession = (List<Address>)Session[SV.Addresses.GD()];
-            Address address = addressSession.Where(ad => ad.Id == addressIdInt).Single();
-            address.Province = new Province { Id = Convert.ToInt32(ddlProvinces.SelectedValue) };
-            address.Location = new Location { Id = Convert.ToInt32(ddlLocation.SelectedValue) };
-            address.Street = txtStreet.Text;
-            address.Number = Convert.ToInt32(txtNumber.Text);
-            address.Floor = txtFloor.Text;
-            address.Unit = txtUnit.Text;
-            return address;
         }
 
         private void UpdateAddress(int addressIdInt, int rowIndex)
         {
             Address address = GetAddressFromGridView(addressIdInt, rowIndex);
             AddressManager _addressMgr = new AddressManager();
-            Message msj = _addressMgr.SaveAddress(address, Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+            Message msj = _addressMgr.SaveAddress(address, Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
 
             if (msj.CodigoMensaje != "OK")
             {
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
             else
             {
@@ -216,7 +187,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             if (Page.IsValid)
             {
                 PersonManager _personMgr = new PersonManager();
-                int sessionUserId = (int)Session[SV.UsuarioLogueado.GD()];
+                int sessionUserId = (int)Session[SV.LoggedUserId.GD()];
                 int sessionPeopleId = (int)Session[SV.EditingPersonId.GD()];
                 Message msj = _personMgr.DeleteAddress(addressIdInt, sessionUserId, sessionPeopleId);
                 if (msj.CodigoMensaje == "OK")
@@ -226,7 +197,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                     Session[SV.Addresses.GD()] = addressSession;
                     LoadDataGridView(addressSession);
                 }
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
         }
 
@@ -250,17 +221,20 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                 DropDownList ddlProvinces = row.FindControl("ddlProvinces") as DropDownList;
                 List<Province> provinces = ((List<Province>)Session[SV.Provinces.GD()]);
                 ddlProvinces.DataSource = provinces;
-                ddlProvinces.SelectedValue = address.Province.Id.ToString();
-                ddlProvinces.DataBind();
 
+                if (address.Province != null)
+                    ddlProvinces.SelectedValue = address.Province.Id.ToString();
+               
+                ddlProvinces.DataBind();
                 DropDownList ddlLocations = row.FindControl("ddlLocations") as DropDownList;
                 Province province = provinces.Where(pro => pro.Id == Convert.ToInt32(ddlProvinces.SelectedValue)).Single();
                 ddlLocations.DataSource = province.Locations;
-                ddlLocations.SelectedValue = address.Location.Id.ToString();
+
+                if (address.Location != null)
+                    ddlLocations.SelectedValue = address.Location.Id.ToString();
+
                 ddlLocations.DataBind();
-
             }
-
         }
 
         internal override bool EsCampoNoNecesario(PropertyDescriptor prop)
@@ -304,6 +278,26 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             ddlLocation.DataValueField = "Id";
             ddlLocation.DataBind();
             ddlLocation.Enabled = true;
+        }
+
+        private Address GetAddressFromGridView(int addressIdInt, int rowIndex)
+        {
+            DropDownList ddlProvinces = AddressGridView.Rows[rowIndex].Cells[1].FindControl("ddlProvinces") as DropDownList;
+            DropDownList ddlLocation = AddressGridView.Rows[rowIndex].Cells[1].FindControl("ddlLocations") as DropDownList;
+            TextBox txtStreet = AddressGridView.Rows[rowIndex].Cells[1].FindControl("txtStreet") as TextBox;
+            TextBox txtNumber = AddressGridView.Rows[rowIndex].Cells[1].FindControl("txtNumber") as TextBox;
+            TextBox txtFloor = AddressGridView.Rows[rowIndex].Cells[1].FindControl("txtFloor") as TextBox;
+            TextBox txtUnit = AddressGridView.Rows[rowIndex].Cells[1].FindControl("txtUnit") as TextBox;
+
+            List<Address> addressSession = (List<Address>)Session[SV.Addresses.GD()];
+            Address address = addressSession.Where(ad => ad.Id == addressIdInt).Single();
+            address.Province = new Province { Id = Convert.ToInt32(ddlProvinces.SelectedValue) };
+            address.Location = new Location { Id = Convert.ToInt32(ddlLocation.SelectedValue) };
+            address.Street = txtStreet.Text;
+            address.Number = Convert.ToInt32(txtNumber.Text);
+            address.Floor = txtFloor.Text;
+            address.Unit = txtUnit.Text;
+            return address;
         }
     }
 }

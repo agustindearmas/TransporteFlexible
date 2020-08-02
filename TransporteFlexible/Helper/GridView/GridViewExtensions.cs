@@ -15,7 +15,7 @@ namespace TransporteFlexible.Helper.GridView
             DataTable table = new DataTable();
             foreach (PropertyDescriptor prop in properties)
             {
-                if (!EsCampoNoNecesario(prop))
+                if (!NoNecesaryFieldsInGridView(prop))
                 {
                     table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
 
@@ -27,7 +27,7 @@ namespace TransporteFlexible.Helper.GridView
                 DataRow row = table.NewRow();
                 foreach (PropertyDescriptor prop in properties)
                 {
-                    if (!EsCampoNoNecesario(prop))
+                    if (!NoNecesaryFieldsInGridView(prop))
                     {
                         row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
 
@@ -38,8 +38,8 @@ namespace TransporteFlexible.Helper.GridView
             return table;
         }
 
-        internal abstract void BuildDataGridView(List<T> entities);
+        internal abstract void LoadDataGridView(List<T> entities);
 
-        internal abstract bool EsCampoNoNecesario(PropertyDescriptor prop);
+        internal abstract bool NoNecesaryFieldsInGridView(PropertyDescriptor prop);
     }
 }

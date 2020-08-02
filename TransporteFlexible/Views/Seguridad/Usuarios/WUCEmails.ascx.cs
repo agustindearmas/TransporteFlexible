@@ -109,16 +109,16 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
 
                             if (msj.CodigoMensaje != "OK")
                             {
-                                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                                MessageHelper.ProcessMessage(GetType(), msj, Page);
                             }
                             else
                             {
 
-                                msj = _emailMgr.SaveEmail(emailId, emailTB.Text, Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+                                msj = _emailMgr.SaveEmail(emailId, emailTB.Text, Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
 
                                 if (msj.CodigoMensaje != "OK")
                                 {
-                                    MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                                    MessageHelper.ProcessMessage(GetType(), msj, Page);
                                 }
 
                                 if (msj.Resultado is Email email)
@@ -139,10 +139,10 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                         else
                         {
                             PersonManager _personMgr = new PersonManager();
-                            Message msjAdd = _personMgr.AddEmail(emailTB.Text, (int)Session[SV.UsuarioLogueado.GD()], (int)Session[SV.EditingPersonId.GD()]);
+                            Message msjAdd = _personMgr.AddEmail(emailTB.Text, (int)Session[SV.LoggedUserId.GD()], (int)Session[SV.EditingPersonId.GD()]);
                             if (msjAdd.CodigoMensaje != "OK")
                             {
-                                MensajesHelper.ProcesarMensajeGenerico(GetType(), msjAdd, Page);
+                                MessageHelper.ProcessMessage(GetType(), msjAdd, Page);
                             }
                             else
                             {
@@ -168,7 +168,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             if (Page.IsValid)
             {
                 PersonManager _personMgr = new PersonManager();
-                int sessionUserId = (int)Session[SV.UsuarioLogueado.GD()];
+                int sessionUserId = (int)Session[SV.LoggedUserId.GD()];
                 int sessionPeopleId = (int)Session[SV.EditingPersonId.GD()];
                 Message msj = _personMgr.DeleteEmail(emailId, sessionUserId, sessionPeopleId);
                 if (msj.CodigoMensaje == "OK")
@@ -178,7 +178,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                     Session[SV.Emails.GD()] = emailsSession;
                     LoadDataGridView(emailsSession);
                 }
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
         }
 

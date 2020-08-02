@@ -1,4 +1,5 @@
 ﻿using Common.Enums.Seguridad;
+using Common.FactoryMensaje;
 using Common.Interfaces.Shared;
 using Common.Repositories.Interfaces;
 using Common.Satellite.Shared;
@@ -173,9 +174,57 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public Message SaveAddress(Address address, int v)
+        /// <summary>
+        /// Actualiza una direccion en la base de datos
+        /// </summary>
+        /// <param name="address">la direccion a ser actualizada</param>
+        /// <param name="loggedUserId">El id del usuario que dispara la actualizacion</param>
+        /// <returns> Devuelve un mensaje indicando el resultado de la operación</returns>
+        public Message SaveAddress(Address address, int loggedUserId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Address addressBD = new Address { Id = address.Id };
+                addressBD = Retrieve(addressBD).FirstOrDefault();
+
+                if (addressBD != null && addressBD.Id == address.Id)
+                {
+                    addressBD.Location = address.Location;
+                    addressBD.Number = address.Number;
+                    addressBD.Province = address.Province;
+                    addressBD.Street = address.Street;
+                    addressBD.Unit = address.Unit;
+                    addressBD.Floor = address.Floor;
+                    addressBD.UsuarioModificacion = loggedUserId;
+                    addressBD.FechaModificacion = DateTime.UtcNow;
+                    CryptFields(addressBD);
+
+                    int saveFlag = Save(addressBD);
+                    if (saveFlag == addressBD.Id)
+                    {
+                        DecryptFields(addressBD);
+                        return MessageFactory.GetOKMessage(addressBD);
+                    }
+                    else
+                    {
+                        throw new Exception("Error al ejecutar metodo save en Address Manager");
+                    }
+                }
+                else
+                {
+                    return MessageFactory.GetMessage("MS74");
+                }
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _bitacoraMgr.Create(LogCriticality.Alta, "SaveAddress", "Se produjo una excepción guardando una direccion a una persona. Exception: "
+                        + e.Message, loggedUserId); // 1 User sistema
+                }
+                catch { }
+                return MessageFactory.GettErrorMessage("ER03", e);
+            }
         }
     }
 }

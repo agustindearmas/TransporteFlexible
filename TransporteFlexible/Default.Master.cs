@@ -11,26 +11,27 @@ namespace TransporteFlexible
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            _lblUsuario.Text = Session[SV.NombreUsuario.GD()].ToString();
+            if (Session[SV.LoggedUserName.GD()] == null)
+            {
+                Response.Redirect(ViewsEnum.Ingreso.GD());
+            }
+            _lblUsuario.Text = Session[SV.LoggedUserName.GD()].ToString();
             ArmarMenu();
         }
         private void ArmarMenu()
         {
             // ESTOS PERMISOS DEBERIAMOS IR A BUSCARLOS A LA BASE 
-            List<int> permisos = (List<int>)Session[SV.Permisos.GD()];
+            List<int> permisos = (List<int>)Session[SV.Permissions.GD()];
 
             foreach (var permiso in permisos)
             {
                 switch (permiso)
                 {
                     case (int)PermisosEnum.LeerRolesPerfiles:
-                        CrearItemDeMenu(PermisosEnum.LeerRolesPerfiles.GD(), "fa-tags", "");
+                        CrearItemDeMenu(PermisosEnum.LeerRolesPerfiles.GD(), "fas fa-id-card-alt", ViewsEnum.Rol.GD());
                         break;
                     case (int)PermisosEnum.LeerUsuariosAdministrativos:
                         CrearItemDeMenu(PermisosEnum.LeerUsuariosAdministrativos.GD(), "fa-users", ViewsEnum.Usuario.GD());
-                        break;
-                    case (int)PermisosEnum.LeerPermisos:
-                        CrearItemDeMenu(PermisosEnum.LeerPermisos.GD(), "fa-lock", "");
                         break;
                     case (int)PermisosEnum.LeerBitacora:
                         CrearItemDeMenu(PermisosEnum.LeerBitacora.GD(), "fa-table", ViewsEnum.Bitacora.GD());
@@ -84,14 +85,21 @@ namespace TransporteFlexible
             a.Controls.Add(i);
             a.Controls.Add(span);
             return a;
+        } 
+
+        protected void LogoutBTN_Click(object sender, EventArgs e)
+        {
+            Session[SV.LoggedUserId.GD()] = null;
+            Session[SV.LoggedUserName.GD()] = null;
+            Session[SV.Permissions.GD()] = null;
+            Response.Redirect("/");
         }
 
-        protected void _btnLogout_Click(object sender, EventArgs e)
+        protected void ProfileBTN_Click(object sender, EventArgs e)
         {
-            Session[SV.UsuarioLogueado.GD()] = null;
-            Session[SV.NombreUsuario.GD()] = null;
-            Session[SV.Permisos.GD()] = null;
-            Response.Redirect("/");
+            string urlRedirect = string.Concat(ViewsEnum.UsuarioAM.GD(),
+                "?id=", "mp");
+            Response.Redirect(urlRedirect);
         }
     }
 }

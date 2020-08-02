@@ -13,15 +13,6 @@ namespace TransporteFlexible.Views.Seguridad {
     public partial class BaseDeDatos {
         
         /// <summary>
-        /// Control pnlRespRest.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlRespRest;
-        
-        /// <summary>
         /// Control fuRestore.
         /// </summary>
         /// <remarks>
@@ -31,39 +22,39 @@ namespace TransporteFlexible.Views.Seguridad {
         protected global::System.Web.UI.WebControls.FileUpload fuRestore;
         
         /// <summary>
-        /// Control btnRestaurar.
+        /// Control RestoreBDButton.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRestaurar;
+        protected global::System.Web.UI.WebControls.Button RestoreBDButton;
         
         /// <summary>
-        /// Control txtNombreRespaldo.
+        /// Control BkpNameTB.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtNombreRespaldo;
+        protected global::System.Web.UI.WebControls.TextBox BkpNameTB;
         
         /// <summary>
-        /// Control btnGenerarRespaldo.
+        /// Control BackUpBDButton.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnGenerarRespaldo;
+        protected global::System.Web.UI.WebControls.Button BackUpBDButton;
         
         /// <summary>
-        /// Control btnRecalDV.
+        /// Control RecalculateDigitsBTN.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnRecalDV;
+        protected global::System.Web.UI.WebControls.Button RecalculateDigitsBTN;
     }
 }

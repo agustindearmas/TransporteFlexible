@@ -44,7 +44,7 @@ namespace Negocio.Managers.Seguridad
 
                     _Repository.Execute(resp, "GenerarRespaldo");
                     _bitacoraMgr.Create(LogCriticality.Alta, "RespaldoBD", "Se genero un respaldo de la base de datos", idUsuario);
-                    return MessageFactory.GetMessage("MS22");
+                    return MessageFactory.CreateMessageAndConcat("MS22", " El respaldo ha sido guardado en C:/BKPTFLEX/");
                 }
             }
             catch (Exception e)

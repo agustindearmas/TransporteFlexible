@@ -17,13 +17,7 @@
             </div>
 
             <div class="d-flex justify-content-around">
-                <div>
-                    <!-- Remember me -->
-                    <div class="custom-control custom-checkbox">
-                        <asp:CheckBox ID="_chkRecordarme" runat="server" class="custom-control-input" />
-                        <asp:Label ID="_lblRecordarme" class="custom-control-label bg-light" runat="server" for="chkRecordarme" Text="Recordarme"></asp:Label>
-                    </div>
-                </div>
+                
                 <div>
                     <!-- Forgot password -->
                     <a id="_olvideContraseña" href="/">¿Olvidaste tu Contraseña?</a>
@@ -31,11 +25,11 @@
             </div>
 
             <div class="form-group">
-                <asp:Button ID="BtnIngresar" class="btn btn-info btn-block my-4" runat="server" Text="Ingresar" OnClick="BtnIngresar_Click" />
+                <asp:Button ID="BtnIngresar" class="btn btn-info btn-block my-4" runat="server" Text="Log In" OnClick="BtnIngresar_Click" />
             </div>
 
             <!-- Register -->
-            <p><a id="_registrarme" href="/#registro">¿No estas registrado? Registrate.</a>
+            <p><a id="_registrarme" href="/#registro">¿No sos parte? Registrate.</a>
             </p>
         </div>
     </div>

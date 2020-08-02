@@ -14,10 +14,13 @@ namespace TransporteFlexible.Views.Seguridad
 
         protected void BtnValidarCuenta_Click(object sender, EventArgs e)
         {
-            string id = Request.QueryString["id"];
-            EmailManager _emailMgr = new EmailManager();
-            Message msj = _emailMgr.ValidateEmailAccount(id);
-            MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+            string emailId = Request.QueryString["1"];
+            string userId = Request.QueryString["2"];
+            Message msj;
+            
+            UserManager _userMgr = new UserManager();
+            msj = _userMgr.ValidateAccount(emailId, userId);
+            MessageHelper.ProcessMessage(GetType(), msj, Page);
         }
     }
 }

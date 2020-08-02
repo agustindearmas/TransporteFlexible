@@ -31,24 +31,6 @@ namespace TransporteFlexible.Views.Seguridad {
         protected global::System.Web.UI.WebControls.TextBox _tbContraseña;
         
         /// <summary>
-        /// Control _chkRecordarme.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBox _chkRecordarme;
-        
-        /// <summary>
-        /// Control _lblRecordarme.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label _lblRecordarme;
-        
-        /// <summary>
         /// Control BtnIngresar.
         /// </summary>
         /// <remarks>

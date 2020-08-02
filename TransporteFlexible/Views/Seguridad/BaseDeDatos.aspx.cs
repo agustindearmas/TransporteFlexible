@@ -13,58 +13,65 @@ namespace TransporteFlexible.Views.Seguridad
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!PermisosHelper.ValidarPermisos(42, Session[SV.Permisos.GD()]))
+            if (Session[SV.LoggedUserName.GD()] != null)
             {
-                RebotarUsuarioSinPermisos("/");
-            }
-        }
-
-        protected void btnGenerarRespaldo_Click(object sender, EventArgs e)
-        {
-            if (Session[SV.Permisos.GD()] != null && PermisosHelper.ValidarPermisos(12, Session[SV.Permisos.GD()]))
-            {   
-                BDManager _bdMgr = new BDManager();
-                Message msj = _bdMgr.GenerarBKP(txtNombreRespaldo.Text, Convert.ToInt32(SV.UsuarioLogueado.GD()));
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                if (!SecurityHelper.CheckPermissions(42, Session[SV.Permissions.GD()]))
+                {
+                    RebotarUsuarioSinPermisos("/");
+                }
             }
             else
             {
-                RebotarUsuarioSinPermisos();
-            }
-        }
-
-        protected void btnRestaurar_Click(object sender, EventArgs e)
-        {
-            if (Session[SV.Permisos.GD()] != null && PermisosHelper.ValidarPermisos(13, Session[SV.Permisos.GD()]))
-            {
-                BDManager _bdMgr = new BDManager();
-                Message msj = _bdMgr.MontarBKP(fuRestore.FileName, Convert.ToInt32(SV.UsuarioLogueado.GD()));
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
-            }
-            else
-            {
-                RebotarUsuarioSinPermisos();
-            }
-        }
-
-        protected void btnRecalDV_Click(object sender, EventArgs e)
-        {
-            if (PermisosHelper.ValidarPermisos(14, Session[SV.Permisos.GD()]))
-            {
-                TablaDVVManager _dVerificadorManager = new TablaDVVManager();
-                Message msj = _dVerificadorManager.RecalcularDigitosVerificadores();
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
-            }
-            else
-            {
-                RebotarUsuarioSinPermisos();
+                Response.Redirect(ViewsEnum.SessionExpired.GD());
             }
         }
 
         private void RebotarUsuarioSinPermisos(string redirect = null)
         {
             Message msj = MessageFactory.GetMessage("MS39", redirect);
-            MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+            MessageHelper.ProcessMessage(GetType(), msj, Page);
+        }
+
+        protected void RestoreBDButton_Click(object sender, EventArgs e)
+        {
+            if (Session[SV.Permissions.GD()] != null && SecurityHelper.CheckPermissions(13, Session[SV.Permissions.GD()]))
+            {
+                BDManager _bdMgr = new BDManager();
+                Message msj = _bdMgr.MontarBKP(fuRestore.FileName, Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
+            }
+            else
+            {
+                RebotarUsuarioSinPermisos();
+            }
+        }
+
+        protected void BackUpBDButton_Click(object sender, EventArgs e)
+        {
+            if (Session[SV.Permissions.GD()] != null && SecurityHelper.CheckPermissions(12, Session[SV.Permissions.GD()]))
+            {
+                BDManager _bdMgr = new BDManager();
+                Message msj = _bdMgr.GenerarBKP(BkpNameTB.Text, Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
+            }
+            else
+            {
+                RebotarUsuarioSinPermisos();
+            }
+        }
+
+        protected void RecalculateDigitsBTN_Click(object sender, EventArgs e)
+        {
+            if (SecurityHelper.CheckPermissions(14, Session[SV.Permissions.GD()]))
+            {
+                TablaDVVManager _dVerificadorManager = new TablaDVVManager();
+                Message msj = _dVerificadorManager.RecalcularDigitosVerificadores();
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
+            }
+            else
+            {
+                RebotarUsuarioSinPermisos();
+            }
         }
     }
 }

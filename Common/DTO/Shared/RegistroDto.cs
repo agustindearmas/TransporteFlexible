@@ -13,5 +13,6 @@
         public string Contraseña { get; set; }
         public string RepetirContraseña { get; set; }
         public string Rol { get; set; }
+        public bool AutomaticRegister { get; set; }
     }
 }

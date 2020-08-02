@@ -74,6 +74,45 @@ namespace Negocio.Managers.Shared
             return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
+        public Message SavePhone(int phoneId, string phoneNumber, int loggedUserId)
+        {
+            try
+            {
+                Telefono phone = new Telefono { Id = phoneId };
+                phone = Retrieve(phone).FirstOrDefault();
+                if (phone != null && phone.Id == phoneId)
+                {
+                    phone.NumeroTelefono = CryptManager.EncryptAES(phoneNumber);
+                    phone.UsuarioModificacion = loggedUserId;
+                    phone.FechaModificacion = DateTime.UtcNow;
+                    int saveFlag = Save(phone);
+                    if (saveFlag == phoneId)
+                    {
+                        phone.NumeroTelefono = phoneNumber;
+                        return MessageFactory.GetOKMessage(phone);
+                    }
+                    else
+                    {
+                        throw new Exception("Error al ejecutar metodo save en Telefono Manager");
+                    }
+                }
+                else
+                {
+                    return MessageFactory.GetMessage("MS72");
+                }
+
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Actualizar Telefono", "Se produjo una excepción actualizando un Telefono. Exception: " + e.Message, loggedUserId);
+                }
+                catch { }
+                return MessageFactory.GettErrorMessage("ER03", e);
+            }
+        }
+
         #region Digito Verificador
         public override void ValidarIntegridadRegistros()
         {
@@ -118,43 +157,6 @@ namespace Negocio.Managers.Shared
             catch (Exception e)
             {
                 throw e;
-            }
-        }
-
-        public Message SavePhone(int phoneId, string phoneNumber, int loggedUserId)
-        {
-            try
-            {
-                Telefono phone = new Telefono { Id = phoneId};
-                phone = Retrieve(phone).FirstOrDefault();
-                if (phone != null && phone.Id == phoneId)
-                {
-                    phone.NumeroTelefono = CryptManager.EncryptAES(phoneNumber);
-                    int saveFlag = Save(phone);
-                    if (saveFlag == phoneId)
-                    {
-                        phone.NumeroTelefono = phoneNumber;
-                        return MessageFactory.GetOKMessage(phone);
-                    }
-                    else
-                    {
-                        throw new Exception("Error al ejecutar metodo save en Telefono Manager");
-                    }
-                }
-                else
-                {
-                    return MessageFactory.GetMessage("MS72");
-                }
-
-            }
-            catch (Exception e)
-            {
-                try
-                {
-                    _bitacoraMgr.Create(LogCriticality.Alta, "Actualizar Telefono", "Se produjo una excepción actualizando un Telefono. Exception: " + e.Message, loggedUserId);
-                }
-                catch { }
-                return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
         #endregion

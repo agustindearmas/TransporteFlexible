@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Negocio.Managers.Seguridad;
+using System;
 using System.Configuration;
 using System.Net;
 using System.Net.Mail;
@@ -37,13 +38,22 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public void SendRegisterEmail(string receiver, string emailId)
+        public void SendRegisterEmail(string receiver, int emailId, int userId, string password = null)
         {
             try
             {
+                string userIdEncripted = CryptManager.EncryptAES(userId.ToString());
+                string emailIdCrypted = CryptManager.EncryptAES(emailId.ToString());
+
                 string subject = "REGISTRO T-FLEX";
-                string body = "Hola bienvenido a T-FLEX, para poder activar tu usuario debes hacer click en el siguiente Link: "
-                    + ConfigurationManager.AppSettings["validarEmailLink"] + "?id=" + emailId.Replace("+", "%2B");
+                string body = "Hola bienvenido a T-FLEX.";
+
+                if (password != null)
+                {
+                    body = body + " Su contraseña temporal es: " + password + " Por favor recuerde cambiarla.";
+                }
+                body = body + "Para poder activar tu usuario debes hacer click en el siguiente Link: "
+                    + ConfigurationManager.AppSettings["validarEmailLink"] + "?1=" + emailIdCrypted.Replace("+", "%2B") + "&2=" + userIdEncripted.Replace("+", "%2B");
                 SendEmail(receiver, subject, body);
             }
             catch (Exception e)

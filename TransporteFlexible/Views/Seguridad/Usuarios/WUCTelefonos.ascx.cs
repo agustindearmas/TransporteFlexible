@@ -22,7 +22,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             if (!IsPostBack)
             {
                 LoadDataGridView(Phones);
-                Session[SV.Telefonos.GD()] = Phones;
+                Session[SV.Phones.GD()] = Phones;
             }
         }
 
@@ -101,11 +101,11 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                         {
                             PhoneManager _phoneMgr = new PhoneManager();
 
-                            Message msj = _phoneMgr.SavePhone(phoneId, phoneTb.Text, Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+                            Message msj = _phoneMgr.SavePhone(phoneId, phoneTb.Text, Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
 
                             if (msj.CodigoMensaje != "OK")
                             {
-                                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                                MessageHelper.ProcessMessage(GetType(), msj, Page);
                             }
 
                             if (msj.Resultado is Telefono phone)
@@ -114,10 +114,10 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                                 // Remuevo el Telefono viejo de la lista en session 
                                 // y le agrego el Telefono nuevo que es devuelto por el metodo que salva 
                                 // el telefono actualizado
-                                List<Telefono> phoneSession = (List<Telefono>)Session[SV.Telefonos.GD()];
+                                List<Telefono> phoneSession = (List<Telefono>)Session[SV.Phones.GD()];
                                 phoneSession.RemoveAll(x => x.Id == phone.Id);
                                 phoneSession.Add(phone);
-                                Session[SV.Telefonos.GD()] = phoneSession;
+                                Session[SV.Phones.GD()] = phoneSession;
                                 LoadDataGridView(phoneSession);
                                 wc.Enabled = false;
                             }
@@ -125,10 +125,10 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                         else
                         {
                             PersonManager _personMgr = new PersonManager();
-                            Message msjAdd = _personMgr.AddPhone(phoneTb.Text, (int)Session[SV.UsuarioLogueado.GD()], (int)Session[SV.EditingPersonId.GD()]);
+                            Message msjAdd = _personMgr.AddPhone(phoneTb.Text, (int)Session[SV.LoggedUserId.GD()], (int)Session[SV.EditingPersonId.GD()]);
                             if (msjAdd.CodigoMensaje != "OK")
                             {
-                                MensajesHelper.ProcesarMensajeGenerico(GetType(), msjAdd, Page);
+                                MessageHelper.ProcessMessage(GetType(), msjAdd, Page);
                             }
                             else
                             {
@@ -144,7 +144,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
 
         private void CancelUpdate(int rowIndex)
         {
-            List<Telefono> phoneSession = (List<Telefono>)Session[SV.Telefonos.GD()];
+            List<Telefono> phoneSession = (List<Telefono>)Session[SV.Phones.GD()];
             LoadDataGridView(phoneSession);
             if (_phonesGridView.Rows[rowIndex].Cells[1].FindControl("txtPhone") is WebControl wc)
                 wc.Enabled = false;
@@ -155,17 +155,17 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             if (Page.IsValid)
             {
                 PersonManager _personMgr = new PersonManager();
-                int sessionUserId = (int)Session[SV.UsuarioLogueado.GD()];
+                int sessionUserId = (int)Session[SV.LoggedUserId.GD()];
                 int sessionPeopleId = (int)Session[SV.EditingPersonId.GD()];
                 Message msj = _personMgr.DeletePhone(phoneId, sessionUserId, sessionPeopleId);
                 if (msj.CodigoMensaje == "OK")
                 {
-                    List<Telefono> phoneSession = (List<Telefono>)Session[SV.Telefonos.GD()];
+                    List<Telefono> phoneSession = (List<Telefono>)Session[SV.Phones.GD()];
                     phoneSession.RemoveAll(x => x.Id == phoneId);
-                    Session[SV.Telefonos.GD()] = phoneSession;
+                    Session[SV.Phones.GD()] = phoneSession;
                     LoadDataGridView(phoneSession);
                 }
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
         }
 
@@ -190,7 +190,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
         protected void Add_Click(object sender, EventArgs e)
         {
             Telefono phone = new Telefono();
-            List<Telefono> phonesSession = (List<Telefono>)Session[SV.Telefonos.GD()];
+            List<Telefono> phonesSession = (List<Telefono>)Session[SV.Phones.GD()];
             phonesSession.Add(phone);
             LoadDataGridView(phonesSession);
         }

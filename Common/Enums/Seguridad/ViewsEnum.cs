@@ -8,7 +8,7 @@ namespace Common.Enums.Seguridad
         Error,
         [Description("/Default.aspx")]
         Default,
-        [Description("/Views/Shared/Bienvenida.aspx")]
+        [Description("/Views/Shared/Welcome.aspx")]
         Bienvenida,
         [Description("/Views/Seguridad/Ingreso.aspx")]
         Ingreso,
@@ -16,6 +16,8 @@ namespace Common.Enums.Seguridad
         Bitacora,
         [Description("/Views/Seguridad/Usuarios/Permisos/PermisoView.aspx")]
         Permiso,
+        [Description("/Views/Seguridad/Roles/RolesView.aspx")]
+        Rol,
         [Description("/Views/Seguridad/BaseDeDatos.aspx")]
         BaseDeDatos,
         [Description("/Views/Seguridad/Usuarios/UsuarioView.aspx")]
@@ -24,6 +26,16 @@ namespace Common.Enums.Seguridad
         /// Pantalla de Alta y Modificacion de User
         /// </summary>
         [Description("/Views/Seguridad/Usuarios/UsuarioAMView.aspx")]
-        UsuarioAM
+        UsuarioAM,
+        /// <summary>
+        /// Pantalla de Alta y Modificacion de Rol
+        /// </summary>
+        [Description("/Views/Seguridad/Roles/RolAMView.aspx")]
+        RolAM,
+        /// <summary>
+        /// Pantalla de Alta y Modificacion de Rol
+        /// </summary>
+        [Description("/Views/Seguridad/SessionExpired.aspx")]
+        SessionExpired
     }
 }

@@ -4,22 +4,22 @@ namespace Common.Enums.Seguridad
 {
     public enum SV
     {
-        [Description("NombreUsuario")]
-        NombreUsuario,
-        [Description("Permisos")]
-        Permisos,
-        [Description("UsuarioLogueado")]
-        UsuarioLogueado,
-        [Description("UsuarioModificado")]
-        UsuarioModificado,
-        [Description("PermisosAsignados")]
-        PermisosAsignados,
-        [Description("PermisosDesasignados")]
-        PermisosDesasignados,
+        [Description("LoggedUserName")]
+        LoggedUserName,
+        [Description("Permissions")]
+        Permissions,
+        [Description("LoggedUserId")]
+        LoggedUserId,
+        [Description("EditingUserId")]
+        EditingUserId,
+        [Description("AssignedPermissions")]
+        AssignedPermissions,
+        [Description("DeallocatedPermissions")]
+        DeallocatedPermissions,
         [Description("Emails")]
         Emails,
-        [Description("Telefonos")]
-        Telefonos,
+        [Description("Phones")]
+        Phones,
         [Description("EditingPersonId")]
         EditingPersonId,
         [Description("Addresses")]
@@ -27,6 +27,8 @@ namespace Common.Enums.Seguridad
         [Description("Provinces")]
         Provinces,
         [Description("Locations")]
-        Locations
+        Locations,
+        [Description("ModifyRoleId")]
+        EdittingRoleId
     }
 }

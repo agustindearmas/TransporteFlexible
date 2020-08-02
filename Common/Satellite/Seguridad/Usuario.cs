@@ -11,15 +11,24 @@ namespace Common.Satellite.Seguridad
     [Table(ProcedureName = "Usuario", Schema = Schema.Seguridad)]
     public class User : IAuditoria
     {
+        public User()
+        {
+            Persona = new Persona();
+            Permisos = new List<Permiso>();
+            Roles = new List<Rol>();
+        }
         public bool Habilitado
         {
             get
             {
-                if (Persona.Emails != null)
+                if (Persona != null)
                 {
-                    return Persona.Emails.Where(x => x.Habilitado).ToList().Count > 0;
+                    if (Persona.Emails != null)
+                    {
+                        return Persona.Emails.Where(x => x.Habilitado).ToList().Count > 0;
+                    }
                 }
-                else return false;
+                return false;
             }
         }
 
@@ -36,11 +45,10 @@ namespace Common.Satellite.Seguridad
         public string Contraseña { get; set; }
 
         [NameEntity(IdEntity = "Baja", NameEntity = "Baja")]
-        public bool Baja { get; set; }
+        public bool? Baja { get; set; }
 
         [NameEntity(IdEntity = "Activo", NameEntity = "Activo")]
         public bool Activo { get; set; }
-        
 
         [NameEntity(IdEntity = "Intentos", NameEntity = "Intentos")]
         public int Intentos { get; set; }
@@ -52,10 +60,10 @@ namespace Common.Satellite.Seguridad
         public List<Permiso> Permisos { get; set; }
 
         [NameEntity(IdEntity = "UsuarioCreacion", NameEntity = "UsuarioCreacion")]
-        public int? UsuarioCreacion { get; set; }
+        public int UsuarioCreacion { get; set; }
 
         [NameEntity(IdEntity = "UsuarioModificacion", NameEntity = "UsuarioModificacion")]
-        public int? UsuarioModificacion { get; set; }
+        public int UsuarioModificacion { get; set; }
 
         [NameEntity(IdEntity = "FechaCreacion", NameEntity = "FechaCreacion")]
         public DateTime FechaCreacion { get; set; }
@@ -65,5 +73,22 @@ namespace Common.Satellite.Seguridad
 
         [NameEntity(IdEntity = "DVH", NameEntity = "DVH")]
         public int DVH { get; set; }
+
+        public List<Permiso> GetUserPermissions()
+        {
+            try
+            {
+                List<Permiso> permissions = this.Permisos;
+                foreach (var item in this.Roles)
+                {
+                    permissions.AddRange(item.Permisos);
+                }
+                return permissions.GroupBy(p => p.Id).Select(g => g.First()).ToList();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
     }
 }

@@ -48,7 +48,7 @@ namespace Common.FactoryMensaje
         /// </summary>
         /// <param name="codigoMensaje">Es el mensaje que sea desea mostrar en la pagina de error</param>
         /// <returns></returns>
-        public static Message CrearMensajeErrorFuncional(string codigoMensaje)
+        public static Message CreateFunctionalErrorMessage(string codigoMensaje)
         {
             return new Message
             {
@@ -115,7 +115,7 @@ namespace Common.FactoryMensaje
         /// Devuelve un mensaje que permite concatenar algo al mensaje generico
         /// </summary>
         /// <returns></returns>
-        public static Message CrearMensajeErrorFuncional(string codigoMensaje, string aConcatenar)
+        public static Message CreateMessageAndConcat(string codigoMensaje, string aConcatenar)
         {
             return new Message
             {

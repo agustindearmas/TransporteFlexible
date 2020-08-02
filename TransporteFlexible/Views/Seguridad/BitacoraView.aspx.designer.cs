@@ -13,75 +13,93 @@ namespace TransporteFlexible.Views.Seguridad {
     public partial class BitacoraView {
         
         /// <summary>
-        /// Control _txtFechaDesde.
+        /// Control DateFromTB.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox _txtFechaDesde;
+        protected global::System.Web.UI.WebControls.TextBox DateFromTB;
         
         /// <summary>
-        /// Control _txtFechaHasta.
+        /// Control DateToTB.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox _txtFechaHasta;
+        protected global::System.Web.UI.WebControls.TextBox DateToTB;
         
         /// <summary>
-        /// Control _ddlNivelCriticidad.
+        /// Control CriticallyLevelDLL.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList _ddlNivelCriticidad;
+        protected global::System.Web.UI.WebControls.DropDownList CriticallyLevelDLL;
         
         /// <summary>
-        /// Control _txtEvento.
+        /// Control EventTB.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox _txtEvento;
+        protected global::System.Web.UI.WebControls.TextBox EventTB;
         
         /// <summary>
-        /// Control _txtUsuario.
+        /// Control UserNameTB.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox _txtUsuario;
+        protected global::System.Web.UI.WebControls.TextBox UserNameTB;
         
         /// <summary>
-        /// Control btnFiltrarBita.
+        /// Control DownCBX.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnFiltrarBita;
+        protected global::System.Web.UI.WebControls.CheckBox DownCBX;
         
         /// <summary>
-        /// Control _bitacoraGridView.
+        /// Control FilterBinnacleBTN.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView _bitacoraGridView;
+        protected global::System.Web.UI.WebControls.Button FilterBinnacleBTN;
         
         /// <summary>
-        /// Control _lblFechaActualizacion.
+        /// Control ExportXMLButton.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label _lblFechaActualizacion;
+        protected global::System.Web.UI.WebControls.LinkButton ExportXMLButton;
+        
+        /// <summary>
+        /// Control BinnacleGridView.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView BinnacleGridView;
+        
+        /// <summary>
+        /// Control ActualizationDateLBL.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label ActualizationDateLBL;
     }
 }

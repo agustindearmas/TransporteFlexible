@@ -14,14 +14,16 @@ namespace Common.Satellite.Seguridad
         public int Id { get; set; }
 
         [NameEntity(IdEntity = "Descripcion", NameEntity = "Descripcion")]
-        public string Descripcion { get; set; }        
+        public string Descripcion { get; set; }
+
+        [NameEntity(IdEntity = "IdPermiso", NameEntity = "Permiso.Id")]
         public List<Permiso> Permisos { get; set; }
 
         [NameEntity(IdEntity = "UsuarioCreacion", NameEntity = "UsuarioCreacion")]
-        public int? UsuarioCreacion { get; set; }
+        public int UsuarioCreacion { get; set; }
 
         [NameEntity(IdEntity = "UsuarioModificacion", NameEntity = "UsuarioModificacion")]
-        public int? UsuarioModificacion { get; set; }
+        public int UsuarioModificacion { get; set; }
 
         [NameEntity(IdEntity = "FechaCreacion", NameEntity = "FechaCreacion")]
         public DateTime FechaCreacion { get; set; }

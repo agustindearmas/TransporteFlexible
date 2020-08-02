@@ -19,11 +19,21 @@ namespace Common.Satellite.Seguridad
 
         [NameEntity(IdEntity = "Suceso", NameEntity = "Suceso")]
         public string Suceso { get; set; }
+
+        [NameEntity(IdEntity = "FechaDesde", NameEntity = "FechaDesde")]
+        public DateTime? FechaDesde { get; set; }
+
+        [NameEntity(IdEntity = "FechaHasta", NameEntity = "FechaHasta")]
+        public DateTime? FechaHasta { get; set; }
+
+        [NameEntity(IdEntity = "Baja", NameEntity = "Baja")]
+        public bool? Baja { get; set; }
+
         [NameEntity(IdEntity = "UsuarioCreacion", NameEntity = "UsuarioCreacion")]
-        public int? UsuarioCreacion { get; set; }
+        public int UsuarioCreacion { get; set; }
 
         [NameEntity(IdEntity = "UsuarioModificacion", NameEntity = "UsuarioModificacion")]
-        public int? UsuarioModificacion { get; set; }
+        public int UsuarioModificacion { get; set; }
 
         [NameEntity(IdEntity = "FechaCreacion", NameEntity = "FechaCreacion")]
         public DateTime FechaCreacion { get; set; }
@@ -33,11 +43,5 @@ namespace Common.Satellite.Seguridad
 
         [NameEntity(IdEntity = "DVH", NameEntity = "DVH")]
         public int DVH { get; set; }
-
-        [NameEntity(IdEntity = "FechaDesde", NameEntity = "FechaDesde")]
-        public DateTime? FechaDesde { get; set; }
-
-        [NameEntity(IdEntity = "FechaHasta", NameEntity = "FechaHasta")]
-        public DateTime? FechaHasta { get; set; }
     }
 }

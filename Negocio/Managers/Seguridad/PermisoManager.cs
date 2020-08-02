@@ -54,6 +54,8 @@ namespace Negocio.Managers.Seguridad
             }
         }
 
+     
+
         /// <summary>
         /// Este metodo obtiene todos los permisos desasignados que posee un usuario
         /// </summary>
@@ -111,21 +113,6 @@ namespace Negocio.Managers.Seguridad
         public void Delete(Permiso entity)
         {
             throw new NotImplementedException();
-        }
-
-        public List<Permiso> ObtenerPermisosPorRolId(int idRol)
-        {
-            try
-            {
-                RolManager _rolMgr = new RolManager();
-                Rol rol = new Rol { Id = idRol };
-                rol = _rolMgr.Retrieve(rol).First();
-                return rol.Permisos;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
         }
 
         public List<int> GetOnlyPermissionIds(List<Permiso> permisos)
@@ -202,17 +189,17 @@ namespace Negocio.Managers.Seguridad
             {
                 Message msj = null;
                 UserManager _usuarioMgr = new UserManager();
-                msj = _usuarioMgr.ObtenerUsuariosNegocioDesencriptados(0, null, null);
+                msj = _usuarioMgr.ObtenerUsuariosNegocioDesencriptados(false, null, null);
                 if (msj.CodigoMensaje == "OK")
                 {
                     foreach (User usuario in msj.Resultado as List<User>)
                     {
-                        if (usuario.Id != userId && usuario.Permisos.Where(x => x.Id == permiso.Id).Any())
+                        if (usuario.Id != userId && usuario.GetUserPermissions().Where(x => x.Id == permiso.Id).Any())
                         {
                             return MessageFactory.GetOKMessage();
                         }
                     }
-                    return MessageFactory.CrearMensajeErrorFuncional("MS67", permiso.Descripcion);
+                    return MessageFactory.CreateMessageAndConcat("MS67", permiso.Descripcion);
                 }
                 else
                 {

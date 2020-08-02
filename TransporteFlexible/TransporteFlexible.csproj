@@ -72,6 +72,7 @@
     <Reference Include="System.Web.Http.WebHost, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.AspNet.WebApi.WebHost.5.2.7\lib\net45\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
@@ -1862,6 +1863,9 @@
     <Content Include="Views\Seguridad\BitacoraView.aspx" />
     <Content Include="Views\Seguridad\Ingreso.aspx" />
     <Content Include="Views\Seguridad\Registro.aspx" />
+    <Content Include="Views\Seguridad\Roles\RolAMView.aspx" />
+    <Content Include="Views\Seguridad\Roles\RolesView.aspx" />
+    <Content Include="Views\Seguridad\SessionExpired.aspx" />
     <Content Include="Views\Seguridad\Usuarios\Permisos\PermisoView.aspx" />
     <Content Include="Views\Seguridad\Usuarios\UsuarioAMView.aspx" />
     <Content Include="Views\Seguridad\Usuarios\UsuarioView.aspx" />
@@ -1869,7 +1873,7 @@
     <Content Include="Views\Seguridad\Usuarios\WUCEmails.ascx" />
     <Content Include="Views\Seguridad\Usuarios\WUCTelefonos.ascx" />
     <Content Include="Views\Seguridad\ValidaEmail.aspx" />
-    <Content Include="Views\Shared\Bienvenida.aspx" />
+    <Content Include="Views\Shared\Welcome.aspx" />
     <Content Include="Views\Shared\Error.aspx" />
     <Content Include="Web.config" />
     <Content Include="Bundle.config" />
@@ -2006,6 +2010,27 @@
     <Compile Include="Views\Seguridad\Registro.aspx.designer.cs">
       <DependentUpon>Registro.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Views\Seguridad\Roles\RolAMView.aspx.cs">
+      <DependentUpon>RolAMView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\Roles\RolAMView.aspx.designer.cs">
+      <DependentUpon>RolAMView.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Seguridad\Roles\RolesView.aspx.cs">
+      <DependentUpon>RolesView.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\Roles\RolesView.aspx.designer.cs">
+      <DependentUpon>RolesView.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Seguridad\SessionExpired.aspx.cs">
+      <DependentUpon>SessionExpired.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Views\Seguridad\SessionExpired.aspx.designer.cs">
+      <DependentUpon>SessionExpired.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Views\Seguridad\Usuarios\Permisos\PermisoView.aspx.cs">
       <DependentUpon>PermisoView.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -2055,12 +2080,12 @@
     <Compile Include="Views\Seguridad\ValidaEmail.aspx.designer.cs">
       <DependentUpon>ValidaEmail.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Views\Shared\Bienvenida.aspx.cs">
-      <DependentUpon>Bienvenida.aspx</DependentUpon>
+    <Compile Include="Views\Shared\Welcome.aspx.cs">
+      <DependentUpon>Welcome.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Views\Shared\Bienvenida.aspx.designer.cs">
-      <DependentUpon>Bienvenida.aspx</DependentUpon>
+    <Compile Include="Views\Shared\Welcome.aspx.designer.cs">
+      <DependentUpon>Welcome.aspx</DependentUpon>
     </Compile>
     <Compile Include="Views\Shared\Error.aspx.cs">
       <DependentUpon>Error.aspx</DependentUpon>

@@ -115,7 +115,7 @@ namespace TransporteFlexible.Enums
         [Description("La carga ya tiene una oferta asociada, si desea volver a ofertar elimine la oferta vigente.")]
         MS34,
 
-        [Description("La persona por dar de alta ya tiene un usuario en el sistema.")]        
+        [Description("La persona por dar de alta ya tiene un usuario en el sistema.")]
         MS35,
 
         [Description("Intento de fraude detectado.")]
@@ -219,5 +219,38 @@ namespace TransporteFlexible.Enums
 
         [Description("No se puede borrar el Teléfono, es el único asignado para el usuario")]
         MS73,
+
+        [Description("No existe una dirección con ese Id")]
+        MS74,
+
+        [Description("No existe un usuario con ese Id")]
+        MS75,
+
+        [Description("La persona ha sido modificada correctamente.")]
+        MS76,
+
+        [Description("Ya existe una persona con ese DNI")]
+        MS77,
+
+        [Description("La integridad de los datos ha sido afectada")]
+        MS78,
+
+        [Description("Xml Exportado con éxito")]
+        MS79,
+
+        [Description("No existe un rol con ese Id")]
+        MS80,
+
+        [Description("El rol seleccionado es esencial, no puede ser eliminado ni modificado")]
+        MS81,
+
+        [Description("Suceso dado de baja correctamente")]
+        MS82,
+
+        [Description("No existe un suceso con ese Id")]
+        MS83,
+
+        [Description("No se puede dar de alta un usuario sin un Rol asignado")]
+        MS84
     }
 }

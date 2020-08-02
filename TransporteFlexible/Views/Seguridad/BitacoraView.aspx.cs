@@ -1,7 +1,10 @@
-﻿using Common.FactoryMensaje;
+﻿using Common.Enums.Seguridad;
+using Common.Extensions;
+using Common.FactoryMensaje;
 using Common.Satellite.Seguridad;
 using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
+using Negocio.Managers.Shared;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,41 +17,48 @@ namespace TransporteFlexible.Views.Seguridad
 {
     public partial class BitacoraView : System.Web.UI.Page
     {
-        private readonly LogManager _bitacoraMgr;
+        private readonly LogManager _logMgr;
         protected void Page_Load(object sender, EventArgs e)
         {
-            //Permiso numero 16
-            if (PermisosHelper.ValidarPermisos(16, Session["Permisos"]))
+            if (Session[SV.LoggedUserName.GD()] != null)
             {
-                if (!IsPostBack)
+                //Permiso numero 16
+                if (SecurityHelper.CheckPermissions(16, Session[SV.Permissions.GD()]))
                 {
-                    PopularFiltro();
-                    PopularTabla();
+                    if (!IsPostBack)
+                    {
+                        PopularFiltro();
+                        BuildView();
+                    }
+                }
+                else
+                {
+                    Message msj = MessageFactory.GetMessage("MS39", "/");
+                    MessageHelper.ProcessMessage(GetType(), msj, Page);
                 }
             }
             else
             {
-               Message msj = MessageFactory.GetMessage("MS39", "/");
-               MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                Response.Redirect(ViewsEnum.SessionExpired.GD());
             }
         }
 
         public BitacoraView()
         {
-            _bitacoraMgr = new LogManager();
+            _logMgr = new LogManager();
         }
 
         private void PopularFiltro()
         {
             CriticidadBitacoraManager cbMgr = new CriticidadBitacoraManager();
-
-            List<NivelCriticidad> niveles = cbMgr.Retrieve(null);
             ListItem li = new ListItem
             {
                 Text = "None",
                 Value = "None"
             };
-            _ddlNivelCriticidad.Items.Add(li);
+            CriticallyLevelDLL.Items.Add(li);
+            List<NivelCriticidad> niveles = cbMgr.Retrieve(null);
+
             foreach (var nivel in niveles)
             {
                 ListItem li2 = new ListItem
@@ -56,74 +66,70 @@ namespace TransporteFlexible.Views.Seguridad
                     Value = nivel.Descripcion,
                     Text = nivel.Descripcion
                 };
-                _ddlNivelCriticidad.Items.Add(li2);
+                CriticallyLevelDLL.Items.Add(li2);
             }
         }
 
-        private void PopularTabla()
+        private void BuildView()
         {
-            Message msj = _bitacoraMgr.ObtenerBitacorasDesencriptadas(
-                _txtFechaDesde.Text,
-                _txtFechaHasta.Text,
-                _ddlNivelCriticidad.SelectedIndex,
-                _txtEvento.Text,
-                _txtUsuario.Text);
+            Message msj = _logMgr.GetDecryptedBinnacles(
+                 DateFromTB.Text,
+                 DateToTB.Text,
+                 CriticallyLevelDLL.SelectedIndex,
+                 EventTB.Text,
+                 UserNameTB.Text,
+                 DownCBX.Checked);
+
             if (msj.CodigoMensaje != "OK")
             {
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
             else
             {
-                List<Bitacora> bitacoras = (List<Bitacora>)msj.Resultado;
-                BuildDataGridView(bitacoras);
+                List<Bitacora> bitacoras = msj.Resultado as List<Bitacora>;
+                LoadDataGridView(bitacoras);
             }
         }
 
-        private void BuildDataGridView(List<Bitacora> bitacoras)
+        private void LoadDataGridView(List<Bitacora> binnacles)
         {
-            _bitacoraGridView.AllowPaging = true;
-            DataTable dt = ConvertToDataTable(bitacoras);
-            _bitacoraGridView.DataSource = dt;
-            _bitacoraGridView.DataBind();
-            _lblFechaActualizacion.Text = DateTime.Now.ToString();
+            BinnacleGridView.AllowPaging = true;
+            DataTable dt = ConvertToDataTable(binnacles);
+            Session["Binnacle"] = dt;
+            BinnacleGridView.DataSource = dt;
+            BinnacleGridView.DataBind();
+            ActualizationDateLBL.Text = DateTime.Now.ToString();
         }
 
-        public DataTable ConvertToDataTable<T>(IList<T> data)
+        public DataTable ConvertToDataTable(IList<Bitacora> data)
         {
-            PropertyDescriptorCollection properties =
-               TypeDescriptor.GetProperties(typeof(T));
             DataTable table = new DataTable();
+
+            PropertyDescriptorCollection properties = TypeDescriptor.GetProperties(typeof(Bitacora));
+
+
             foreach (PropertyDescriptor prop in properties)
             {
-                if (!EsCampoNoNecesario(prop))
+                if (!NoNecesaryFieldsInGridView(prop))
                 {
                     if (prop.DisplayName == "NivelCriticidad")
-                    {
                         table.Columns.Add(prop.DisplayName, "".GetType());
-                    }
                     else
-                    {
                         table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
-                    }
-
                 }
             }
 
-            foreach (T item in data)
+            foreach (Bitacora item in data)
             {
                 DataRow row = table.NewRow();
                 foreach (PropertyDescriptor prop in properties)
                 {
-                    if (!EsCampoNoNecesario(prop))
+                    if (!NoNecesaryFieldsInGridView(prop))
                     {
                         if (prop.DisplayName == "NivelCriticidad")
-                        {
                             row[prop.Name] = ((NivelCriticidad)prop.GetValue(item)).Descripcion;
-                        }
                         else
-                        {
                             row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                        }
                     }
                 }
                 table.Rows.Add(row);
@@ -131,23 +137,39 @@ namespace TransporteFlexible.Views.Seguridad
             return table;
         }
 
-        protected void _bitacoraGridView_PageIndexChanging(object sender, GridViewPageEventArgs e)
-        {
-            _bitacoraGridView.PageIndex = e.NewPageIndex;
-            PopularTabla();
-        }
-
-        protected void btnFiltrarBita_Click(object sender, EventArgs e)
-        {
-            PopularTabla();
-        }
-
-        private bool EsCampoNoNecesario(PropertyDescriptor prop)
+        private bool NoNecesaryFieldsInGridView(PropertyDescriptor prop)
         {
             return (prop.Name == "FechaDesde" || prop.Name == "FechaHasta" ||
-                    prop.Name == "UsuarioCreacion" || prop.Name == "UsuarioModificacion" ||
-                    prop.Name == "FechaModificacion");
+                     prop.Name == "UsuarioModificacion" || prop.Name == "FechaModificacion"
+                     || prop.Name == "DVH");
         }
 
+        protected void BinnacleGridView_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            BinnacleGridView.PageIndex = e.NewPageIndex;
+            BuildView();
+        }
+
+        protected void FilterBinnacleBTN_Click(object sender, EventArgs e)
+        {
+            BuildView();
+        }
+
+        protected void ExportXMLButton_Click(object sender, EventArgs e)
+        {
+            XMLManager _xmlMgr = new XMLManager();
+            DataTable dt = Session["Binnacle"] as DataTable;
+            Message msj = _xmlMgr.ExportDataTableToXMLFile(dt, "bitacora", "Bitacora.xml");
+            MessageHelper.ProcessMessage(GetType(), msj, Page);
+
+        }
+
+        protected void BinnacleGridView_RowDeleting(object sender, GridViewDeleteEventArgs e)
+        {
+            int binnacleId = Convert.ToInt32(e.Values["Id"]);
+            Message msj = _logMgr.Down(binnacleId);
+            MessageHelper.ProcessMessage(GetType(), msj, Page);
+            BuildView();
+        }
     }
 }

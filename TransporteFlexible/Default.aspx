@@ -10,7 +10,7 @@
                 <h2 class="text-white-50 mx-auto mt-2 mb-5">Conectamos dadores de carga con transportistas.</h2>
                 <a href="#registro" class="btn btn-primary js-scroll-trigger">Registrate</a><br />
                 <br />
-                <a href="/Views/Seguridad/Ingreso.aspx" class="btn btn-primary js-scroll-trigger">INGRESO</a>
+                <a href="/Views/Seguridad/Ingreso.aspx" class="btn btn-primary js-scroll-trigger">Log In</a>
             </div>
         </div>
     </header>

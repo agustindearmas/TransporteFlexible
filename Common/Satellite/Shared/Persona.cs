@@ -37,13 +37,13 @@ namespace Common.Satellite.Shared
         public List<Address> Addresses { get; set; }
 
         [NameEntity(IdEntity = "Baja", NameEntity = "Baja")]
-        public Boolean Baja { get; set; }
+        public bool? Baja { get; set; }
 
         [NameEntity(IdEntity = "UsuarioCreacion", NameEntity = "UsuarioCreacion")]
-        public int? UsuarioCreacion { get; set; }
+        public int UsuarioCreacion { get; set; }
 
         [NameEntity(IdEntity = "UsuarioModificacion", NameEntity = "UsuarioModificacion")]
-        public int? UsuarioModificacion { get; set; }
+        public int UsuarioModificacion { get; set; }
 
         [NameEntity(IdEntity = "FechaCreacion", NameEntity = "FechaCreacion")]
         public DateTime FechaCreacion { get; set; }

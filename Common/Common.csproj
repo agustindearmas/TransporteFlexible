@@ -68,7 +68,6 @@
     <Compile Include="Satellite\Seguridad\Usuario.cs" />
     <Compile Include="Satellite\Shared\Address.cs" />
     <Compile Include="Satellite\Shared\Configuracion.cs" />
-    <Compile Include="Satellite\Shared\Contacto.cs" />
     <Compile Include="Satellite\Shared\Email.cs" />
     <Compile Include="Satellite\Shared\Location.cs" />
     <Compile Include="Satellite\Shared\Mensaje.cs" />

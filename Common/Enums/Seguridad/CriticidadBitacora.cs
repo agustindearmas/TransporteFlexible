@@ -9,6 +9,6 @@ namespace Common.Enums.Seguridad
         [Description("Medium")]
         Medium = 2,
         [Description("Alta")]
-        Alta = 2,
+        Alta = 3,
     }
 }

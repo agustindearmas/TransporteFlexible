@@ -7,9 +7,9 @@ using TransporteFlexible.Enums;
 
 namespace TransporteFlexible.Mensajes
 {
-    public static class MensajesHelper
+    public static class MessageHelper
     {
-        public static void ProcesarMensajeGenerico(Type type, Message msj, Page page)
+        public static void ProcessMessage(Type type, Message msj, Page page)
         {
             if (msj.EsError && msj.RutaRedireccion == ViewsEnum.Error.GD())
             {

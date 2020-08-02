@@ -2,9 +2,9 @@
 
 namespace TransporteFlexible.Helper
 {
-    public static class PermisosHelper
+    public static class SecurityHelper
     {
-        public static bool ValidarPermisos(int aValidar, object permisosSession)
+        public static bool CheckPermissions(int aValidar, object permisosSession)
         {
             List<int> permisos = (List<int>)permisosSession;
             if (permisos.Count <= 0)

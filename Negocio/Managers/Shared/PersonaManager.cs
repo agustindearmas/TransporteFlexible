@@ -43,6 +43,11 @@ namespace Negocio.Managers.Shared
             }
         }
 
+        public List<Persona> Retrieve(Persona filter = null)
+        {
+            return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
+        }
+
         public void Delete(int id)
         {
             _Repository.Delete(id);
@@ -83,12 +88,24 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        public bool ComprobarExistenciaPersona(string dniSinEncriptar)
+        /// <summary>
+        /// Comprueba la existencia de una persona en la BD, con el DNI
+        /// recibe como parametro un PersonId si interesa descartar alguna persona de la existencia
+        /// </summary>
+        /// <param name="dni">El dni de la persona sin encriptar a comprobar la existencia</param>
+        /// <param name="personId">El Id de la persona a descartar, puede ser null si no interesa descartar a ninguna persona</param>
+        /// <returns>Un booleano indicando true si existe o false si no existe</returns>
+        public bool ExistPerson(string dni, int? personId)
         {
             try
             {
-                string dniEncriptado = CryptManager.EncryptAES(dniSinEncriptar);
+                string dniEncriptado = CryptManager.EncryptAES(dni);
                 Persona personaBD = Retrieve(new Persona { DNI = dniEncriptado }).FirstOrDefault();
+                if (personId != null)
+                {
+                    return personaBD != null && personaBD.Id != personId;
+
+                }
                 return (personaBD != null && personaBD.Id > 0);// DEVUELVO TRUE SI EXISTE LA PERSONA EN LA BASE DE DATOS.
             }
             catch (Exception e)
@@ -96,16 +113,6 @@ namespace Negocio.Managers.Shared
                 throw e;
             }
 
-        }
-
-        public Message DeleteAddress(int addressIdInt, int sessionUserId, int sessionPeopleId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<Persona> Retrieve(Persona filter = null)
-        {
-            return filter == null ? _Repository.GetAll() : _Repository.Find(filter);
         }
 
         /// <summary>
@@ -169,6 +176,107 @@ namespace Negocio.Managers.Shared
         }
 
         /// <summary>
+        /// Actualiza una persona en la BD con los datos suministrados por parametro
+        /// </summary>
+        /// <param name="personId">El id de la persona a actualizar</param>
+        /// <param name="name">El nombre de la persona a actualizar </param>
+        /// <param name="lastName">El apellido de la persona a actualizar</param>
+        /// <param name="dni">El Dni de la persona a actualizar</param>
+        /// <param name="cuil">El Cuil de la persona a actualizar</param>
+        /// <param name="isCuit">Flag que indica si el cuil es CUIT</param>
+        /// <param name="loggedUserId">El id del usuario ejecutando la operacion</param>
+        /// <returns>Devuelve un mensaje indicando el resultado de la operacion</returns>
+        public Message UpdatePerson(int personId, string name, string lastName, string dni, string cuil, bool isCuit, int loggedUserId)
+        {
+            try
+            {
+                if (ExistPerson(dni, personId))
+                    return MessageFactory.GetMessage("MS77");
+
+                Persona person = new Persona { Id = personId };
+                person = Retrieve(person).FirstOrDefault();
+                if (person != null)
+                {
+                    person.Nombre = name;
+                    person.Apellido = lastName;
+                    person.DNI = dni;
+                    person.NumeroCuil = cuil;
+                    person.EsCuit = isCuit;
+                    person.UsuarioModificacion = loggedUserId;
+                    person.FechaModificacion = DateTime.UtcNow;
+                    CryptFields(person);
+                    int peopleSave = Save(person);
+                    if (peopleSave == personId)
+                    {
+                        return MessageFactory.GetMessage("MS76");
+                    }
+                    else
+                    {
+                        throw new Exception("Error al ejecutar metodo save en Person Manager");
+                    }
+
+                }
+                return MessageFactory.GetMessage("MS71");
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _bitacoraMgr.Create(LogCriticality.Alta, "UpdatePerson", "Se produjo una excepción actualizando una Persona Id: "+personId+". Exception: "
+                        + e.Message, loggedUserId); // 1 User sistema
+                }
+                catch { }
+                return MessageFactory.GettErrorMessage("ER03", e);
+            }
+        }
+
+        public Persona CreatePersonForUserRegister(string name, string lastName, string cuil,
+            string dni, bool isCuit, string email, string phone, int loggedUserId)
+        {
+            try
+            {
+                Persona person = new Persona
+                {
+                    Telefonos = new List<Telefono>(),
+                    Emails = new List<Email>()
+                };
+
+                AddEmail(person, email, loggedUserId);
+                AddPhone(person, phone, loggedUserId);
+
+                person.Nombre = name;
+                person.Apellido = lastName;
+                person.Baja = false;
+                person.DNI = dni;
+                person.NumeroCuil = cuil;
+                person.EsCuit = isCuit;
+                person.UsuarioCreacion = loggedUserId;
+                person.UsuarioModificacion = loggedUserId;
+                person.FechaCreacion = DateTime.UtcNow;
+                person.FechaModificacion = DateTime.UtcNow;
+                person.DVH = 0;
+
+                CryptFields(person);
+
+                int savePerson = Save(person);
+                if (savePerson > 0)
+                {
+                    DecryptFields(person);
+                    return person;
+                }
+                else
+                {
+                    throw new Exception("Problemas salvando una persona en el registro");
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
+        #region ADDRESSES
+        /// <summary>
         /// Agrega una nueva direccion a una persona
         /// </summary>
         /// <param name="address"> La direccion a salvar</param>
@@ -183,26 +291,26 @@ namespace Negocio.Managers.Shared
                 if (person != null)
                 {
                     AddressManager _addressMgr = new AddressManager();
-                    int addressId = _addressMgr.Create(address, loggedUserId);
-
+                    address.Id = _addressMgr.Create(address, loggedUserId);
+                    _addressMgr.DecryptFields(new List<Address> { address });
                     if (person.Addresses != null)
                     {
-                        person.Addresses.Add(new Address { Id = addressId });
+                        person.Addresses.Add(new Address { Id = address.Id });
                     }
                     else
                     {
                         person.Addresses = new List<Address>
                         {
-                            new Address { Id = addressId }
+                            new Address { Id = address.Id }
                         };
                     }
-                    
-                    
+
+
                     CryptFields(person);
                     int peopleSave = Save(person);
                     if (peopleSave == editingPeopleId)
                     {
-                        return MessageFactory.GetOKMessage();
+                        return MessageFactory.GetOKMessage(address);
                     }
                     else
                     {
@@ -224,36 +332,17 @@ namespace Negocio.Managers.Shared
             }
         }
 
-        /// <summary>
-        /// Agrega un nuevo telefono a la persona
-        /// </summary>
-        /// <param name="phoneNumber"> El telefono a guardar</param>
-        /// <param name="loggedUserId">El id del usuario que ejecuta la accion</param>
-        /// <param name="editingPeopleId">El id de la persona que se le asignara el telfono</param>
-        /// <returns>Un mensaje indicando el resultado de la operacion</returns>
-        public Message AddPhone(string phoneNumber, int loggedUserId, int editingPeopleId)
+        public Message DeleteAddress(int addressId, int sessionUserId, int sessionPeopleId)
         {
             try
             {
-                Persona person = GetPersonFull(editingPeopleId);
+                Persona person = GetPersonFull(sessionPeopleId);
                 if (person != null)
                 {
-                    PhoneManager _phoneMgr = new PhoneManager();
-                   
-                    int phoneId = _phoneMgr.Create(phoneNumber, loggedUserId);
-
-                    person.Telefonos.Add(new Telefono { Id = phoneId });
-                    CryptFields(person);
-                    int peopleSave = Save(person);
-                    if (peopleSave == editingPeopleId)
-                    {
-                        return MessageFactory.GetOKMessage();
-                    }
-                    else
-                    {
-                        throw new Exception("Error al ejecutar metodo save en Person Manager");
-                    }
-                  
+                    AddressManager _addressMgr = new AddressManager();
+                    _addressMgr.Delete(addressId);
+                    _bitacoraMgr.Create(LogCriticality.Baja, "Eliminar Direccion Persona", "Se elimino una direccion con Id: " + addressId.ToString() + "que era de la persona con Id: " + sessionPeopleId.ToString(), sessionUserId);
+                    return MessageFactory.GetOKMessage();
                 }
                 return MessageFactory.GetMessage("MS71");
             }
@@ -261,14 +350,15 @@ namespace Negocio.Managers.Shared
             {
                 try
                 {
-                    _bitacoraMgr.Create(LogCriticality.Alta, "AddPhone", "Se produjo una excepción agregando un telefono a una persona. Exception: "
-                        + e.Message, loggedUserId); // 1 User sistema
+                    _bitacoraMgr.Create(LogCriticality.Alta, "Eliminar Telefono Persona", "Se produjo una excepción eliminando un Dirección. Exception: " + e.Message, sessionUserId);
                 }
                 catch { }
                 return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
+        #endregion
 
+        #region PHONES
         /// <summary>
         /// Elimina un telefono de una persona, siempre y cuando este no sea el único que le quede
         /// </summary>
@@ -288,6 +378,7 @@ namespace Negocio.Managers.Shared
                     {
                         PhoneManager _phoneMgr = new PhoneManager();
                         _phoneMgr.Delete(phoneId);
+
                         _bitacoraMgr.Create(LogCriticality.Baja, "Eliminar Telefono Persona", "Se elimino un email con Id: " + phoneId.ToString() + "que era de la persona con Id: " + personId.ToString(), loggedUserId);
                         return MessageFactory.GetOKMessage();
                     }
@@ -310,6 +401,73 @@ namespace Negocio.Managers.Shared
             }
         }
 
+        /// <summary>
+        /// Agrega un nuevo telefono a la persona
+        /// </summary>
+        /// <param name="phoneNumber"> El telefono a guardar</param>
+        /// <param name="loggedUserId">El id del usuario que ejecuta la accion</param>
+        /// <param name="editingPeopleId">El id de la persona que se le asignara el telfono</param>
+        /// <returns>Un mensaje indicando el resultado de la operacion</returns>
+        public Message AddPhone(string phoneNumber, int loggedUserId, int editingPeopleId)
+        {
+            try
+            {
+                Persona person = GetPersonFull(editingPeopleId);
+                if (person != null)
+                {
+                    PhoneManager _phoneMgr = new PhoneManager();
+
+                    int phoneId = _phoneMgr.Create(phoneNumber, loggedUserId);
+
+                    person.Telefonos.Add(new Telefono { Id = phoneId });
+                    CryptFields(person);
+                    int peopleSave = Save(person);
+                    if (peopleSave == editingPeopleId)
+                    {
+                        return MessageFactory.GetOKMessage();
+                    }
+                    else
+                    {
+                        throw new Exception("Error al ejecutar metodo save en Person Manager");
+                    }
+
+                }
+                return MessageFactory.GetMessage("MS71");
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _bitacoraMgr.Create(LogCriticality.Alta, "AddPhone", "Se produjo una excepción agregando un telefono a una persona. Exception: "
+                        + e.Message, loggedUserId); // 1 User sistema
+                }
+                catch { }
+                return MessageFactory.GettErrorMessage("ER03", e);
+            }
+        }
+
+        public void AddPhone(Persona person, string phoneNumber, int loggedUserId)
+        {
+            try
+            {
+                PhoneManager _phoneMgr = new PhoneManager();
+                int phoneId = _phoneMgr.Create(phoneNumber, loggedUserId);
+                person.Telefonos.Add(new Telefono { Id = phoneId });
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _bitacoraMgr.Create(LogCriticality.Alta, "AddPhone", "Se produjo una excepción agregando un telefono a una persona. Exception: "
+                        + e.Message, loggedUserId);
+                }
+                catch { }
+                throw e;
+            }
+        }
+        #endregion
+
+        #region EMAIL
         /// <summary>
         /// Elimina el email de la persona validando q este no sea su unico email o que le quede algun email habilitado
         /// </summary>
@@ -395,13 +553,35 @@ namespace Negocio.Managers.Shared
                 try
                 {
                     _bitacoraMgr.Create(LogCriticality.Alta, "AddEmail", "Se produjo una excepción agregando un email a un usuario. Exception: "
-                        + e.Message, loggedUserId); // 1 User sistema
+                        + e.Message, loggedUserId);
                 }
                 catch { }
                 return MessageFactory.GettErrorMessage("ER03", e);
             }
         }
 
+        private void AddEmail(Persona person, string email, int loggedUserId)
+        {
+            try
+            {
+                EmailManager _emailMgr = new EmailManager();
+                int emailId = _emailMgr.Create(email, loggedUserId);
+                person.Emails.Add(new Email { Id = emailId });
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    _bitacoraMgr.Create(LogCriticality.Alta, "AddEmail", "Se produjo una excepción agregando un email a un usuario. Exception: "
+                        + e.Message, loggedUserId);
+                }
+                catch { }
+                throw e;
+            }
+        }
+        #endregion
+
+        #region CRYPT
         private void CryptFields(Persona person)
         {
             person.Nombre = CryptManager.EncryptAES(person.Nombre);
@@ -417,9 +597,9 @@ namespace Negocio.Managers.Shared
             person.DNI = CryptManager.DecryptAES(person.DNI);
             person.NumeroCuil = CryptManager.DecryptAES(person.NumeroCuil);
         }
+        #endregion
 
-
-        #region Digito Verificador
+        #region CHECK DIGIT
         public override void ValidarIntegridadRegistros()
         {
             ValidateIntegrity(Retrieve(null));

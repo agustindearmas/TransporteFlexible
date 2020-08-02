@@ -27,7 +27,7 @@ namespace Negocio.Managers.Seguridad
 
             UserManager _usuarioMgr = new UserManager();
             SessionManager _sessionMgr = new SessionManager();
-            PermisoManager _permisoMgr = new PermisoManager();
+           
 
 
 
@@ -36,7 +36,7 @@ namespace Negocio.Managers.Seguridad
                 Message msj = new Message();
 
                 // Obtengo de la base de datos el user que se corresponda con el nombre de user ingresado punto 10 del caso de uso
-                User user = _usuarioMgr.Retrieve(new User { NombreUsuario = encryptedUser }).FirstOrDefault();
+                User user = _usuarioMgr.GetUserByUserName(encryptedUser);
 
                 if (CheckBdConsistency())
                 {
@@ -69,22 +69,20 @@ namespace Negocio.Managers.Seguridad
                     user.Intentos++;
                     if (user.Intentos >= 3)
                     {
-                        user.Activo = false;
-                        _usuarioMgr.Save(user);
+                        _usuarioMgr.BlockUser(user);
                         _bitacoraMgr.Create(LogCriticality.Alta, "Login", "User bloqueado por reiterado intentos, IdUsuario: " + user.Id.ToString(), 0);
                         return MessageFactory.GetMessage("MS06", ViewsEnum.Default.GD());
                     }
                     else
                     {
                         // creo bitacora punto 18 del caso de uso
+                        user.NombreUsuario = CryptManager.EncryptAES(user.NombreUsuario);
                         _usuarioMgr.Save(user);
                         _bitacoraMgr.Create(LogCriticality.Alta, "Login", "Intento de ingreso por un user registrado, no concidio su password, IdUsuario: " + user.Id.ToString(), 1);
                         return MessageFactory.GetMessage("MS05");
                     }
                 }
-
-                PersonManager _personMgr = new PersonManager();
-                user.Persona = _personMgr.Retrieve(user.Persona).Single();
+               
                 if (!user.Habilitado)
                 {
                     _bitacoraMgr.Create(LogCriticality.Baja, "Login", "Intento de ingreso por un user inhabilitado, IdUsuario: " + user.Id.ToString(), 1);
@@ -92,7 +90,7 @@ namespace Negocio.Managers.Seguridad
                     return MessageFactory.GetMessage("MS08");
                 }
 
-                if (user.Baja)
+                if (user.Baja.Value)
                 {
                     _bitacoraMgr.Create(LogCriticality.Baja, "Login", "Intento de ingreso por un user dado de baja, IdUsuario: " + user.Id.ToString(), 1);
                     //User Dado de Baja
@@ -110,11 +108,13 @@ namespace Negocio.Managers.Seguridad
                 // punto 15 del caso de uso
                 user.Intentos = 0;
                 user.Activo = true;
+                user.NombreUsuario = CryptManager.EncryptAES(user.NombreUsuario);
                 _usuarioMgr.Save(user);
                 // punto 15 del caso de uso
 
                 // creo el objeto session punto 16 del caso de uso
-                Sesion session = _sessionMgr.CreateSession(user.Id, _permisoMgr.GetOnlyPermissionIds(user.Permisos), userName);
+                List<int> userPermissions = GetUserPermits(user);
+                Sesion session = _sessionMgr.CreateSession(user.Id, userPermissions, userName);
                 // punto 16
 
                 // punto 17 es ejecutado en la capa de presentacion 
@@ -138,6 +138,19 @@ namespace Negocio.Managers.Seguridad
                     return MessageFactory.GettErrorMessage("ER01", e);
                 }
 
+            }
+        }
+
+        private List<int> GetUserPermits(User user)
+        {
+            try
+            {
+                PermisoManager _permisoMgr = new PermisoManager();
+                return _permisoMgr.GetOnlyPermissionIds(user.GetUserPermissions());
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
 

@@ -29,15 +29,15 @@ namespace TransporteFlexible.Views.Seguridad
                 // redirigir a la pagina principal
                 // Session
                 Sesion ses = (Sesion)msj.Resultado;
-                Session[SV.UsuarioLogueado.GD()] = ses.IdUsuario;
-                Session[SV.NombreUsuario.GD()] = ses.NombreUsuario;
-                Session[SV.Permisos.GD()] = ses.Permisos;
+                Session[SV.LoggedUserId.GD()] = ses.IdUsuario;
+                Session[SV.LoggedUserName.GD()] = ses.NombreUsuario;
+                Session[SV.Permissions.GD()] = ses.Permisos;
                 ;
                 Response.Redirect("~" + ViewsEnum.Bienvenida.GD());
             }
             else
             {
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
         }
     }

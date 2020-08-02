@@ -14,7 +14,7 @@ namespace TransporteFlexible.Enums
         [Description("Modifica Roles")]
         ModificacionRolesPerfiles = 4,
 
-        [Description("Usuarios Administrativos")]
+        [Description("Usuarios")]
         LeerUsuariosAdministrativos = 5,
         [Description("Alta Usuarios Administrativos")]
         AltaUsuariosAdministrativos = 6,

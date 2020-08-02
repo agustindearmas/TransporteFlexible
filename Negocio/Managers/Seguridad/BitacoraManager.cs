@@ -85,6 +85,7 @@ namespace Negocio.Managers.Seguridad
                     FechaCreacion = DateTime.Now,
                     UsuarioModificacion = idUsuario,
                     FechaModificacion = DateTime.Now,
+                    Baja = false,
                     DVH = 0
                 };
             return Create(bitacora);
@@ -95,7 +96,7 @@ namespace Negocio.Managers.Seguridad
             return Save(entity);
         }
 
-        public Message ObtenerBitacorasDesencriptadas(string fechaDesde, string fechaHasta, int nivel, string evento, string usuario)
+        public Message GetDecryptedBinnacles(string fechaDesde, string fechaHasta, int nivel, string evento, string usuario, bool down)
         {
             try
             {
@@ -117,18 +118,18 @@ namespace Negocio.Managers.Seguridad
                     }
                 }
 
-                UserManager _usuarioManager = new UserManager();
+                UserManager _userMgr = new UserManager();
                 string usuarioEncriptado = CryptManager.EncryptAES(usuario);
-                User userDB = _usuarioManager.Retrieve(new User { NombreUsuario = usuarioEncriptado, Id = 0 }).FirstOrDefault();
+                User userDB = _userMgr.Retrieve(new User { NombreUsuario = usuarioEncriptado, Id = 0 }).FirstOrDefault();
 
-                int? usuarioAux;
+                int usuarioAux;
                 if (userDB != null && userDB.Id != 0)
                 {
                     usuarioAux = userDB.Id;
                 }
                 else
                 {
-                    usuarioAux = null;
+                    usuarioAux = 0;
                 }
 
                 Bitacora bitacoraFilter = new Bitacora
@@ -137,7 +138,8 @@ namespace Negocio.Managers.Seguridad
                     NivelCriticidad = new NivelCriticidad { Id = nivel },
                     UsuarioCreacion = usuarioAux,
                     FechaDesde = fechaDesdeConvertida,
-                    FechaHasta = fechaHastaConvertida
+                    FechaHasta = fechaHastaConvertida,
+                    Baja = down
                 };
 
                 List<Bitacora> bitacoras = Retrieve(bitacoraFilter, "Filtrada");
@@ -166,6 +168,43 @@ namespace Negocio.Managers.Seguridad
             return encriptadas;
         }
 
+        public Message Down(int binnacleId)
+        {
+            try
+            {
+                Bitacora binnacle = new Bitacora
+                {
+                    Id = binnacleId
+                };
+                binnacle = Retrieve(binnacle).FirstOrDefault();
+                if (binnacle != null)
+                {
+                    binnacle.Baja = true;
+                    int binSave = Save(binnacle);
+                    if (binSave == binnacleId)
+                    {
+                        //"Suceso dado de baja correctamente"
+                        return MessageFactory.GetMessage("MS82");
+                    }
+                    else
+                    {
+                        throw new Exception("Problemas guardando bitacora");
+                    }
+                }
+                //"No existe un suceso con ese Id"
+                return MessageFactory.GetMessage("MS83");
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    Create(LogCriticality.Alta, "Down", "Se produjo una excepcion dando de baja la bitacora con id: " + binnacleId.ToString() + " " + e.Message, 1); // 1 User sistema
+                }
+                catch { }
+                return MessageFactory.GettErrorMessage("ER03", e);
+            }
+        }
+
         #region DigitoVerificador
         public override void ValidarIntegridadRegistros()
         {
@@ -181,6 +220,7 @@ namespace Negocio.Managers.Seguridad
                 entity.NivelCriticidad.ToString(),
                 entity.Evento,
                 entity.Suceso,
+                entity.Baja,
                 entity.UsuarioCreacion.ToString(),
                 entity.FechaCreacion.ToString(),
                 entity.UsuarioModificacion.ToString(),

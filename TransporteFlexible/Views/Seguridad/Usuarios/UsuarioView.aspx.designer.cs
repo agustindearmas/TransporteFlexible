@@ -13,15 +13,6 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios {
     public partial class UsuarioView {
         
         /// <summary>
-        /// Control _tbIdUsuario.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox _tbIdUsuario;
-        
-        /// <summary>
         /// Control _tbNombreUsuario.
         /// </summary>
         /// <remarks>
@@ -49,22 +40,49 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios {
         protected global::System.Web.UI.WebControls.RegularExpressionValidator _tbDniREV;
         
         /// <summary>
-        /// Control btnFiltrarUsuarios.
+        /// Control BajaCBX.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnFiltrarUsuarios;
+        protected global::System.Web.UI.WebControls.CheckBox BajaCBX;
         
         /// <summary>
-        /// Control _usuariosGridView.
+        /// Control SearchUserBTN.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.GridView _usuariosGridView;
+        protected global::System.Web.UI.WebControls.Button SearchUserBTN;
+        
+        /// <summary>
+        /// Control ExportXMLButton.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton ExportXMLButton;
+        
+        /// <summary>
+        /// Control NewUserButton.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton NewUserButton;
+        
+        /// <summary>
+        /// Control UserGV.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.GridView UserGV;
         
         /// <summary>
         /// Control _lblFechaActualizacion.

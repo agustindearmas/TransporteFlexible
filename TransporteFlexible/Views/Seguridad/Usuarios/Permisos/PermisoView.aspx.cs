@@ -7,6 +7,7 @@ using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TransporteFlexible.Helper;
 using TransporteFlexible.Mensajes;
 
 namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
@@ -15,9 +16,24 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
+            if (Session[SV.LoggedUserName.GD()] != null)
             {
-                PageLoad();
+                if (SecurityHelper.CheckPermissions(9, Session[SV.Permissions.GD()]))
+                {
+                    if (!IsPostBack)
+                    {
+                        PageLoad();
+                    }
+                }
+                else
+                {
+                    Message msj = MessageFactory.GetMessage("MS39", "/");
+                    MessageHelper.ProcessMessage(GetType(), msj, Page);
+                }
+            }
+            else
+            {
+                Response.Redirect(ViewsEnum.SessionExpired.GD());
             }
         }
 
@@ -33,25 +49,19 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
 
         private void PopularNombreUsuario(int userId)
         {
-            try
-            {
-                UserManager _usuarioMgr = new UserManager();
-                Message msj = _usuarioMgr.ObtenerUsuariosNegocioDesencriptados(userId, null, null);
-                if (msj.CodigoMensaje != "OK")
-                {
-                    MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
-                }
-                else
-                {
-                    List<User> usuarios = (List<User>)msj.Resultado;
-                    lblUser.Text = usuarios.Single().NombreUsuario;
-                }
+            UserManager _userMgr = new UserManager();
+            Message msj = _userMgr.GetUserById(userId);
 
+            if (msj.CodigoMensaje != "OK")
+            {
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
-            catch (Exception e)
+            else
             {
-
-                throw e;
+                if (msj.Resultado is User user)
+                {
+                    lblUser.Text = user.NombreUsuario;
+                }
             }
         }
 
@@ -65,7 +75,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
 
                 if (msj.CodigoMensaje != "OK" && msj1.CodigoMensaje != "OK")
                 {
-                    MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                    MessageHelper.ProcessMessage(GetType(), msj, Page);
                 }
                 else
                 {
@@ -85,8 +95,8 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                     BindAsignados(permisosAsignados);
                     BindDesasignados(permisosDesasignados);
 
-                    Session[SV.PermisosAsignados.GD()] = permisosAsignados;
-                    Session[SV.PermisosDesasignados.GD()] = permisosDesasignados;
+                    Session[SV.AssignedPermissions.GD()] = permisosAsignados;
+                    Session[SV.DeallocatedPermissions.GD()] = permisosDesasignados;
                 }
             }
             catch (Exception ex)
@@ -95,13 +105,13 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 try
                 {
                     _bitacoraMgr.Create(LogCriticality.Alta, "Modificando Permisos del User", "Se produjo una excepcion modificndo los permisos del User: "
-                   + Session[SV.UsuarioModificado.GD()], Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+                   + Session[SV.EditingUserId.GD()], Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
                 }
                 catch { }
                 
                
                 Message msj = MessageFactory.GettErrorMessage("ER03", ex);
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
         }
 
@@ -113,11 +123,11 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 if (!string.IsNullOrWhiteSpace(lbxDesasignados.SelectedValue))
                 {
                     List<Permiso> permisosAsignados =
-                        Session[SV.PermisosAsignados.GD()] is List<Permiso> ?
-                        Session[SV.PermisosAsignados.GD()] as List<Permiso>
+                        Session[SV.AssignedPermissions.GD()] is List<Permiso> ?
+                        Session[SV.AssignedPermissions.GD()] as List<Permiso>
                         : new List<Permiso>();
 
-                    List<Permiso> permisosDesasignados = (List<Permiso>)Session[SV.PermisosDesasignados.GD()];
+                    List<Permiso> permisosDesasignados = (List<Permiso>)Session[SV.DeallocatedPermissions.GD()];
 
                     int permisoId = Convert.ToInt32(lbxDesasignados.SelectedValue);
                     Permiso permiso = permisosDesasignados.Where(per => per.Id == permisoId).Single();
@@ -134,15 +144,15 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                     BindDesasignados(permisosDesasignados);
                   
                     
-                    Session[SV.PermisosAsignados.GD()] = permisosAsignados;
-                    Session[SV.PermisosDesasignados.GD()] = permisosDesasignados;
+                    Session[SV.AssignedPermissions.GD()] = permisosAsignados;
+                    Session[SV.DeallocatedPermissions.GD()] = permisosDesasignados;
 
                 }
                 else
                 {
                     // Se debe seleccionar un permiso para que sea asignado 
                     msj = MessageFactory.GetMessage("MS65");
-                    MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                    MessageHelper.ProcessMessage(GetType(), msj, Page);
                 }
 
             }
@@ -152,14 +162,13 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 try
                 {
                     _bitacoraMgr.Create(LogCriticality.Alta, "Modificando Permisos del User", "Se produjo una excepcion modificndo los permisos del User: "
-                                      + Session[SV.UsuarioModificado.GD()], Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+                                      + Session[SV.EditingUserId.GD()], Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
                 }
                 catch {}
               
                 Message msj = MessageFactory.GettErrorMessage("ER03", ex);
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
-
         }
 
         protected void lbDesasignar_Click(object sender, EventArgs e)
@@ -169,8 +178,8 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 Message msj = null;
                 if (!string.IsNullOrWhiteSpace(lbxAsignados.SelectedValue))
                 {
-                    List<Permiso> permisosAsignados = (List<Permiso>)Session[SV.PermisosAsignados.GD()];
-                    List<Permiso> permisosDesasignados = (List<Permiso>)Session[SV.PermisosDesasignados.GD()];
+                    List<Permiso> permisosAsignados = (List<Permiso>)Session[SV.AssignedPermissions.GD()];
+                    List<Permiso> permisosDesasignados = (List<Permiso>)Session[SV.DeallocatedPermissions.GD()];
 
                     int permisoId = Convert.ToInt32(lbxAsignados.SelectedValue);
                     Permiso permiso = permisosAsignados.Where(per => per.Id == permisoId).Single();
@@ -178,11 +187,11 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                     PermisoManager _permisoMgr = new PermisoManager();
 
                     msj = _permisoMgr.ComprobarPermisoAsignadoAOtroUsuario(permiso, 
-                        Convert.ToInt32(Session[SV.UsuarioModificado.GD()]));
+                        Convert.ToInt32(Session[SV.EditingUserId.GD()]));
 
                     if (msj.CodigoMensaje != "OK")
                     {
-                        MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                        MessageHelper.ProcessMessage(GetType(), msj, Page);
                         return;
                     }
 
@@ -197,14 +206,14 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                     BindAsignados(permisosAsignados);
                     BindDesasignados(permisosDesasignados);
 
-                    Session[SV.PermisosAsignados.GD()] = permisosAsignados;
-                    Session[SV.PermisosDesasignados.GD()] = permisosDesasignados;
+                    Session[SV.AssignedPermissions.GD()] = permisosAsignados;
+                    Session[SV.DeallocatedPermissions.GD()] = permisosDesasignados;
                 }
                 else
                 {
                     // Se debe seleccionar un permiso para que sea asignado 
                     msj = MessageFactory.GetMessage("MS66");
-                    MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                    MessageHelper.ProcessMessage(GetType(), msj, Page);
                 }
             }
             catch (Exception ex)
@@ -213,12 +222,12 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 try
                 {
                     _bitacoraMgr.Create(LogCriticality.Alta, "Modificando Permisos del User", "Se produjo una excepcion modificndo los permisos del User: "
-                   + Session[SV.UsuarioModificado.GD()], Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+                   + Session[SV.EditingUserId.GD()], Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
                 }
                 catch{}
                
                 Message msj = MessageFactory.GettErrorMessage("ER03", ex);
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
         }
 
@@ -230,11 +239,11 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 UserManager _usuarioMgr = new UserManager();
                 if (ValidarFormulario())
                 {
-                    int userId = Convert.ToInt32(Session[SV.UsuarioModificado.GD()]);
+                    int userId = Convert.ToInt32(Session[SV.EditingUserId.GD()]);
                     List<Permiso> permisosAsignadosSession =
-                        (List<Permiso>)Session[SV.PermisosAsignados.GD()];
-                    msj = _usuarioMgr.AsignPermits(userId, permisosAsignadosSession, Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
-                    MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                        (List<Permiso>)Session[SV.AssignedPermissions.GD()];
+                    msj = _usuarioMgr.AsignPermits(userId, permisosAsignadosSession, Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
+                    MessageHelper.ProcessMessage(GetType(), msj, Page);
 
                 }
                 // ELSE FALLO LA VALIDACION NO HAC 
@@ -245,12 +254,12 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                 try
                 {
                     _bitacoraMgr.Create(LogCriticality.Alta, "Modificando Permisos del User", "Se produjo una excepcion modificando los permisos del User: "
-                 + Session[SV.UsuarioModificado.GD()], Convert.ToInt32(Session[SV.UsuarioLogueado.GD()]));
+                 + Session[SV.EditingUserId.GD()], Convert.ToInt32(Session[SV.LoggedUserId.GD()]));
                 }
                 catch{}
              
                 Message msj = MessageFactory.GettErrorMessage("ER03", ex);
-                MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                MessageHelper.ProcessMessage(GetType(), msj, Page);
             }
         }
 
@@ -280,12 +289,12 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
             try
             {
                 PermisoManager _permisoMgr = new PermisoManager();
-                int userId = Convert.ToInt32(Session[SV.UsuarioModificado.GD()]);
+                int userId = Convert.ToInt32(Session[SV.EditingUserId.GD()]);
                 Message msj = _permisoMgr.ObtenerPermisosPorUsuarioId(userId);
 
                 if (msj.CodigoMensaje != "OK")
                 {
-                    MensajesHelper.ProcesarMensajeGenerico(GetType(), msj, Page);
+                    MessageHelper.ProcessMessage(GetType(), msj, Page);
                     return false;
                 }
                 else
@@ -298,9 +307,9 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
                         permisosAsignados = (msj.Resultado as List<Permiso>).Select(x => x.Id).ToList();
                     }
 
-                    if (Session[SV.PermisosAsignados.GD()] is List<Permiso>)
+                    if (Session[SV.AssignedPermissions.GD()] is List<Permiso>)
                     {
-                        permisosAsignadosSession = (Session[SV.PermisosAsignados.GD()] as List<Permiso>).Select(x => x.Id).ToList();
+                        permisosAsignadosSession = (Session[SV.AssignedPermissions.GD()] as List<Permiso>).Select(x => x.Id).ToList();
                     }
 
                     var bandera = new HashSet<int>(permisosAsignados).SetEquals(permisosAsignadosSession);

@@ -22,13 +22,22 @@ namespace TransporteFlexible {
         protected global::System.Web.UI.WebControls.Label _lblUsuario;
         
         /// <summary>
-        /// Control _btnLogout.
+        /// Control ProfileBTN.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button _btnLogout;
+        protected global::System.Web.UI.WebControls.Button ProfileBTN;
+        
+        /// <summary>
+        /// Control LogoutBTN.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button LogoutBTN;
         
         /// <summary>
         /// Control _navMenu.

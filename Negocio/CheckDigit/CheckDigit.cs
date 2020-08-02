@@ -1,16 +1,14 @@
 ﻿using Common.Attributes;
 using Common.Enums.Seguridad;
-using Common.Satellite.Shared;
 using Negocio.Managers.Seguridad;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Negocio.CheckDigit
 {
     public abstract class CheckDigit<T>
     {
-        protected bool ValidateIntegrity(List<T> entities)
+        protected void ValidateIntegrity(List<T> entities)
         {
             try
             {
@@ -35,10 +33,8 @@ namespace Negocio.CheckDigit
                         _bitacoraMgr.Create(LogCriticality.Alta, "Problema Integridad", "Error de integridad en la tabla " + nombreTabla + " en el registro con Id: " +
                             entity.GetType().GetProperty("Id").GetValue(entity).ToString(), 1); // 1 User sistema
                         _bdMgr.BloquearBase();
-                        return false;
                     }
                 }
-                return true;
             }
             catch (Exception e)
             {
