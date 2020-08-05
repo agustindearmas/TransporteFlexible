@@ -40,7 +40,7 @@ namespace TransporteFlexible
                         CrearItemDeMenu(PermisosEnum.LeerBasedeDatos.GD(), "fa-database", ViewsEnum.BaseDeDatos.GD());
                         break;
                     case (int)PermisosEnum.LeerCargas:
-                        CrearItemDeMenu(PermisosEnum.LeerCargas.GD(), "fa-truck-loading", "");
+                        CrearItemDeMenu(PermisosEnum.LeerCargas.GD(), "fa-truck-loading", ViewsEnum.Loads.GD());
                         break;
                     case (int)PermisosEnum.LeerViajes:
                         CrearItemDeMenu(PermisosEnum.LeerViajes.GD(), "fa-route", "");
@@ -55,7 +55,7 @@ namespace TransporteFlexible
                         CrearItemDeMenu(PermisosEnum.LeerVehiculos.GD(), "fa-truck", "");
                         break;
                     case (int)PermisosEnum.LeerOfertas:
-                        CrearItemDeMenu(PermisosEnum.LeerOfertas.GD(), "fa-money-check-alt", "");
+                        CrearItemDeMenu(PermisosEnum.LeerOfertas.GD(), "fas fa-dollar-sign", ViewsEnum.Offer.GD()); 
                         break;
                 }
             }
@@ -97,8 +97,10 @@ namespace TransporteFlexible
 
         protected void ProfileBTN_Click(object sender, EventArgs e)
         {
-            string urlRedirect = string.Concat(ViewsEnum.UsuarioAM.GD(),
-                "?id=", "mp");
+            string userId = Session[SV.LoggedUserId.GD()].ToString();
+            string id = "?id=" + userId;
+            string type = "&type=mp";
+            string urlRedirect = string.Concat(ViewsEnum.UsuarioAM.GD(),id, type);
             Response.Redirect(urlRedirect);
         }
     }

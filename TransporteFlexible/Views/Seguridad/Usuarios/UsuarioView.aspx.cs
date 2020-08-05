@@ -85,10 +85,12 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
             Response.Redirect(urlRedirect);
         }
 
-        private void GoToAddEditUserView(int id)
+        private void GoToAddEditUserView(int id, string pageType)
         {
+            string idParam = "?id=" + id.ToString();
+            string type = "&type=" + pageType;
             string urlRedirect = string.Concat(ViewsEnum.UsuarioAM.GD(),
-                "?id=", id);
+                idParam, type);
             Response.Redirect(urlRedirect);
         }
 
@@ -132,7 +134,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
                     GoToPermitsView(userIdInt);
                     break;
                 case "Modify":
-                    GoToAddEditUserView(userIdInt);
+                    GoToAddEditUserView(userIdInt, "edit");
                     break;
                 case "DownOrUp":
                     DownOrUpUser(userIdInt);
@@ -164,7 +166,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios
         protected void NewUserButton_Click(object sender, EventArgs e)
         {
             // el cero indica que se quiere crear un usuario nuevo.
-            GoToAddEditUserView(0);
+            GoToAddEditUserView(0, "add");
         }
 
         protected void ExportXMLButton_Click(object sender, EventArgs e)

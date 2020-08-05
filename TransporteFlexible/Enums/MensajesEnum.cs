@@ -251,6 +251,9 @@ namespace TransporteFlexible.Enums
         MS83,
 
         [Description("No se puede dar de alta un usuario sin un Rol asignado")]
-        MS84
+        MS84,
+
+        [Description("La oferta ha sido aceptada correctamente, enviamos un email a su casilla con la información del Transportista")]
+        MS85
     }
 }

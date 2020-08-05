@@ -85,7 +85,7 @@
                                 <ItemTemplate>
                                     <asp:LinkButton runat="server" CommandArgument="<%# ((GridViewRow) Container).RowIndex %>" CommandName="Delete" CssClass="btn btn-danger">
                                     <div  title="<%# (bool)Eval("Baja") ? "Alta" : "Baja" %>">
-                                    <i class="<%#(bool)Eval("Baja") ? "fas fa-arrow-up" : "far fa-trash-alt"%>"></i> 
+                                    <i class="<%#(bool)Eval("Baja") ? "fas fa-arrow-up" : "fas fa-trash-alt"%>"></i> 
                                     </div>
                                     </asp:LinkButton>
                                 </ItemTemplate>

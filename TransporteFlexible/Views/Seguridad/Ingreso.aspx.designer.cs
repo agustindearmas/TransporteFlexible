@@ -13,22 +13,40 @@ namespace TransporteFlexible.Views.Seguridad {
     public partial class Ingreso {
         
         /// <summary>
-        /// Control _tbNombreUsuario.
+        /// Control UserNameTB.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox _tbNombreUsuario;
+        protected global::System.Web.UI.WebControls.TextBox UserNameTB;
         
         /// <summary>
-        /// Control _tbContraseña.
+        /// Control UserNameTBRFV.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox _tbContraseña;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator UserNameTBRFV;
+        
+        /// <summary>
+        /// Control PasswordTB.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox PasswordTB;
+        
+        /// <summary>
+        /// Control PasswordRFV.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator PasswordRFV;
         
         /// <summary>
         /// Control BtnIngresar.

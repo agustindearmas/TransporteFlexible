@@ -50,7 +50,7 @@ namespace TransporteFlexible.Views.Seguridad.Usuarios.Permisos
         private void PopularNombreUsuario(int userId)
         {
             UserManager _userMgr = new UserManager();
-            Message msj = _userMgr.GetUserById(userId);
+            Message msj = _userMgr.GetUserByIdMessage(userId);
 
             if (msj.CodigoMensaje != "OK")
             {

@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Default.Master" AutoEventWireup="true" CodeBehind="RolesView.aspx.cs" Inherits="TransporteFlexible.Views.Seguridad.Roles.RolesView" %>
+﻿<%@ Page Title="Roles" Language="C#" MasterPageFile="~/Default.Master" AutoEventWireup="true" CodeBehind="RolesView.aspx.cs" Inherits="TransporteFlexible.Views.Seguridad.Roles.RolesView" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <div class="container-fluid">
