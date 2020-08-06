@@ -23,8 +23,8 @@
 
                     <div class="mb-12 col-md-6">
                         <div class="float-right">
-                            <asp:LinkButton runat="server" ValidationGroup="LoadVG" ToolTip="Guardar Carga" CssClass="btn btn-secondary">Guardar</asp:LinkButton>
-                            <asp:LinkButton runat="server" ToolTip="Cancelar Carga" CssClass="btn btn-danger">Cancelar</asp:LinkButton>
+                            <asp:LinkButton ID="Save" runat="server" ValidationGroup="LoadVG" ToolTip="Guardar Carga" OnClick="Save_Click" CssClass="btn btn-secondary">Guardar</asp:LinkButton>
+                            <asp:LinkButton ID="Cancelar" runat="server" ToolTip="Cancelar Carga" CssClass="btn btn-danger" OnClick="Cancelar_Click">Cancelar</asp:LinkButton>
                         </div>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                     </div>
 
                     <div class="form-group col-md-3">
-                        <label for="QuantityTB" style="color: black">Empaque</label>
+                        <label for="PackageDDL" style="color: black">Empaque</label>
                         <asp:DropDownList ID="PackageDDL" runat="server" CssClass="form-control" AutoPostBack="true">
                             <asp:ListItem Value="0" Text="N/A" Selected="True"></asp:ListItem>
                             <asp:ListItem Value="1" Text="Paletizado"></asp:ListItem>
@@ -55,7 +55,7 @@
                     </div>
 
                     <div class="form-group col-md-3">
-                        <label for="QuantityTB" style="color: black">Nombre del Item o Producto</label>
+                        <label for="ProductTB" style="color: black">Nombre del Item o Producto</label>
                         <asp:TextBox runat="server" ID="ProductTB" CssClass="form-control"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="ProductRFV" ValidationGroup="LoadVG" ForeColor="Red" Display="Dynamic" ErrorMessage="Campo Requerido" ControlToValidate="ProductTB" runat="server"></asp:RequiredFieldValidator>
                     </div>
@@ -106,7 +106,7 @@
                 <div class="form-row">
                     <div class="form-group col-md-4">
                         <label for="ProvinceStartDDL" style="color: black">Provincia</label>
-                        <asp:DropDownList ID="ProvinceStartDDL" runat="server" CssClass="form-control" AutoPostBack="true">
+                        <asp:DropDownList ID="ProvinceStartDDL" OnSelectedIndexChanged="ProvinceStartDDL_SelectedIndexChanged" runat="server" CssClass="form-control" AutoPostBack="true">
                         </asp:DropDownList>
                     </div>
 
@@ -139,14 +139,14 @@
 
                     <div class="form-group col-md-3">
                         <label for="StartFloorTB" style="color: black">Piso</label>
-                        <asp:TextBox runat="server" ID="StartFloorTB" CssClass="form-control"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="StartFloorRFV" ValidationGroup="LoadVG" ForeColor="Red" Display="Dynamic" ErrorMessage="Campo Requerido" ControlToValidate="StartFloorTB" runat="server"></asp:RequiredFieldValidator>
+                        <asp:TextBox TextMode="Number" runat="server" ID="StartFloorTB" CssClass="form-control"></asp:TextBox>
+                        
                     </div>
 
                     <div class="form-group col-md-3">
                         <label for="StartUnitTB" style="color: black">Departamento</label>
                         <asp:TextBox runat="server" ID="StartUnitTB" CssClass="form-control"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="StartUnitRFV" ValidationGroup="LoadVG" ForeColor="Red" Display="Dynamic" ErrorMessage="Campo Requerido" ControlToValidate="StartUnitTB" runat="server"></asp:RequiredFieldValidator>
+                        
                     </div>
                 </div>
             </div>
@@ -160,7 +160,7 @@
                 <div class="form-row">
                     <div class="form-group col-md-4">
                         <label for="EndProvinceDDL" style="color: black">Provincia</label>
-                        <asp:DropDownList ID="EndProvinceDDL" runat="server" CssClass="form-control" AutoPostBack="true">
+                        <asp:DropDownList ID="EndProvinceDDL" OnSelectedIndexChanged="EndProvinceDDL_SelectedIndexChanged" runat="server" CssClass="form-control" AutoPostBack="true">
                         </asp:DropDownList>
                     </div>
 
@@ -193,14 +193,14 @@
 
                     <div class="form-group col-md-3">
                         <label for="EndFloorTB" style="color: black">Piso</label>
-                        <asp:TextBox runat="server" ID="EndFloorTB" CssClass="form-control"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="EndFloorRFV" ValidationGroup="LoadVG" ForeColor="Red" Display="Dynamic" ErrorMessage="Campo Requerido" ControlToValidate="EndFloorTB" runat="server"></asp:RequiredFieldValidator>
+                        <asp:TextBox TextMode="Number" runat="server" ID="EndFloorTB" CssClass="form-control"></asp:TextBox>
+                        
                     </div>
 
                     <div class="form-group col-md-3">
                         <label for="EndUnitTB" style="color: black">Departamento</label>
                         <asp:TextBox runat="server" ID="EndUnitTB" CssClass="form-control"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="EndUnitRFV" ValidationGroup="LoadVG" ForeColor="Red" Display="Dynamic" ErrorMessage="Campo Requerido" ControlToValidate="EndUnitTB" runat="server"></asp:RequiredFieldValidator>
+                        
                     </div>
                 </div>
             </div>
@@ -208,8 +208,8 @@
 
         <div class="form-row float-right">
             <div class="form-group">
-                <asp:LinkButton runat="server" ValidationGroup="LoadVG" ToolTip="Guardar Carga" CssClass="btn btn-secondary">Guardar</asp:LinkButton>
-                <asp:LinkButton runat="server" ToolTip="Cancelar Carga" CssClass="btn btn-danger">Cancelar</asp:LinkButton>
+                <asp:LinkButton ID="SaveDown" OnClick="SaveDown_Click" runat="server" ValidationGroup="LoadVG" ToolTip="Guardar Carga" CssClass="btn btn-secondary">Guardar</asp:LinkButton>
+                <asp:LinkButton ID="CancelDown" OnClick="CancelDown_Click" runat="server" ToolTip="Cancelar Carga" CssClass="btn btn-danger">Cancelar</asp:LinkButton>
             </div>
         </div>
 

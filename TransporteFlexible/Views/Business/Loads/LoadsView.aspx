@@ -25,6 +25,9 @@
             <div class="card-header">
                 <i class="fas fa-pallet"></i>
                 Cargas
+                <div class="float-right">
+                    <asp:LinkButton ID="NewLoadButton" Visible="false"  OnClick="NewLoadButton_Click" runat="server"  ToolTip="Nueva Carga" CssClass="btn btn-success"><i class="fas fa-plus"></i></asp:LinkButton>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">

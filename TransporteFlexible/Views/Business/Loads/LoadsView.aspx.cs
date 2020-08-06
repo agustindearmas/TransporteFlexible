@@ -74,6 +74,7 @@ namespace TransporteFlexible.Views.Business.Loads
             TitleViewLBL.Text = "<i class='fas fa-truck-loading'></i>  Todas las Cargas";
             LoadManager _loadMgr = new LoadManager();
             List<Load> loads = _loadMgr.GetLoads(null);
+            NewLoadButton.Visible = false;
             FillLoadsDDL(loads);
             FillDataGridView();
             SetUpButtonForCarrier();
@@ -85,6 +86,7 @@ namespace TransporteFlexible.Views.Business.Loads
             Session[SV.HandlerUserId.GD()] = userId;
             Load load = new Load { HandlerUser = new User { Id = userId } };
             List<Load> loads = _loadMgr.GetLoads(load);
+            NewLoadButton.Visible = true;
             FillLoadsDDL(loads);
             FillDataGridView();
             SetUpButtonForHandler();
@@ -165,7 +167,7 @@ namespace TransporteFlexible.Views.Business.Loads
             switch (commandName)
             {
                 case "Edicion":
-                    GoToEditLoadView(loadId);
+                    GoToEditLoadView(loadId, "edit");
                     break;
                 case "Borrar":
                     DeleteLoad(loadId);
@@ -253,7 +255,7 @@ namespace TransporteFlexible.Views.Business.Loads
             throw new NotImplementedException();
         }
 
-        private void GoToEditLoadView(int loadId, string type = null)
+        private void GoToEditLoadView(int loadId, string type)
         {
             string qs = "?id=" + loadId.ToString();
             if (type == null)
@@ -267,6 +269,13 @@ namespace TransporteFlexible.Views.Business.Loads
         protected void LoadsGridView_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
 
+        }
+
+        protected void NewLoadButton_Click(object sender, EventArgs e)
+        {
+            string qs = "?id=0&type=new";
+            string urlRedirect = string.Concat(ViewsEnum.LoadAM.GD(), qs);
+            Response.Redirect(urlRedirect);
         }
     }
 }

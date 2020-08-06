@@ -13,6 +13,24 @@ namespace TransporteFlexible.Views.Business.Loads {
     public partial class LoadAMView {
         
         /// <summary>
+        /// Control Save.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton Save;
+        
+        /// <summary>
+        /// Control Cancelar.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton Cancelar;
+        
+        /// <summary>
         /// Control ProductDDL.
         /// </summary>
         /// <remarks>
@@ -202,15 +220,6 @@ namespace TransporteFlexible.Views.Business.Loads {
         protected global::System.Web.UI.WebControls.TextBox StartFloorTB;
         
         /// <summary>
-        /// Control StartFloorRFV.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator StartFloorRFV;
-        
-        /// <summary>
         /// Control StartUnitTB.
         /// </summary>
         /// <remarks>
@@ -218,15 +227,6 @@ namespace TransporteFlexible.Views.Business.Loads {
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox StartUnitTB;
-        
-        /// <summary>
-        /// Control StartUnitRFV.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator StartUnitRFV;
         
         /// <summary>
         /// Control EndProvinceDDL.
@@ -310,15 +310,6 @@ namespace TransporteFlexible.Views.Business.Loads {
         protected global::System.Web.UI.WebControls.TextBox EndFloorTB;
         
         /// <summary>
-        /// Control EndFloorRFV.
-        /// </summary>
-        /// <remarks>
-        /// Campo generado automáticamente.
-        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator EndFloorRFV;
-        
-        /// <summary>
         /// Control EndUnitTB.
         /// </summary>
         /// <remarks>
@@ -328,12 +319,21 @@ namespace TransporteFlexible.Views.Business.Loads {
         protected global::System.Web.UI.WebControls.TextBox EndUnitTB;
         
         /// <summary>
-        /// Control EndUnitRFV.
+        /// Control SaveDown.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator EndUnitRFV;
+        protected global::System.Web.UI.WebControls.LinkButton SaveDown;
+        
+        /// <summary>
+        /// Control CancelDown.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton CancelDown;
     }
 }
